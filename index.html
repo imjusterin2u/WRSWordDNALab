@@ -8,136 +8,156 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0d1021;--navy2:#161929;--navy3:#1e2240;
-  --violet:#6c63ff;--violet-lt:#8b85ff;
-  --teal:#4ecfb3;--teal-dk:#32a88f;
-  --gold:#f5c842;
-  --coral:#ff6b6b;
-  --text:#e8eaf6;--sub:rgba(232,234,246,.45);
-  --border:rgba(255,255,255,.08);
+  --black:#061412;--dark:#0a1e1a;--dark2:#0d2b22;--dark3:#112e24;
+  --green:#00e5a0;--green-dk:#00b37d;--green-lt:rgba(0,229,160,.12);
+  --cyan:#00bcd4;--cyan-lt:rgba(0,188,212,.12);
+  --lime:#76ff03;--lime-lt:rgba(118,255,3,.1);
+  --red:#ff5252;--red-lt:rgba(255,82,82,.12);
+  --text:#e0f2ee;--sub:rgba(224,242,238,.45);--border:rgba(0,229,160,.12);
   --r:14px;--rs:10px;
 }
-body{
-  font-family:'Nunito',sans-serif;
-  background:var(--navy);
-  color:var(--text);
-  min-height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;
-  overflow:hidden;
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);display:flex;align-items:center;justify-content:center;padding:20px}
+
+/* ── HEX GRID BACKGROUND ── */
+.hex-bg{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16 Z' fill='none' stroke='rgba(0,229,160,0.06)' stroke-width='1'/%3E%3Cpath d='M28 34 L56 50 L56 84 L28 100 L0 84 L0 50 Z' fill='none' stroke='rgba(0,229,160,0.06)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size:56px 100px;
+  animation:hexPulse 8s ease-in-out infinite alternate;
+}
+@keyframes hexPulse{from{opacity:.6}to{opacity:1}}
+
+/* scan line */
+.scan-line{
+  position:fixed;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+  z-index:1;animation:scan 6s linear infinite;opacity:.4;
+}
+@keyframes scan{from{top:0}to{top:100vh}}
+
+/* floating particles */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:var(--green);opacity:0;
+  animation:float var(--d,8s) var(--delay,0s) infinite ease-in-out;
+}
+@keyframes float{
+  0%{transform:translateY(100vh) translateX(0);opacity:0}
+  10%{opacity:.6}
+  90%{opacity:.3}
+  100%{transform:translateY(-20px) translateX(var(--dx,20px));opacity:0}
 }
 
-/* starfield */
-.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
-.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) infinite alternate}
-@keyframes twinkle{from{opacity:.1}to{opacity:.8}}
-
-.wrap{position:relative;z-index:1;width:100%;max-width:480px}
+.wrap{position:relative;z-index:2;width:100%;max-width:460px}
 
 /* logo */
-.logo-area{text-align:center;margin-bottom:32px}
-.logo-icon{font-size:52px;margin-bottom:10px;filter:drop-shadow(0 0 20px rgba(108,99,255,.6))}
-.logo-tag{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--teal);text-transform:uppercase;margin-bottom:6px}
-.logo-title{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--violet-lt),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.logo-area{text-align:center;margin-bottom:28px}
+.logo-icon{font-size:50px;margin-bottom:10px;filter:drop-shadow(0 0 24px var(--green))}
+.logo-tag{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:6px}
+.logo-title{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;text-shadow:none}
 .logo-sub{font-size:13px;color:var(--sub)}
 
 /* card */
-.card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:16px}
-.card-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--sub);margin-bottom:14px}
+.card{
+  background:var(--dark);
+  border:1px solid var(--border);
+  border-radius:var(--r);padding:22px;margin-bottom:14px;
+  box-shadow:0 0 30px rgba(0,229,160,.05),inset 0 1px 0 rgba(0,229,160,.08);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+  opacity:.4;
+}
+.card-title{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);opacity:.7;margin-bottom:14px}
 
 /* select */
-.sel-wrap{position:relative;margin-bottom:16px}
+.sel-wrap{position:relative;margin-bottom:14px}
 select{
   width:100%;padding:14px 16px;
-  background:var(--navy3);
+  background:var(--dark2);
   border:1.5px solid var(--border);
   border-radius:var(--rs);
   font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;
-  color:var(--text);
-  appearance:none;cursor:pointer;
-  transition:border-color .2s;
+  color:var(--text);appearance:none;cursor:pointer;transition:border-color .2s;
 }
-select:focus{outline:none;border-color:var(--violet)}
-.sel-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--sub);pointer-events:none;font-size:12px}
-select option{background:var(--navy3);color:var(--text)}
+select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-lt)}
+select option{background:var(--dark2)}
+.sel-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--green);pointer-events:none;font-size:12px}
 
-/* add student */
+/* add row */
 .add-row{display:flex;gap:8px}
 .add-input{
   flex:1;padding:12px 14px;
-  background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--rs);
+  background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);
   font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--text);
+  transition:border-color .2s;
 }
-.add-input:focus{outline:none;border-color:var(--teal)}
+.add-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-lt)}
 .add-input::placeholder{color:var(--sub)}
 
 /* substep pills */
 .pill-row{display:flex;gap:8px;margin-top:10px}
 .ss-pill{
   flex:1;padding:8px;text-align:center;
-  background:var(--navy3);border:1.5px solid var(--border);border-radius:var(--rs);
-  font-size:13px;font-weight:800;color:var(--sub);cursor:pointer;
-  transition:all .2s;font-family:'Nunito',sans-serif;
+  background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);
+  font-size:13px;font-weight:800;color:var(--sub);cursor:pointer;transition:all .2s;
+  font-family:'Nunito',sans-serif;
 }
-.ss-pill.active{background:rgba(108,99,255,.2);border-color:var(--violet);color:#fff}
+.ss-pill.active{background:var(--green-lt);border-color:var(--green);color:var(--green)}
 
-/* progress preview */
-.zone-dots{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.zdot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid var(--border)}
-.zdot-done{background:var(--teal);border-color:var(--teal);color:#0d1021}
-.zdot-active{background:var(--violet);border-color:var(--violet);color:#fff;box-shadow:0 0 12px rgba(108,99,255,.5)}
-.zdot-lock{background:var(--navy3);color:var(--sub)}
-
-/* buttons */
-.btn{
-  font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;
-  border:none;border-radius:var(--rs);padding:10px 18px;font-size:14px;
-  transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;
-}
-.btn:hover{transform:translateY(-2px)}
-.btn:active{transform:scale(.97)}
-.btn-sm{padding:8px 14px;font-size:13px}
-.btn-violet{background:var(--violet);color:#fff;box-shadow:0 4px 14px rgba(108,99,255,.4)}
-.btn-violet:hover{box-shadow:0 6px 20px rgba(108,99,255,.6)}
-.btn-teal{background:var(--teal);color:#0d1021;box-shadow:0 4px 14px rgba(78,207,179,.3)}
-.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
-.btn-ghost:hover{background:rgba(255,255,255,.12)}
-.btn-launch{
-  width:100%;padding:16px;font-size:17px;
-  background:linear-gradient(135deg,var(--violet),var(--teal));
-  color:#fff;border-radius:var(--r);
-  box-shadow:0 6px 24px rgba(108,99,255,.4);
-  margin-top:8px;
-}
-.btn-launch:hover{box-shadow:0 8px 32px rgba(108,99,255,.6)}
+/* zone dots */
+.zone-dots{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.zdot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid var(--border)}
+.zdot-done{background:var(--green-lt);border-color:var(--green);color:var(--green)}
+.zdot-active{background:var(--green);border-color:var(--green);color:#061412;box-shadow:0 0 14px var(--green)}
+.zdot-lock{background:var(--dark2);color:var(--sub)}
 
 /* resume badge */
 .resume-badge{
-  background:rgba(78,207,179,.1);border:1px solid rgba(78,207,179,.25);
+  background:var(--green-lt);border:1px solid rgba(0,229,160,.25);
   border-radius:var(--rs);padding:10px 14px;
-  font-size:13px;font-weight:700;color:var(--teal);
-  margin-bottom:12px;display:none;
+  font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px;display:none;
 }
+
+/* buttons */
+.btn{font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;border:none;border-radius:var(--rs);padding:10px 18px;font-size:14px;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.97)}
+.btn-green{background:var(--green);color:#061412;box-shadow:0 4px 16px rgba(0,229,160,.35)}
+.btn-green:hover{background:#00f0a8;box-shadow:0 6px 24px rgba(0,229,160,.5)}
+.btn-cyan{background:var(--cyan);color:#061412;box-shadow:0 4px 14px rgba(0,188,212,.3)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.3)}
+.btn-sm{padding:8px 14px;font-size:13px}
+.btn-launch{
+  width:100%;padding:16px;font-size:17px;
+  background:linear-gradient(135deg,var(--green),var(--cyan));
+  color:#061412;border-radius:var(--r);
+  box-shadow:0 6px 28px rgba(0,229,160,.3);margin-top:8px;
+  font-family:'Nunito',sans-serif;font-weight:900;cursor:pointer;border:none;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-launch:hover{box-shadow:0 8px 36px rgba(0,229,160,.5);transform:translateY(-2px)}
+.btn-launch:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
 /* divider */
-.divider{display:flex;align-items:center;gap:10px;margin:14px 0}
+.divider{display:flex;align-items:center;gap:10px;margin:12px 0}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.divider span{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:1px}
+.divider span{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase}
 
 /* toast */
-.toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  background:var(--navy3);border:1px solid var(--border);border-radius:var(--rs);
-  padding:12px 20px;font-size:14px;font-weight:700;
-  opacity:0;transition:opacity .3s;pointer-events:none;z-index:100;
-}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark2);border:1px solid var(--green);border-radius:var(--rs);padding:12px 20px;font-size:14px;font-weight:700;color:var(--green);opacity:0;transition:opacity .3s;pointer-events:none;z-index:100;box-shadow:0 0 20px rgba(0,229,160,.2)}
 .toast.show{opacity:1}
 </style>
 </head>
 <body>
-
-<!-- Starfield -->
-<div class="stars" id="stars"></div>
+<div class="hex-bg"></div>
+<div class="scan-line"></div>
+<div class="particles" id="particles"></div>
 
 <div class="wrap">
   <div class="logo-area">
@@ -147,39 +167,27 @@ select option{background:var(--navy3);color:var(--text)}
     <div class="logo-sub">Wilson Reading System · Substeps 2.4 &amp; 2.5</div>
   </div>
 
-  <!-- SELECT STUDENT -->
   <div class="card">
-    <div class="card-title">Who's in the lab today?</div>
+    <div class="card-title">🧬 Who's in the lab today?</div>
     <div class="sel-wrap">
-      <select id="student-sel">
-        <option value="">— Select a student —</option>
-      </select>
+      <select id="student-sel"><option value="">— Select a student —</option></select>
       <div class="sel-arrow">▼</div>
     </div>
-
-    <!-- Resume info -->
-    <div class="resume-badge" id="resume-badge">
-      📍 Resuming at <span id="resume-zone"></span>
-    </div>
-
-    <!-- Zone dots -->
+    <div class="resume-badge" id="resume-badge">📍 Resuming at <span id="resume-zone"></span></div>
     <div class="zone-dots" id="zone-dots" style="display:none"></div>
-
-    <button class="btn btn-launch" id="start-btn" disabled onclick="launchGame()">
-      🚀 Enter the Lab
-    </button>
+    <button class="btn-launch" id="start-btn" disabled onclick="launchGame()">🚀 Enter the Lab</button>
   </div>
 
-  <!-- ADD STUDENT -->
   <div class="divider"><span>or add a new student</span></div>
+
   <div class="card">
-    <div class="card-title">New student</div>
+    <div class="card-title">⚗️ New student</div>
     <div class="add-row">
       <input class="add-input" type="text" id="new-name" placeholder="Student name" autocomplete="off">
-      <button class="btn btn-teal btn-sm" onclick="addStudent()">Add</button>
+      <button class="btn btn-cyan btn-sm" onclick="addStudent()">Add</button>
     </div>
-    <div class="card-title" style="margin-top:12px;margin-bottom:8px">Substep</div>
-    <div class="pill-row" id="ss-pills">
+    <div class="card-title" style="margin-top:14px;margin-bottom:6px">Substep</div>
+    <div class="pill-row">
       <div class="ss-pill active" data-ss="2.4" onclick="selectSS(this)">2.4</div>
       <div class="ss-pill" data-ss="2.5" onclick="selectSS(this)">2.5</div>
       <div class="ss-pill" data-ss="both" onclick="selectSS(this)">Both</div>
@@ -192,143 +200,89 @@ select option{background:var(--navy3);color:var(--text)}
 <script type="module">
 import { getStudents, addStudent as fbAdd, getStudent } from './firebase.js';
 
-// ── STARS ─────────────────────────────────────────────────────────────────────
-const starsEl = document.getElementById('stars');
-for(let i=0;i<80;i++){
-  const s = document.createElement('div');
-  s.className = 'star';
-  const size = Math.random()*2.5+.5;
-  s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*4+2).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s`;
-  starsEl.appendChild(s);
+// particles
+const pc = document.getElementById('particles');
+for(let i=0;i<25;i++){
+  const p=document.createElement('div');p.className='particle';
+  p.style.cssText=`left:${Math.random()*100}%;--d:${(Math.random()*10+6).toFixed(1)}s;--delay:${(Math.random()*8).toFixed(1)}s;--dx:${(Math.random()*60-30).toFixed(0)}px`;
+  pc.appendChild(p);
 }
 
-// ── ZONE META ─────────────────────────────────────────────────────────────────
-const ZONES = [
-  {num:1, name:'Lab Unlock',      icon:'🔓'},
-  {num:2, name:'Centrifuge',      icon:'🔬'},
-  {num:3, name:'Sequencer',       icon:'⚗️'},
-  {num:4, name:'Sample Storage',  icon:'🧫'},
-  {num:5, name:'Evidence Board',  icon:'📋'},
-  {num:6, name:'Archive Room',    icon:'📖'},
-  {num:7, name:'The Vault',       icon:'🏆'},
+const ZONES=[
+  {num:1,icon:'🔓',name:'Lab Unlock'},{num:2,icon:'🔬',name:'Centrifuge'},
+  {num:3,icon:'⚗️',name:'Sequencer'},{num:4,icon:'🧫',name:'Sample Storage'},
+  {num:5,icon:'📋',name:'Evidence Board'},{num:6,icon:'📖',name:'Archive Room'},
+  {num:7,icon:'🏆',name:'The Vault'},
 ];
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
-let students = [];
-let selectedStudent = null;
-let selectedSS = '2.4';
+let students=[],selectedStudent=null,selectedSS='2.4';
 
-// ── LOAD STUDENTS ─────────────────────────────────────────────────────────────
 async function loadStudents(){
-  try {
-    students = await getStudents();
-    const sel = document.getElementById('student-sel');
-    sel.innerHTML = '<option value="">— Select a student —</option>';
+  try{
+    students=await getStudents();
+    const sel=document.getElementById('student-sel');
+    sel.innerHTML='<option value="">— Select a student —</option>';
     students.sort((a,b)=>a.name.localeCompare(b.name)).forEach(s=>{
-      const o = document.createElement('option');
-      o.value = s.id; o.textContent = s.name;
-      sel.appendChild(o);
+      const o=document.createElement('option');o.value=s.id;o.textContent=s.name;sel.appendChild(o);
     });
-  } catch(e){
-    showToast('Could not connect to database');
-    console.error(e);
-  }
+  }catch(e){showToast('Could not connect to database');console.error(e);}
 }
 
-// ── STUDENT SELECTED ──────────────────────────────────────────────────────────
-document.getElementById('student-sel').addEventListener('change', async function(){
-  const id = this.value;
-  if(!id){ selectedStudent=null; resetUI(); return; }
-  try {
-    selectedStudent = await getStudent(id);
-    renderStudentUI(selectedStudent);
-    document.getElementById('start-btn').disabled = false;
-  } catch(e){ showToast('Error loading student'); }
+document.getElementById('student-sel').addEventListener('change',async function(){
+  const id=this.value;
+  if(!id){selectedStudent=null;resetUI();return;}
+  try{selectedStudent=await getStudent(id);renderStudentUI(selectedStudent);document.getElementById('start-btn').disabled=false;}
+  catch(e){showToast('Error loading student');}
 });
 
 function renderStudentUI(s){
-  const curZone = s.currentZone || 1;
-  const badge = document.getElementById('resume-badge');
-  const zd = document.getElementById('zone-dots');
-
-  // resume badge
-  const z = ZONES.find(z=>z.num===curZone);
-  if(curZone > 1 && z){
-    badge.style.display = 'block';
-    document.getElementById('resume-zone').textContent = `Zone ${curZone} — ${z.icon} ${z.name}`;
-  } else {
-    badge.style.display = 'none';
-  }
-
-  // zone dots
-  zd.style.display = 'flex';
-  zd.innerHTML = ZONES.map(z=>{
-    const zdata = s.zones?.[`zone${z.num}`];
-    const stars = zdata?.stars || 0;
-    let cls = 'zdot-lock', label = z.icon;
-    if(z.num < curZone)  { cls='zdot-done';   label = stars===3?'⭐':stars===2?'★':'✓'; }
-    if(z.num === curZone){ cls='zdot-active';  label = z.icon; }
+  const curZone=s.currentZone||1;
+  const badge=document.getElementById('resume-badge');
+  const zd=document.getElementById('zone-dots');
+  const z=ZONES.find(z=>z.num===curZone);
+  if(curZone>1&&z){badge.style.display='block';document.getElementById('resume-zone').textContent=`Zone ${curZone} — ${z.icon} ${z.name}`;}
+  else{badge.style.display='none';}
+  zd.style.display='flex';
+  zd.innerHTML=ZONES.map(z=>{
+    const zd2=s.zones?.[`zone${z.num}`];const stars=zd2?.stars||0;
+    let cls='zdot-lock',label='🔒';
+    if(z.num<curZone){cls='zdot-done';label=stars===3?'⭐':stars===2?'★':'✓';}
+    if(z.num===curZone){cls='zdot-active';label=z.icon;}
     return `<div class="zdot ${cls}" title="Zone ${z.num}: ${z.name}">${label}</div>`;
   }).join('');
 }
 
-function resetUI(){
-  document.getElementById('resume-badge').style.display = 'none';
-  document.getElementById('zone-dots').style.display = 'none';
-  document.getElementById('start-btn').disabled = true;
-}
+function resetUI(){document.getElementById('resume-badge').style.display='none';document.getElementById('zone-dots').style.display='none';document.getElementById('start-btn').disabled=true;}
 
-// ── SUBSTEP SELECT ────────────────────────────────────────────────────────────
-window.selectSS = function(el){
-  document.querySelectorAll('.ss-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  selectedSS = el.dataset.ss;
-};
+window.selectSS=function(el){document.querySelectorAll('.ss-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');selectedSS=el.dataset.ss;};
 
-// ── ADD STUDENT ───────────────────────────────────────────────────────────────
-window.addStudent = async function(){
-  const name = document.getElementById('new-name').value.trim();
-  if(!name){ showToast('Please enter a name'); return; }
-  try {
-    await fbAdd(name, selectedSS);
-    document.getElementById('new-name').value = '';
-    showToast(`✓ ${name} added!`);
+window.addStudent=async function(){
+  const name=document.getElementById('new-name').value.trim();
+  if(!name){showToast('Please enter a name');return;}
+  try{
+    await fbAdd(name,selectedSS);
+    document.getElementById('new-name').value='';
+    showToast(`✓ ${name} added to the lab!`);
     await loadStudents();
-    // auto-select the new student
-    const sel = document.getElementById('student-sel');
-    const opts = Array.from(sel.options);
-    const match = opts.find(o=>o.textContent===name);
-    if(match){ sel.value=match.value; sel.dispatchEvent(new Event('change')); }
-  } catch(e){ showToast('Error adding student'); console.error(e); }
+    const sel=document.getElementById('student-sel');
+    const match=Array.from(sel.options).find(o=>o.textContent===name);
+    if(match){sel.value=match.value;sel.dispatchEvent(new Event('change'));}
+  }catch(e){showToast('Error adding student');console.error(e);}
 };
 
-// ── LAUNCH ────────────────────────────────────────────────────────────────────
-window.launchGame = function(){
-  if(!selectedStudent) return;
-  // Pass student id + zone to game.html via sessionStorage
-  sessionStorage.setItem('wdl_student', JSON.stringify({
-    id: selectedStudent.id,
-    name: selectedStudent.name,
-    substep: selectedStudent.substep || selectedSS,
-    currentZone: selectedStudent.currentZone || 1,
-    zones: selectedStudent.zones || {}
+window.launchGame=function(){
+  if(!selectedStudent)return;
+  sessionStorage.setItem('wdl_student',JSON.stringify({
+    id:selectedStudent.id,name:selectedStudent.name,
+    substep:selectedStudent.substep||selectedSS,
+    currentZone:selectedStudent.currentZone||1,
+    zones:selectedStudent.zones||{}
   }));
-  window.location.href = 'game.html';
+  window.location.href='game.html';
 };
 
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
-}
-
-// ── ENTER KEY ─────────────────────────────────────────────────────────────────
-document.getElementById('new-name').addEventListener('keydown', e=>{
-  if(e.key==='Enter') window.addStudent();
-});
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+document.getElementById('new-name').addEventListener('keydown',e=>{if(e.key==='Enter')window.addStudent();});
 loadStudents();
 </script>
 </body>
