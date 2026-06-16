@@ -16,167 +16,132 @@
   --amber:#ffab00;--amber-lt:rgba(255,171,0,.12);
   --text:#e0f2ee;--sub:rgba(224,242,238,.45);--border:rgba(0,229,160,.12);
   --r:14px;--rs:10px;
+  /* Wilson tile colors */
+  --wc-bg:#f5e070;--wc-txt:#2c2000;--wc-border:#c8b020;   /* consonant/digraph yellow */
+  --wv-bg:#f4b8b8;--wv-txt:#2c0a0a;--wv-border:#d08080;   /* vowel pink */
+  --ww-bg:#b8d9b0;--ww-txt:#0a2c08;--ww-border:#70b068;   /* weld/exception green */
 }
 html,body{height:100%;overflow:hidden}
 body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);display:flex;flex-direction:column}
 
-/* ── HEX BG ── */
 .hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3Cpath d='M28 34 L56 50 L56 84 L28 100 L0 84 L0 50 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 100px}
-
-/* scan line — subtle, only at top */
-.scan-line{position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);z-index:1;animation:scan 8s linear infinite;opacity:.25}
+.scan-line{position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);z-index:1;animation:scan 8s linear infinite;opacity:.2}
 @keyframes scan{from{top:0}to{top:100vh}}
 
-/* ── LAYOUT ── */
 #app{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;overflow:hidden}
 
-/* ── TOP BAR ── */
-.top-bar{
-  display:flex;align-items:center;gap:10px;padding:12px 16px;
-  background:rgba(6,20,18,.92);border-bottom:1px solid var(--border);flex-shrink:0;
-  backdrop-filter:blur(8px);
-}
+.top-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(6,20,18,.92);border-bottom:1px solid var(--border);flex-shrink:0;backdrop-filter:blur(8px)}
 .top-bar .zone-label{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;opacity:.8}
-.top-bar .zone-name{font-size:15px;font-weight:800;flex:1;color:var(--text)}
-.top-bar .student-chip{font-size:11px;font-weight:700;color:var(--dark);background:var(--green);padding:4px 10px;border-radius:20px}
+.top-bar .zone-name{font-size:15px;font-weight:800;flex:1}
+.student-chip{font-size:11px;font-weight:700;color:var(--dark);background:var(--green);padding:4px 10px;border-radius:20px}
 
-/* DNA sequencer progress bar */
 .seq-wrap{padding:6px 16px 8px;background:rgba(6,20,18,.92);flex-shrink:0;border-bottom:1px solid var(--border)}
 .seq-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--green);opacity:.6;text-transform:uppercase;margin-bottom:4px}
-.seq-bg{background:rgba(0,229,160,.08);border-radius:2px;height:6px;position:relative;overflow:hidden}
+.seq-bg{background:rgba(0,229,160,.08);border-radius:2px;height:6px;overflow:hidden}
 .seq-fill{height:6px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .4s;position:relative}
-.seq-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4));animation:seqShine 1.5s ease-in-out infinite}
-@keyframes seqShine{0%,100%{opacity:0}50%{opacity:1}}
+.seq-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35));animation:shine 1.5s infinite}
+@keyframes shine{0%,100%{opacity:0}50%{opacity:1}}
 .seq-dots{display:flex;gap:4px;margin-top:4px}
-.seq-dot{width:6px;height:6px;border-radius:50%;background:rgba(0,229,160,.15);transition:all .3s}
+.seq-dot{width:6px;height:6px;border-radius:50%;background:rgba(0,229,160,.12);transition:all .3s}
 .seq-dot.done{background:var(--green);box-shadow:0 0 6px var(--green)}
-.seq-dot.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:dotPulse 1s ease-in-out infinite}
-@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+.seq-dot.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:dp 1s ease-in-out infinite}
+@keyframes dp{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
 
-/* ── SCROLL ── */
 .scroll{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
 
-/* ── ZONE MAP ── */
+/* zone map */
 .zone-map{display:flex;flex-direction:column;gap:8px}
-.zone-card{
-  display:flex;align-items:center;gap:14px;
-  background:var(--dark);border:1px solid var(--border);border-radius:var(--r);
-  padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
-}
+.zone-card{display:flex;align-items:center;gap:14px;background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
 .zone-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);opacity:0;transition:opacity .2s}
 .zone-card:hover:not(.locked){border-color:rgba(0,229,160,.35);background:var(--dark2)}
-.zone-card:hover:not(.locked)::before{opacity:1}
+.zone-card:hover:not(.locked)::before,.zone-card.active::before,.zone-card.done::before{opacity:1}
 .zone-card.active{border-color:rgba(0,229,160,.4);box-shadow:0 0 20px rgba(0,229,160,.1)}
-.zone-card.active::before{opacity:1}
 .zone-card.locked{opacity:.35;cursor:not-allowed}
 .zone-card.done{border-color:rgba(0,229,160,.2)}
-.zone-card.done::before{opacity:.5}
 .zone-icon{font-size:26px;flex-shrink:0}
 .zone-info{flex:1}
 .zone-num{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--green);opacity:.7;text-transform:uppercase}
 .zone-title{font-size:15px;font-weight:800;margin:2px 0}
 .zone-desc{font-size:11px;color:var(--sub)}
-.zone-stars{font-size:14px;letter-spacing:1px}
+.zone-stars{font-size:14px}
 
-/* ── STORY PANEL ── */
-.story-panel{
-  background:var(--dark);border:1px solid rgba(0,229,160,.2);border-radius:var(--r);
-  padding:20px;margin-bottom:14px;position:relative;overflow:hidden;
-}
+/* story */
+.story-panel{background:var(--dark);border:1px solid rgba(0,229,160,.2);border-radius:var(--r);padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
 .story-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.6}
 .story-icon{font-size:44px;text-align:center;margin-bottom:10px;filter:drop-shadow(0 0 16px var(--green))}
 .story-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--green);text-align:center;margin-bottom:10px;letter-spacing:1px}
 .story-text{font-size:14px;line-height:1.7;color:var(--sub);text-align:center}
 .story-text b{color:var(--text)}
 
-/* ── TILE DISPLAY ── */
-.tile-display{
-  display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-  padding:20px 16px;
-  background:var(--dark2);
-  border-radius:var(--r);border:1px solid var(--border);
-  min-height:88px;align-items:center;
-  animation:tileIn .35s ease;position:relative;overflow:hidden;
-}
-.tile-display::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,229,160,.03),transparent);pointer-events:none}
+/* ── WILSON TILES ── */
+.tile-display{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:20px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);min-height:88px;align-items:center;animation:tileIn .35s ease}
 @keyframes tileIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
 
-/* wilson-style tiles */
 .tile{
   display:inline-flex;align-items:center;justify-content:center;
-  min-width:44px;height:48px;padding:0 10px;
+  min-width:44px;height:50px;padding:0 10px;
   border-radius:8px;font-size:20px;font-weight:900;
   border:2px solid transparent;transition:all .2s;user-select:none;
+  box-shadow:0 2px 4px rgba(0,0,0,.3);
 }
-.tile-consonant{background:#3d1a1a;color:#ffb3b3;border-color:#5a2020}
-.tile-vowel{background:#2e2a00;color:#ffe566;border-color:#4a4200}
-.tile-weld{background:#0d2e14;color:#7dff9a;border-color:#1a5028}
-.tile-base{
-  background:linear-gradient(135deg,var(--dark3),var(--dark4));
-  color:var(--green);border-color:rgba(0,229,160,.3);
-  font-size:16px;min-width:64px;letter-spacing:1px;
-  box-shadow:0 0 12px rgba(0,229,160,.1);
+/* Wilson consonant = yellow */
+.tc{background:var(--wc-bg);color:var(--wc-txt);border-color:var(--wc-border)}
+/* Wilson vowel = pink */
+.tv{background:var(--wv-bg);color:var(--wv-txt);border-color:var(--wv-border)}
+/* Wilson weld/exception/glued = green */
+.tw{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:52px;font-size:17px}
+/* Latin base tile */
+.tile-base{background:linear-gradient(135deg,var(--dark3),var(--dark4));color:var(--green);border-color:rgba(0,229,160,.3);font-size:16px;min-width:64px;letter-spacing:1px;box-shadow:0 0 12px rgba(0,229,160,.1)}
+
+/* swipe word — also uses Wilson tile styling */
+.swipe-word{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;padding:20px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);user-select:none;-webkit-user-select:none;touch-action:none}
+.sl{
+  min-width:44px;height:50px;padding:0 8px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:8px;font-size:20px;font-weight:900;
+  border:2px solid transparent;transition:all .15s;
+  box-shadow:0 2px 4px rgba(0,0,0,.3);cursor:pointer;
 }
-.tile-selected{box-shadow:0 0 0 3px var(--amber);transform:scale(1.08)}
-.tile-correct{box-shadow:0 0 0 3px var(--green),0 0 16px var(--green-glow);animation:lockIn .3s ease}
-.tile-wrong{box-shadow:0 0 0 3px var(--red);animation:shake .4s}
-@keyframes lockIn{0%{transform:scale(1.15)}100%{transform:scale(1)}}
+.sl.sl-c{background:var(--wc-bg);color:var(--wc-txt);border-color:var(--wc-border)}
+.sl.sl-v{background:var(--wv-bg);color:var(--wv-txt);border-color:var(--wv-border)}
+.sl.sl-w{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:52px;font-size:17px}
+.sl.swept{box-shadow:0 0 0 3px var(--amber),0 2px 4px rgba(0,0,0,.3);transform:scale(1.08)}
+.sl.locked{box-shadow:0 0 0 3px var(--green),0 0 12px var(--green-glow);opacity:.85}
+.sl.wrong-flash{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
-/* ── SWIPE WORD ── */
-.swipe-word{
-  display:flex;gap:5px;justify-content:center;flex-wrap:wrap;
-  padding:24px 16px;background:var(--dark2);
-  border-radius:var(--r);border:1px solid var(--border);
-  user-select:none;-webkit-user-select:none;touch-action:none;
-}
-.swipe-letter{
-  width:50px;height:58px;display:flex;align-items:center;justify-content:center;
-  border-radius:10px;font-size:24px;font-weight:900;
-  background:var(--dark3);border:2px solid var(--border);transition:all .15s;
-  color:var(--text);
-}
-.swipe-letter.swept{background:var(--amber-lt);border-color:var(--amber);color:var(--amber)}
-.swipe-letter.locked{background:var(--green-lt);border-color:var(--green);color:var(--green);box-shadow:0 0 10px var(--green-glow)}
+/* hint banner */
+.hint-banner{background:var(--amber-lt);border:1px solid rgba(255,171,0,.3);border-radius:var(--rs);padding:10px 14px;text-align:center;font-size:13px;font-weight:700;color:var(--amber);margin:8px 0;animation:popIn .3s ease}
 
-/* ── CHOICES ── */
+/* choices */
 .choices{display:flex;flex-direction:column;gap:7px}
-.choice{
-  padding:13px 18px;border-radius:var(--rs);
-  background:var(--dark2);border:1.5px solid var(--border);
-  font-size:15px;font-weight:700;color:var(--text);
-  cursor:pointer;transition:all .15s;text-align:left;
-  font-family:'Nunito',sans-serif;position:relative;overflow:hidden;
-}
+.choice{padding:13px 18px;border-radius:var(--rs);background:var(--dark2);border:1.5px solid var(--border);font-size:15px;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s;text-align:left;font-family:'Nunito',sans-serif;position:relative;overflow:hidden}
 .choice::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--green);opacity:.1;transition:width .2s}
 .choice:hover:not(:disabled){border-color:rgba(0,229,160,.4);background:var(--dark3)}
 .choice:hover:not(:disabled)::before{width:4px}
 .choice:active{transform:scale(.98)}
 .choice:disabled{cursor:default}
-.choice.correct{background:var(--green-lt);border-color:var(--green);color:var(--green);box-shadow:0 0 16px rgba(0,229,160,.15)}
+.choice.correct{background:var(--green-lt);border-color:var(--green);color:var(--green);box-shadow:0 0 16px rgba(0,229,160,.1)}
 .choice.wrong{background:var(--red-lt);border-color:var(--red);color:var(--red)}
 
-/* ── FEEDBACK ── */
+/* feedback */
 .fb{text-align:center;padding:13px 18px;border-radius:var(--rs);margin:10px 0;font-weight:800;font-size:15px;animation:popIn .3s ease;border:1px solid transparent}
 @keyframes popIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
 .fb.ok{background:var(--green-lt);color:var(--green);border-color:rgba(0,229,160,.25)}
 .fb.no{background:var(--red-lt);color:var(--red);border-color:rgba(255,82,82,.25)}
 
-/* ── EXAMPLE BOX ── */
+/* example box */
 .ex-box{background:var(--amber-lt);border:1px solid rgba(255,171,0,.2);border-radius:var(--rs);padding:11px 15px;margin-top:10px}
 .ex-box .sec{color:var(--amber);margin-bottom:3px}
 .ex-box p{font-size:13px;color:rgba(224,242,238,.8);font-weight:600}
 
-/* ── SCORE ── */
+/* score */
 .score-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;min-height:36px}
 .score-badge{font-size:14px;font-weight:800;color:var(--sub)}
 .streak{display:inline-flex;align-items:center;gap:4px;background:var(--lime-lt);border:1px solid rgba(118,255,3,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--lime)}
 
-/* ── SCOOPING ── */
-.scoop-sentence{
-  padding:20px 16px;background:var(--dark2);border-radius:var(--r);
-  border:1px solid var(--border);font-size:19px;font-weight:700;line-height:2;
-}
+/* scooping */
+.scoop-sentence{padding:20px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);font-size:19px;font-weight:700;line-height:2}
 .scoop-words{display:flex;flex-wrap:wrap;gap:4px 10px}
 .scoop-word{padding:3px 2px;border-radius:4px;transition:color .15s;cursor:pointer;position:relative}
 .scoop-word.scooped{color:var(--green)}
@@ -184,24 +149,14 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 .teacher-btns{display:flex;gap:10px;margin-top:14px}
 .teacher-btns .btn{flex:1;padding:15px;font-size:15px;justify-content:center}
 
-/* ── PASSAGE ── */
-.passage-box{
-  background:var(--dark);border:1px solid var(--border);border-radius:var(--r);
-  padding:20px;color:var(--text);font-size:15px;line-height:1.8;
-  max-height:400px;overflow-y:auto;
-}
+/* passage */
+.passage-box{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:20px;color:var(--text);font-size:15px;line-height:1.8;max-height:400px;overflow-y:auto}
 .passage-box p{margin-bottom:14px;color:rgba(224,242,238,.75)}
 .passage-title-display{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;text-align:center;color:var(--green);margin-bottom:4px}
 .passage-substep{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--sub);text-align:center;margin-bottom:16px}
 
-/* ── COMP OPTIONS ── */
-.comp-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
-.comp-q{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text)}
-.comp-opt{
-  display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;
-  padding:10px 14px;border-radius:var(--rs);border:1.5px solid var(--border);
-  background:rgba(0,229,160,.03);transition:all .15s;font-size:14px;font-weight:600;color:var(--sub);
-}
+/* comp */
+.comp-opt{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;padding:10px 14px;border-radius:var(--rs);border:1.5px solid var(--border);background:rgba(0,229,160,.03);transition:all .15s;font-size:14px;font-weight:600;color:var(--sub)}
 .comp-opt:hover{border-color:rgba(0,229,160,.3);color:var(--text);background:var(--green-lt)}
 .comp-opt.selected{border-color:var(--green);background:var(--green-lt);color:var(--green)}
 .comp-opt.reveal-ok{border-color:var(--green);background:var(--green-lt);color:var(--green)}
@@ -209,52 +164,34 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 .radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(0,229,160,.3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;transition:all .2s}
 .comp-opt.selected .radio-dot{border-color:var(--green);background:var(--green);color:#061412}
 
-/* ── BUTTONS ── */
+/* buttons */
 .btn{font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;border:none;border-radius:var(--rs);padding:10px 18px;font-size:14px;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn:hover{transform:translateY(-2px)}
 .btn:active{transform:scale(.97)}
 .btn-green{background:var(--green);color:#061412;box-shadow:0 4px 16px rgba(0,229,160,.3)}
 .btn-green:hover{background:#00f0a8;box-shadow:0 6px 24px rgba(0,229,160,.5)}
-.btn-cyan{background:var(--cyan);color:#061412}
 .btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border)}
 .btn-ghost:hover{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.25)}
 .btn-full{width:100%;padding:14px}
-.btn-launch{
-  width:100%;padding:16px;font-size:16px;
-  background:linear-gradient(135deg,var(--green),var(--cyan));
-  color:#061412;border-radius:var(--r);
-  box-shadow:0 6px 24px rgba(0,229,160,.25);
-  font-family:'Nunito',sans-serif;font-weight:900;cursor:pointer;border:none;
-  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;
-}
+.btn-launch{width:100%;padding:16px;font-size:16px;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061412;border-radius:var(--r);box-shadow:0 6px 24px rgba(0,229,160,.25);font-family:'Nunito',sans-serif;font-weight:900;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
 .btn-launch:hover{box-shadow:0 8px 32px rgba(0,229,160,.45);transform:translateY(-2px)}
 
-/* ── ERROR POPUP ── */
+/* error popup */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
-.popup{
-  background:var(--dark);border:1px solid rgba(255,82,82,.4);border-radius:var(--r);
-  padding:24px;max-width:440px;width:100%;animation:popIn .3s ease;
-  box-shadow:0 0 40px rgba(255,82,82,.15),inset 0 1px 0 rgba(255,82,82,.1);
-  position:relative;overflow:hidden;
-}
+.popup{background:var(--dark);border:1px solid rgba(255,82,82,.4);border-radius:var(--r);padding:24px;max-width:440px;width:100%;animation:popIn .3s ease;box-shadow:0 0 40px rgba(255,82,82,.15);position:relative;overflow:hidden}
 .popup::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:.8}
-.popup-icon{font-size:36px;text-align:center;margin-bottom:10px}
-.popup-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--red);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.popup-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--red);text-align:center;margin-bottom:10px;letter-spacing:1px}
 .popup-rule{font-size:14px;line-height:1.65;color:var(--sub);text-align:center;margin-bottom:14px}
 .popup-rule b{color:var(--text)}
-.popup-correct{
-  background:var(--green-lt);border:1px solid rgba(0,229,160,.3);border-radius:var(--rs);
-  padding:12px;text-align:center;font-size:16px;font-weight:800;color:var(--green);margin-bottom:16px;
-  box-shadow:0 0 14px rgba(0,229,160,.1);
-}
+.popup-correct{background:var(--green-lt);border:1px solid rgba(0,229,160,.3);border-radius:var(--rs);padding:12px;text-align:center;font-size:16px;font-weight:800;color:var(--green);margin-bottom:16px}
 
-/* ── RESULTS ── */
+/* results */
 .results{text-align:center;padding:16px 0}
 .result-emoji{font-size:60px;margin-bottom:10px;animation:bounce .6s ease;filter:drop-shadow(0 0 20px var(--green))}
 @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 .result-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--green);margin-bottom:4px}
 .result-sub{font-size:13px;color:var(--sub);margin-bottom:18px}
-.stars-display{font-size:40px;letter-spacing:6px;margin-bottom:18px;filter:drop-shadow(0 0 10px var(--amber))}
+.stars-display{font-size:40px;letter-spacing:6px;margin-bottom:18px}
 .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
 .rstat{background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center}
 .rstat-n{font-size:24px;font-weight:900;color:var(--green)}
@@ -265,13 +202,12 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 .error-item b{color:var(--red)}
 .error-item span{color:var(--green)}
 
-/* ── VIAL (zone complete) ── */
+/* vial */
 .vial-container{display:flex;justify-content:center;margin:16px 0}
+.vial-cap{width:46px;height:10px;background:var(--green);border-radius:4px 4px 0 0;margin:0 auto}
 .vial{width:40px;height:80px;border-radius:0 0 20px 20px;border:2px solid var(--green);position:relative;overflow:hidden;background:var(--dark2)}
 .vial-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,var(--cyan),var(--green));transition:height .8s ease;box-shadow:0 0 10px var(--green)}
-.vial-cap{width:46px;height:10px;background:var(--green);border-radius:4px 4px 0 0;margin:0 auto}
 
-/* ── MISC ── */
 .sec{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);opacity:.7;margin-bottom:6px}
 .card{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
 .card-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px}
@@ -301,7 +237,7 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 
 <div class="overlay" id="error-popup" style="display:none">
   <div class="popup">
-    <div class="popup-icon">⚠️</div>
+    <div style="font-size:32px;text-align:center;margin-bottom:8px">⚠️</div>
     <div class="popup-title">LAB ALERT — CORRECTION NEEDED</div>
     <div class="popup-rule" id="popup-rule"></div>
     <div class="popup-correct" id="popup-correct"></div>
@@ -312,106 +248,184 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 <script type="module">
 import { getStudent, saveZoneProgress, saveScoop, updateCurrentZone } from './firebase.js';
 
-// session
 let STUDENT = JSON.parse(sessionStorage.getItem('wdl_student') || 'null');
 if(!STUDENT){ window.location.href='index.html'; }
 document.getElementById('tb-student').textContent = STUDENT.name;
 
-// ── ZONE META ─────────────────────────────────────────────────────────────────
 const ZONE_META=[
-  {num:1,icon:'🔓',name:'Lab Unlock',    desc:'Welded sounds & closed syllable exceptions'},
-  {num:2,icon:'🔬',name:'The Centrifuge', desc:'Two-letter blends'},
-  {num:3,icon:'⚗️',name:'The Sequencer',  desc:'Three-letter blends'},
-  {num:4,icon:'🧫',name:'Sample Storage', desc:'Latin bases'},
-  {num:5,icon:'📋',name:'Evidence Board', desc:'Sentence reading & scooping'},
-  {num:6,icon:'📖',name:'Archive Room',   desc:'Passage reading & comprehension'},
-  {num:7,icon:'🏆',name:'The Vault',      desc:'Boss round — all skills'},
+  {num:1,icon:'🔓',name:'Lab Unlock',     desc:'Welded sounds & closed syllable exceptions'},
+  {num:2,icon:'🔬',name:'The Centrifuge',  desc:'Two-letter blends'},
+  {num:3,icon:'⚗️',name:'The Sequencer',   desc:'Three-letter blends'},
+  {num:4,icon:'🧫',name:'Sample Storage',  desc:'Latin bases'},
+  {num:5,icon:'📋',name:'Evidence Board',  desc:'Sentence reading & scooping'},
+  {num:6,icon:'📖',name:'Archive Room',    desc:'Passage reading & comprehension'},
+  {num:7,icon:'🏆',name:'The Vault',       desc:'Boss round — all skills'},
 ];
 
 const STORIES={
-  1:{title:'SECURITY BREACH DETECTED',text:'Someone broke into the <b>Word DNA Lab</b> last night and scrambled everything! The welded sound samples are all mixed up. <b>Restore the Lab Unlock room</b> to begin repairs.'},
-  2:{title:'CENTRIFUGE OFFLINE',text:'The blend centrifuge was sabotaged — two-letter blend samples are scattered everywhere. <b>Sort them back into the centrifuge</b> to restore power.'},
-  3:{title:'SEQUENCER CORRUPTED',text:'The three-letter blend sequencer has been scrambled. The str-, scr-, spr-, and spl- samples are all mixed up. <b>Sweep to restore the sequence.</b>'},
-  4:{title:'SAMPLES MISSING',text:'The Latin base samples — the DNA of words — were stolen from their storage vials. <b>Identify each base</b> to get them back where they belong.'},
-  5:{title:'EVIDENCE SCATTERED',text:'The evidence board was destroyed. Sentences are jumbled. <b>Read each sentence</b> and scoop the phrases to rebuild the evidence.'},
-  6:{title:'ARCHIVE IN CHAOS',text:'The archive room passages were shredded. <b>Read each passage</b> and answer the comprehension questions to reconstruct the files.'},
-  7:{title:'THE VAULT — FINAL CHALLENGE',text:'All samples restored — but the intruder locked the vault. Only a <b>Lab Master</b> who knows ALL the skills can unlock it. This is your final test.'},
+  1:{title:'SECURITY BREACH DETECTED',    text:'Someone broke into the <b>Word DNA Lab</b> last night and scrambled everything! The welded sound samples are all mixed up. <b>Restore the Lab Unlock room</b> to begin repairs.'},
+  2:{title:'CENTRIFUGE OFFLINE',           text:'The blend centrifuge was sabotaged — two-letter blend samples are scattered everywhere. <b>Mark every blend</b> to restore power to the centrifuge.'},
+  3:{title:'SEQUENCER CORRUPTED',          text:'The three-letter blend sequencer has been scrambled. The str-, scr-, spr-, and spl- samples are all mixed up. <b>Sweep to restore the sequence.</b>'},
+  4:{title:'SAMPLES MISSING',              text:'The Latin base samples — the DNA of words — were stolen from their storage vials. <b>Identify each base</b> to get them back where they belong.'},
+  5:{title:'EVIDENCE SCATTERED',           text:'The evidence board was destroyed. Sentences are jumbled. <b>Read each sentence</b> and scoop the phrases to rebuild the evidence.'},
+  6:{title:'ARCHIVE IN CHAOS',             text:'The archive room passages were shredded. <b>Read each passage</b> and answer the comprehension questions to reconstruct the files.'},
+  7:{title:'THE VAULT — FINAL CHALLENGE',  text:'All samples restored — but the intruder locked the vault. Only a <b>Lab Master</b> who knows ALL the skills can unlock it. This is your final test.'},
 };
 
-// ── GAME DATA ─────────────────────────────────────────────────────────────────
-const WELD_Q=[
-  {word:'sing',  weld:'ing',consonants:['s'],  rule:'The welded sound -ing- keeps /s/ /ing/ together as one tap.',display:'sing'},
-  {word:'blank', weld:'ank',consonants:['bl'], rule:'-ank- is a welded sound. The letters a-n-k stay glued together.',display:'blank'},
-  {word:'trunk', weld:'unk',consonants:['tr'], rule:'-unk- is a welded sound. Think: skunk, trunk, chunk.',display:'trunk'},
-  {word:'strong',weld:'ong',consonants:['str'],rule:'-ong- is a welded sound. Think: song, long, strong.',display:'strong'},
-  {word:'think', weld:'ink',consonants:['th'], rule:'-ink- is a welded sound. Think: pink, drink, rink.',display:'think'},
-  {word:'clang', weld:'ang',consonants:['cl'], rule:'-ang- is a welded sound. Think: rang, bang, clang.',display:'clang'},
-  {word:'blind', weld:'ind',consonants:['bl'], rule:'-ind- is a closed syllable exception. The i says its long sound.',display:'blind',exception:true},
-  {word:'cold',  weld:'old',consonants:['c'],  rule:'-old- is a closed syllable exception. The o says its long sound.',display:'cold',exception:true},
-];
-const WELD_C=[
-  ['ing','ang','unk','ink'],['ank','ink','ong','ung'],['unk','ink','ank','ang'],['ong','ung','ang','ank'],
-  ['ink','ing','ank','ong'],['ang','ing','ong','unk'],['ind','old','ost','ild'],['old','ind','olt','ost'],
+// ── TILE BUILDER ──────────────────────────────────────────────────────────────
+// Each word is described as an array of segments: {t:'c'|'v'|'w', s:'text'}
+// c=consonant(yellow), v=vowel(pink), w=weld/exception(green)
+const WORDS = {
+  // Zone 1 — weld identification words
+  sing:   [{t:'c',s:'s'},{t:'w',s:'ing'}],
+  blank:  [{t:'c',s:'b'},{t:'c',s:'l'},{t:'w',s:'ank'}],
+  trunk:  [{t:'c',s:'t'},{t:'c',s:'r'},{t:'w',s:'unk'}],
+  strong: [{t:'c',s:'s'},{t:'c',s:'t'},{t:'c',s:'r'},{t:'w',s:'ong'}],
+  think:  [{t:'c',s:'th'},{t:'w',s:'ink'}],
+  clang:  [{t:'c',s:'c'},{t:'c',s:'l'},{t:'w',s:'ang'}],
+  blind:  [{t:'c',s:'b'},{t:'c',s:'l'},{t:'w',s:'ind'}],
+  cold:   [{t:'c',s:'c'},{t:'w',s:'old'}],
+  most:   [{t:'c',s:'m'},{t:'w',s:'ost'}],
+  child:  [{t:'c',s:'ch'},{t:'w',s:'ild'}],
+  // Zone 2 — blend words (segments define the tiles shown)
+  trunk2: [{t:'c',s:'t'},{t:'c',s:'r'},{t:'w',s:'unk'}],
+  bring:  [{t:'c',s:'b'},{t:'c',s:'r'},{t:'w',s:'ing'}],
+  stand:  [{t:'c',s:'s'},{t:'c',s:'t'},{t:'w',s:'and'}],
+  clump:  [{t:'c',s:'c'},{t:'c',s:'l'},{t:'v',s:'u'},{t:'c',s:'m'},{t:'c',s:'p'}],
+  draft:  [{t:'c',s:'d'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'f'},{t:'c',s:'t'}],
+  crisp:  [{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'s'},{t:'c',s:'p'}],
+  blend:  [{t:'c',s:'b'},{t:'c',s:'l'},{t:'v',s:'e'},{t:'w',s:'nd'}],
+  frost:  [{t:'c',s:'f'},{t:'c',s:'r'},{t:'w',s:'ost'}],
+  brand:  [{t:'c',s:'b'},{t:'c',s:'r'},{t:'w',s:'and'}],
+  spent:  [{t:'c',s:'s'},{t:'c',s:'p'},{t:'v',s:'e'},{t:'w',s:'nt'}],
+  // Zone 3
+  strap:  [{t:'c',s:'s'},{t:'c',s:'t'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'p'}],
+  scrap:  [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'p'}],
+  spring: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'r'},{t:'w',s:'ing'}],
+  splash: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'l'},{t:'v',s:'a'},{t:'c',s:'sh'}],
+  scrub:  [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'u'},{t:'c',s:'b'}],
+  sprint: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'r'},{t:'w',s:'int'}],
+  split:  [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'l'},{t:'v',s:'i'},{t:'c',s:'t'}],
+  script: [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'p'},{t:'c',s:'t'}],
+};
+
+function buildTiles(segments, extraClass=''){
+  return segments.map((seg,i)=>`<div class="tile t${seg.t} ${extraClass}" data-i="${i}" data-type="${seg.t}">${seg.s}</div>`).join('');
+}
+
+function buildSwipeTiles(segments){
+  return segments.map((seg,i)=>`<div class="sl sl-${seg.t}" id="sl${i}" data-i="${i}" data-type="${seg.t}" onclick="tapL(${i})">${seg.s}</div>`).join('');
+}
+
+// ── ZONE 1 DATA ───────────────────────────────────────────────────────────────
+const Z1_ITEMS = [
+  {wordKey:'sing',   weld:'ing', type:'weld',      rule:'The welded sound <b>-ing-</b> gets one tap. The letters i-n-g stay glued together.',          choices:['ing','ang','unk','ink']},
+  {wordKey:'blank',  weld:'ank', type:'weld',      rule:'The welded sound <b>-ank-</b> gets one tap. Think: blank, rank, tank.',                        choices:['ank','ink','ong','ung']},
+  {wordKey:'trunk',  weld:'unk', type:'weld',      rule:'The welded sound <b>-unk-</b> gets one tap. Think: skunk, trunk, chunk.',                      choices:['unk','ink','ank','ang']},
+  {wordKey:'think',  weld:'ink', type:'weld',      rule:'The welded sound <b>-ink-</b> gets one tap. Think: pink, drink, rink.',                        choices:['ink','ing','ank','ong']},
+  {wordKey:'clang',  weld:'ang', type:'weld',      rule:'The welded sound <b>-ang-</b> gets one tap. Think: rang, bang, clang.',                        choices:['ang','ing','ong','unk']},
+  {wordKey:'strong', weld:'ong', type:'weld',      rule:'The welded sound <b>-ong-</b> gets one tap. Think: song, long, strong.',                       choices:['ong','ung','ang','ank']},
+  {wordKey:'blind',  weld:'ind', type:'exception', rule:'<b>-ind-</b> is a closed syllable exception. The i says its long sound /ī/. Think: find, kind, mind.',choices:['ind','old','ost','ild']},
+  {wordKey:'cold',   weld:'old', type:'exception', rule:'<b>-old-</b> is a closed syllable exception. The o says its long sound /ō/. Think: bold, told, gold.',  choices:['old','ind','olt','ost']},
+  {wordKey:'most',   weld:'ost', type:'exception', rule:'<b>-ost-</b> is a closed syllable exception. Think: most, post, host.',                         choices:['ost','old','olt','ind']},
+  {wordKey:'child',  weld:'ild', type:'exception', rule:'<b>-ild-</b> is a closed syllable exception. The i says its long sound /ī/. Think: wild, mild, child.',  choices:['ild','ind','old','ost']},
 ];
 
-const BLEND2_Q=[
-  {word:'trunk', blend:'tr',rule:'TR is a two-letter blend. Each letter makes its own sound: /t/ /r/.'},
-  {word:'bring', blend:'br',rule:'BR is a two-letter blend. /b/ /r/ — two separate sounds at the start.'},
-  {word:'stand', blend:'st',rule:'ST is a two-letter blend. /s/ /t/ — feel two separate taps.'},
-  {word:'clump', blend:'cl',rule:'CL is a two-letter blend. /k/ /l/ — two clear sounds together.'},
-  {word:'draft', blend:'dr',rule:'DR is a two-letter blend. /d/ /r/ — tap each one separately.'},
-  {word:'crisp', blend:'cr',rule:'CR is a two-letter blend. /k/ /r/ — both make sounds.'},
-  {word:'blend', blend:'bl',rule:'BL is a two-letter blend. /b/ /l/ — two sounds, not one.'},
-  {word:'frost', blend:'fr',rule:'FR is a two-letter blend. /f/ /r/ — think: from, frost, frog.'},
+// ── ZONE 2 DATA ───────────────────────────────────────────────────────────────
+// blends: array of blend objects {blend, indices, label}
+// indices = which tile indices belong to this blend
+const Z2_ITEMS = [
+  {wordKey:'trunk2', display:'trunk',
+   blends:[
+     {blend:'tr', indices:[0,1], rule:'<b>TR</b> is a two-letter blend at the start. Each letter makes its own sound: /t/ /r/.'},
+     {blend:'nk', indices:[2],   rule:'<b>-unk-</b> at the end is a welded sound — it gets one green tile and one tap. The letters u-n-k stay glued together.', isWeld:true},
+   ]},
+  {wordKey:'bring',  display:'bring',
+   blends:[
+     {blend:'br', indices:[0,1], rule:'<b>BR</b> is a two-letter blend. /b/ /r/ — two separate sounds at the start.'},
+     {blend:'ing',indices:[2],   rule:'<b>-ing-</b> at the end is a welded sound — one green tile, one tap.', isWeld:true},
+   ]},
+  {wordKey:'stand',  display:'stand',
+   blends:[
+     {blend:'st', indices:[0,1], rule:'<b>ST</b> is a two-letter blend at the start. /s/ /t/ — two separate taps.'},
+     {blend:'and',indices:[2],   rule:'<b>-and-</b> at the end is a welded sound — one green tile, one tap.', isWeld:true},
+   ]},
+  {wordKey:'clump',  display:'clump',
+   blends:[
+     {blend:'cl', indices:[0,1], rule:'<b>CL</b> is a two-letter blend at the start. /k/ /l/ — two clear sounds.'},
+     {blend:'mp', indices:[3,4], rule:'<b>MP</b> is a two-letter blend at the end. /m/ /p/ — both make sounds.'},
+   ]},
+  {wordKey:'draft',  display:'draft',
+   blends:[
+     {blend:'dr', indices:[0,1], rule:'<b>DR</b> is a two-letter blend. /d/ /r/ — tap each one separately.'},
+     {blend:'ft', indices:[3,4], rule:'<b>FT</b> is a two-letter blend at the end. /f/ /t/ — two separate sounds.'},
+   ]},
+  {wordKey:'crisp',  display:'crisp',
+   blends:[
+     {blend:'cr', indices:[0,1], rule:'<b>CR</b> is a two-letter blend. /k/ /r/ — both make sounds.'},
+     {blend:'sp', indices:[3,4], rule:'<b>SP</b> is a two-letter blend at the end. /s/ /p/ — two separate sounds.'},
+   ]},
+  {wordKey:'blend',  display:'blend',
+   blends:[
+     {blend:'bl', indices:[0,1], rule:'<b>BL</b> is a two-letter blend. /b/ /l/ — two sounds, not one.'},
+     {blend:'nd', indices:[3],   rule:'<b>-nd-</b> here is part of the welded pattern — one green tile.', isWeld:true},
+   ]},
+  {wordKey:'frost',  display:'frost',
+   blends:[
+     {blend:'fr', indices:[0,1], rule:'<b>FR</b> is a two-letter blend. /f/ /r/ — think: from, frost, frog.'},
+     {blend:'ost',indices:[2],   rule:'<b>-ost-</b> at the end is a closed syllable exception — one green tile, one tap.', isWeld:true},
+   ]},
 ];
 
-const BLEND3_Q=[
-  {word:'strap',  blend:'str',rule:'STR is a three-letter blend. Every letter makes its own sound: /s/ /t/ /r/.'},
-  {word:'scrap',  blend:'scr',rule:'SCR is a three-letter blend. /s/ /k/ /r/ — three separate sounds.'},
-  {word:'spring', blend:'spr',rule:'SPR is a three-letter blend. /s/ /p/ /r/ — sweep all three!'},
-  {word:'splash', blend:'spl',rule:'SPL is a three-letter blend. /s/ /p/ /l/ — three sounds at the start.'},
-  {word:'strong', blend:'str',rule:'STR again — /s/ /t/ /r/. Think: strong, strap, struck.'},
-  {word:'scrub',  blend:'scr',rule:'SCR — /s/ /k/ /r/. Think: scrub, scrap, scram.'},
-  {word:'sprint', blend:'spr',rule:'SPR — /s/ /p/ /r/. Think: sprint, spring, sprung.'},
-  {word:'split',  blend:'spl',rule:'SPL — /s/ /p/ /l/. Think: split, splash, splat.'},
+// ── ZONE 3 DATA ───────────────────────────────────────────────────────────────
+const Z3_ITEMS = [
+  {wordKey:'strap',  blend:'str', indices:[0,1,2], rule:'<b>STR</b> is a three-letter blend. Every letter makes its own sound: /s/ /t/ /r/.'},
+  {wordKey:'scrap',  blend:'scr', indices:[0,1,2], rule:'<b>SCR</b> is a three-letter blend. /s/ /k/ /r/ — three separate sounds.'},
+  {wordKey:'spring', blend:'spr', indices:[0,1,2], rule:'<b>SPR</b> is a three-letter blend. /s/ /p/ /r/ — sweep all three!'},
+  {wordKey:'splash', blend:'spl', indices:[0,1,2], rule:'<b>SPL</b> is a three-letter blend. /s/ /p/ /l/ — three sounds at the start.'},
+  {wordKey:'scrub',  blend:'scr', indices:[0,1,2], rule:'<b>SCR</b> again — /s/ /k/ /r/. Think: scrub, scrap, scram.'},
+  {wordKey:'sprint', blend:'spr', indices:[0,1,2], rule:'<b>SPR</b> — /s/ /p/ /r/. Think: sprint, spring, sprung.'},
+  {wordKey:'split',  blend:'spl', indices:[0,1,2], rule:'<b>SPL</b> — /s/ /p/ /l/. Think: split, splash, splat.'},
+  {wordKey:'script', blend:'scr', indices:[0,1,2], rule:'<b>SCR</b> — /s/ /k/ /r/. Think: script, scrap, scrub.'},
 ];
 
+// ── BASES DATA ────────────────────────────────────────────────────────────────
 const BASES=[
-  {b:'-fess-',m:'acknowledge',   ex:'confess, profess',   rule:'-fess- means ACKNOWLEDGE. Confess = to admit something.'},
-  {b:'-gress-',m:'step / degree',ex:'progress, Congress', rule:'-gress- means STEP. Progress = to step forward.'},
-  {b:'-mand-',m:'order',         ex:'command, demand',    rule:'-mand- means ORDER. Command = to give an order.'},
-  {b:'-mit-',m:'send',           ex:'submit, transmit',   rule:'-mit- means SEND. Submit = to send in. Transmit = to send across.'},
-  {b:'-pel-',m:'drive / push',   ex:'expel, propel',      rule:'-pel- means DRIVE or PUSH. Expel = to push out.'},
-  {b:'-pend-',m:'hang',          ex:'suspend, depend',    rule:'-pend- means HANG. Suspend = to hang up. Depend = to hang on.'},
-  {b:'-press-',m:'press / push', ex:'compress, express',  rule:'-press- means PRESS. Compress = to press together.'},
-  {b:'-rupt-',m:'break',         ex:'disrupt, interrupt', rule:'-rupt- means BREAK. Interrupt = to break into. Disrupt = to break apart.'},
-  {b:'-sent-',m:'feel / perceive',ex:'consent, absent',   rule:'-sent- means FEEL. Consent = to feel in agreement.'},
-  {b:'-sist-',m:'place / stand', ex:'insist, resist',     rule:'-sist- means STAND. Resist = to stand against.'},
-  {b:'-stant-',m:'standing',     ex:'constant, instant',  rule:'-stant- means STANDING. Constant = always standing there.'},
-  {b:'-tend-',m:'stretch / reach',ex:'extend, attend',    rule:'-tend- means STRETCH. Extend = to stretch out.'},
-  {b:'-tent-',m:'stretch / reach',ex:'intent, extent',    rule:'-tent- means STRETCH. Intent = stretched toward a goal.'},
-  {b:'-vent-',m:'come',          ex:'invent, prevent',    rule:'-vent- means COME. Invent = to come up with.'},
-  {b:'-dict-',m:'say / tell',    ex:'predict, dictate',   rule:'-dict- means SAY. Predict = to tell before it happens.'},
-  {b:'-duct-',m:'lead',          ex:'conduct, product',   rule:'-duct- means LEAD. Conduct = to lead together.'},
-  {b:'-fect-',m:'make / do',     ex:'infect, perfect',    rule:'-fect- means MAKE. Perfect = completely made.'},
-  {b:'-flect-',m:'bend / curve', ex:'reflect, deflect',   rule:'-flect- means BEND. Reflect = to bend back.'},
-  {b:'-ject-',m:'throw',         ex:'eject, reject',      rule:'-ject- means THROW. Eject = to throw out.'},
-  {b:'-lect-',m:'gather / choose',ex:'select, collect',   rule:'-lect- means GATHER. Select = to choose from.'},
-  {b:'-spect-',m:'look / see',   ex:'inspect, respect',   rule:'-spect- means LOOK. Inspect = to look carefully.'},
-  {b:'-struct-',m:'build',       ex:'construct, instruct',rule:'-struct- means BUILD. Construct = to build together.'},
-  {b:'-tract-',m:'draw / pull',  ex:'contract, attract',  rule:'-tract- means DRAW or PULL. Attract = to pull toward.'},
-  {b:'-vict-',m:'conquer',       ex:'evict, convict',     rule:'-vict- means CONQUER. Evict = to conquer out of a home.'},
+  {b:'-fess-',m:'acknowledge',    ex:'confess, profess',    rule:'-fess- means ACKNOWLEDGE. Confess = to admit something.'},
+  {b:'-gress-',m:'step / degree', ex:'progress, Congress',  rule:'-gress- means STEP. Progress = to step forward.'},
+  {b:'-mand-',m:'order',          ex:'command, demand',     rule:'-mand- means ORDER. Command = to give an order.'},
+  {b:'-mit-',m:'send',            ex:'submit, transmit',    rule:'-mit- means SEND. Submit = to send in. Transmit = to send across.'},
+  {b:'-pel-',m:'drive / push',    ex:'expel, propel',       rule:'-pel- means DRIVE or PUSH. Expel = to push out.'},
+  {b:'-pend-',m:'hang',           ex:'suspend, depend',     rule:'-pend- means HANG. Suspend = to hang up. Depend = to hang on.'},
+  {b:'-press-',m:'press / push',  ex:'compress, express',   rule:'-press- means PRESS. Compress = to press together.'},
+  {b:'-rupt-',m:'break',          ex:'disrupt, interrupt',  rule:'-rupt- means BREAK. Interrupt = to break into. Disrupt = to break apart.'},
+  {b:'-sent-',m:'feel / perceive',ex:'consent, absent',     rule:'-sent- means FEEL. Consent = to feel in agreement.'},
+  {b:'-sist-',m:'place / stand',  ex:'insist, resist',      rule:'-sist- means STAND. Resist = to stand against.'},
+  {b:'-stant-',m:'standing',      ex:'constant, instant',   rule:'-stant- means STANDING. Constant = always standing there.'},
+  {b:'-tend-',m:'stretch / reach',ex:'extend, attend',      rule:'-tend- means STRETCH. Extend = to stretch out.'},
+  {b:'-tent-',m:'stretch / reach',ex:'intent, extent',      rule:'-tent- means STRETCH. Intent = stretched toward a goal.'},
+  {b:'-vent-',m:'come',           ex:'invent, prevent',     rule:'-vent- means COME. Invent = to come up with.'},
+  {b:'-dict-',m:'say / tell',     ex:'predict, dictate',    rule:'-dict- means SAY. Predict = to tell before it happens.'},
+  {b:'-duct-',m:'lead',           ex:'conduct, product',    rule:'-duct- means LEAD. Conduct = to lead together.'},
+  {b:'-fect-',m:'make / do',      ex:'infect, perfect',     rule:'-fect- means MAKE. Perfect = completely made.'},
+  {b:'-flect-',m:'bend / curve',  ex:'reflect, deflect',    rule:'-flect- means BEND. Reflect = to bend back.'},
+  {b:'-ject-',m:'throw',          ex:'eject, reject',       rule:'-ject- means THROW. Eject = to throw out.'},
+  {b:'-lect-',m:'gather / choose',ex:'select, collect',     rule:'-lect- means GATHER. Select = to choose from.'},
+  {b:'-spect-',m:'look / see',    ex:'inspect, respect',    rule:'-spect- means LOOK. Inspect = to look carefully.'},
+  {b:'-struct-',m:'build',        ex:'construct, instruct', rule:'-struct- means BUILD. Construct = to build together.'},
+  {b:'-tract-',m:'draw / pull',   ex:'contract, attract',   rule:'-tract- means DRAW or PULL. Attract = to pull toward.'},
+  {b:'-vict-',m:'conquer',        ex:'evict, convict',      rule:'-vict- means CONQUER. Evict = to conquer out of a home.'},
 ];
 
 const SENTS=[
-  {text:'The bat clung to the only branch.',blend:'br'},
-  {text:'Can you put the plant stand on the deck?',blend:'st'},
-  {text:'The strong wind brings dust to the front.',blend:'str'},
-  {text:'Do not scrub if there is no mud.',blend:'scr'},
-  {text:'Fran had to scrub each pot!',blend:'scr'},
-  {text:'Each spring I get some plants.',blend:'spr'},
-  {text:'The kids will split up all the work.',blend:'spl'},
-  {text:'Brad had to stand in the brisk cold wind.',blend:'br'},
+  {text:'The bat clung to the only branch.',       blend:'BR'},
+  {text:'Can you put the plant stand on the deck?',blend:'ST'},
+  {text:'The strong wind brings dust to the front.',blend:'STR'},
+  {text:'Do not scrub if there is no mud.',         blend:'SCR'},
+  {text:'Fran had to scrub each pot!',              blend:'SCR'},
+  {text:'Each spring I get some plants.',           blend:'SPR'},
+  {text:'The kids will split up all the work.',     blend:'SPL'},
+  {text:'Brad had to stand in the brisk cold wind.',blend:'BR / ST'},
 ];
 
 const PASSAGES=[
@@ -419,53 +433,52 @@ const PASSAGES=[
     title:'At the Pond',substep:'2.4 AB',
     text:'Frank made a call to Ben and told him about the plan he had to swim at Flax Pond. Ben said he did want to come but asked if he could bring his dog, Skip. Frank said that it was always okay for Skip to come with them.\n\nFrank met Ben at the pond for lunch and a swim. They had hot wings, chips, and some drinks. Then they sat on a small hill to rest. Ben\'s pet dog, Skip, went for a run in the wet grass. He was a fast dog. Ben had to stand up and dash off to chase Skip. Ben had to try not to slip on the wet grass, but he got a cramp in his leg and fell.\n\nHe hit the front of his chin on a big clump of branches. Ben had to put a pad on the cut for a bit.\n\nThen, it was time for a swim. Skip went into the pond with Ben and Frank. Frank had a ball to toss to Skip many times. Skip had fun as he swam with the ball.\n\nThen, Ben\'s mom sent him a text. He told Frank, "I must go now, but we should come back to spend a day soon."',
     questions:[
-      {q:'Where did Frank and Ben plan to swim?',opts:['Flax Pond','Blue Lake','Flat Pond','The River'],ans:0,rule:'The story says Frank told Ben about his plan to swim at Flax Pond.'},
+      {q:'Where did Frank and Ben plan to swim?',opts:['Flax Pond','Blue Lake','Flat Pond','The River'],ans:0,rule:'The story says Frank told Ben about his plan to swim at <b>Flax Pond</b>.'},
       {q:'Why did Ben fall down?',opts:['Skip pulled him','He got a cramp and slipped','He tripped on a log','He was pushed'],ans:1,rule:'Ben got a cramp in his leg while trying not to slip on the wet grass.'},
-      {q:'What did Frank toss to Skip in the pond?',opts:['A stick','A treat','A ball','A toy fish'],ans:2,rule:'The story says Frank had a ball to toss to Skip many times.'},
-      {q:'Why did Ben have to leave?',opts:['He was hurt','His mom texted him','It got dark','Skip ran off'],ans:1,rule:'Ben\'s mom sent him a text telling him it was time to go.'},
-      {q:'What word has a 2-letter blend: "Ben had to stand up"?',opts:['stand','had','Ben','up'],ans:0,rule:'STAND starts with the blend ST — /s/ /t/ are two separate sounds.'},
-      {q:'What does the base -mit- mean in "submit"?',opts:['push','send','hang','break'],ans:1,rule:'-mit- means SEND. Submit = to send in. Trans-mit = to send across.'},
-      {q:'What welded sound do you hear at the end of "clump"?',opts:['ump','unk','ing','ang'],ans:0,rule:'CLUMP ends in the welded sound -ump. The letters u-m-p stay glued together.'},
-      {q:'The word "branch" starts with which blend?',opts:['br','bl','pr','tr'],ans:0,rule:'BRANCH starts with BR — /b/ /r/ are two separate sounds.'},
+      {q:'What did Frank toss to Skip in the pond?',opts:['A stick','A treat','A ball','A toy fish'],ans:2,rule:'The story says Frank had a <b>ball</b> to toss to Skip many times.'},
+      {q:'Why did Ben have to leave?',opts:['He was hurt','His mom texted him','It got dark','Skip ran off'],ans:1,rule:"Ben's mom sent him a text telling him it was time to go."},
+      {q:'What blend starts the word STAND?',opts:['st','br','cl','tr'],ans:0,rule:'<b>ST</b> is a two-letter blend. /s/ /t/ — two separate taps.'},
+      {q:'What does the base -mit- mean in SUBMIT?',opts:['push','send','hang','break'],ans:1,rule:'-mit- means <b>SEND</b>. Submit = to send in. Transmit = to send across.'},
+      {q:'What welded sound ends CLUMP?',opts:['ump','unk','ing','ang'],ans:0,rule:'CLUMP ends with the vowel u + the blend mp. The <b>-ump</b> pattern is a welded sound.'},
+      {q:'What blend starts BRANCH?',opts:['br','bl','pr','tr'],ans:0,rule:'<b>BR</b> is a two-letter blend. /b/ /r/ — two separate sounds.'},
     ]
   },
   {
     title:"Brad's Bad Day",substep:'2.4 B',
     text:"Brad fell in the slush by his front step and his bag was all wet. Brad did think that fall would be the last of his bad luck for now. He said he would try to go on and he kept his chin up on the way to the bus stop.\n\nBrad then had to rush to get the bus and he cut his leg on a branch. Now he had to run with a limp just to get there in time. When the bus went past his stop, Brad said, \"What is going on?\" He then had to call a cab and stand in the brisk, cold wind.\n\nAt last, Brad got to his job at the shop where he sold prints. At the shop, Brad did not sell any prints. The day did drag.\n\nAt last, Brad's shift came to an end. But his bad luck did not end. As the bus was about to come to the last stop, it got a flat when it ran into a trench of mud! The next day had to be better.",
     questions:[
-      {q:'How did Brad\'s bad day start?',opts:['He missed the bus','He fell in the slush','He lost his bag','He was late'],ans:1,rule:'The story opens with Brad falling in the slush by his front step.'},
-      {q:'How did Brad hurt his leg?',opts:['He fell on ice','He cut it on a branch','He twisted his ankle','He tripped'],ans:1,rule:'Brad had to rush and cut his leg on a branch on the way to the bus.'},
-      {q:'What was Brad\'s job?',opts:['He drove a cab','He sold prints','He fixed buses','He worked at a pond'],ans:1,rule:'The story says Brad got to his job at the shop where he sold prints.'},
-      {q:'What happened to the bus at the end of the day?',opts:['It went past his stop','It got a flat in mud','It broke down','It ran out of gas'],ans:1,rule:'The bus got a flat when it ran into a trench of mud.'},
-      {q:'What blend starts the word "branch"?',opts:['br','bl','gr','tr'],ans:0,rule:'BRANCH starts with BR — /b/ /r/ are both heard as separate sounds.'},
-      {q:'What blend starts the word "brisk"?',opts:['br','bl','gr','cr'],ans:0,rule:'BRISK starts with BR — think: bring, brad, branch, brisk.'},
-      {q:'What welded sound is in "stand"?',opts:['and','ant','ank','ing'],ans:0,rule:'STAND ends in the welded sound -and. The letters a-n-d stay together.'},
-      {q:'What does -rupt- mean in "disrupt"?',opts:['push','send','break','pull'],ans:2,rule:'-rupt- means BREAK. Disrupt = to break apart. Interrupt = to break into.'},
+      {q:"How did Brad's bad day start?",opts:['He missed the bus','He fell in the slush','He lost his bag','He was late'],ans:1,rule:'The story opens with Brad <b>falling in the slush</b> by his front step.'},
+      {q:'How did Brad hurt his leg?',opts:['He fell on ice','He cut it on a branch','He twisted his ankle','He tripped'],ans:1,rule:'Brad had to rush and cut his leg on a <b>branch</b> on the way to the bus.'},
+      {q:"What was Brad's job?",opts:['He drove a cab','He sold prints','He fixed buses','He worked at a pond'],ans:1,rule:"The story says Brad got to his job at the shop where he sold <b>prints</b>."},
+      {q:'What happened to the bus at the end?',opts:['It went past his stop','It got a flat in mud','It broke down','It ran out of gas'],ans:1,rule:'The bus got a flat when it ran into a <b>trench of mud</b>.'},
+      {q:'What blend starts BRANCH?',opts:['br','bl','gr','tr'],ans:0,rule:'<b>BR</b> is a two-letter blend — /b/ /r/ are both heard as separate sounds.'},
+      {q:'What blend starts BRISK?',opts:['br','bl','gr','cr'],ans:0,rule:'<b>BR</b> is a two-letter blend — think: bring, brad, branch, brisk.'},
+      {q:'What welded sound is in STAND?',opts:['and','ant','ank','ing'],ans:0,rule:'STAND contains the welded sound <b>-and-</b>. The letters a-n-d stay together with one tap.'},
+      {q:'What does -rupt- mean in DISRUPT?',opts:['push','send','break','pull'],ans:2,rule:'-rupt- means <b>BREAK</b>. Disrupt = to break apart. Interrupt = to break into.'},
     ]
   }
 ];
 
 const VAULT_Q=[
-  {type:'base', q:'What does -rupt- mean?',       opts:['break','send','hang','push'],    ans:0,rule:'-rupt- means BREAK. Disrupt, interrupt, rupture.'},
-  {type:'base', q:'What does -struct- mean?',     opts:['cut','build','pull','throw'],    ans:1,rule:'-struct- means BUILD. Construct, instruct, structure.'},
-  {type:'base', q:'What does -tract- mean?',      opts:['send','look','draw/pull','come'],ans:2,rule:'-tract- means DRAW or PULL. Attract, contract, subtract.'},
-  {type:'blend',q:'What blend starts SPRING?',    opts:['str','scr','spr','spl'],         ans:2,rule:'SPRING starts with SPR — /s/ /p/ /r/ — three letter blend.'},
-  {type:'blend',q:'What blend starts SCRAP?',     opts:['str','scr','spr','spl'],         ans:1,rule:'SCRAP starts with SCR — /s/ /k/ /r/ — three letter blend.'},
-  {type:'blend',q:'What blend starts STRAP?',     opts:['str','scr','spr','spl'],         ans:0,rule:'STRAP starts with STR — /s/ /t/ /r/ — three letter blend.'},
-  {type:'weld', q:'What welded sound ends TRUNK?',opts:['unk','ink','ang','ong'],          ans:0,rule:'-unk- is a welded sound. Trunk, skunk, chunk, dunk.'},
-  {type:'weld', q:'What welded sound ends CLANG?',opts:['ing','ang','ank','ong'],          ans:1,rule:'-ang- is a welded sound. Clang, bang, rang, sang.'},
+  {type:'base', q:'What does -rupt- mean?',        opts:['break','send','hang','push'],    ans:0,rule:'-rupt- means BREAK. Disrupt, interrupt, rupture.'},
+  {type:'base', q:'What does -struct- mean?',      opts:['cut','build','pull','throw'],    ans:1,rule:'-struct- means BUILD. Construct, instruct, structure.'},
+  {type:'base', q:'What does -tract- mean?',       opts:['send','look','draw/pull','come'],ans:2,rule:'-tract- means DRAW or PULL. Attract, contract, subtract.'},
+  {type:'blend',q:'What blend starts SPRING?',     opts:['str','scr','spr','spl'],         ans:2,rule:'SPRING starts with SPR — /s/ /p/ /r/ — three-letter blend.'},
+  {type:'blend',q:'What blend starts SCRAP?',      opts:['str','scr','spr','spl'],         ans:1,rule:'SCRAP starts with SCR — /s/ /k/ /r/ — three-letter blend.'},
+  {type:'blend',q:'What blend starts STRAP?',      opts:['str','scr','spr','spl'],         ans:0,rule:'STRAP starts with STR — /s/ /t/ /r/ — three-letter blend.'},
+  {type:'weld', q:'What welded sound ends TRUNK?', opts:['unk','ink','ang','ong'],          ans:0,rule:'-unk- is a welded sound. Trunk, skunk, chunk, dunk.'},
+  {type:'weld', q:'What welded sound ends CLANG?', opts:['ing','ang','ank','ong'],          ans:1,rule:'-ang- is a welded sound. Clang, bang, rang, sang.'},
 ];
 
 // ── GAME STATE ────────────────────────────────────────────────────────────────
 let G={
   zone:STUDENT.currentZone||1, q:0, total:8,
   score:0, errors:[], streak:0, bestStreak:0,
-  pendingCallback:null, passageIdx:0,
-  substep:STUDENT.substep||'2.4',
-  zones:STUDENT.zones||{},
+  passageIdx:0, substep:STUDENT.substep||'2.4', zones:STUDENT.zones||{},
+  // Zone 2 blend tracking
+  z2blendStep:0,
 };
 
-// ── RENDER ────────────────────────────────────────────────────────────────────
 const scroll=document.getElementById('scroll');
 function render(html){scroll.innerHTML=html;scroll.scrollTop=0;}
 
@@ -473,10 +486,8 @@ function updateTopBar(){
   const z=ZONE_META[G.zone-1];
   document.getElementById('tb-zone-label').textContent=`Zone ${G.zone} of 7`;
   document.getElementById('tb-zone-name').textContent=`${z.icon} ${z.name}`;
-  // sequencer dots
   document.getElementById('seq-fill').style.width=((G.zone-1)/7*100)+'%';
-  const dots=document.getElementById('seq-dots');
-  dots.innerHTML=ZONE_META.map(zm=>{
+  document.getElementById('seq-dots').innerHTML=ZONE_META.map(zm=>{
     const cls=zm.num<G.zone?'done':zm.num===G.zone?'active':'';
     return `<div class="seq-dot ${cls}" title="${zm.name}"></div>`;
   }).join('');
@@ -487,43 +498,36 @@ function showZoneMap(){
   document.getElementById('tb-zone-label').textContent='Operation Word DNA';
   document.getElementById('tb-zone-name').textContent='🔬 Mission Map';
   document.getElementById('seq-fill').style.width=((G.zone-1)/7*100)+'%';
-  const dots=document.getElementById('seq-dots');
-  dots.innerHTML=ZONE_META.map(zm=>{
+  document.getElementById('seq-dots').innerHTML=ZONE_META.map(zm=>{
     const cls=zm.num<G.zone?'done':zm.num===G.zone?'active':'';
     return `<div class="seq-dot ${cls}"></div>`;
   }).join('');
-
   let html=`<div style="text-align:center;padding:8px 0 16px">
     <div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 0 16px var(--green))">🔬</div>
     <div style="font-family:'Orbitron',monospace;font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:4px;opacity:.8">MISSION ACTIVE</div>
     <div style="font-size:14px;font-weight:700;color:var(--sub)">Welcome back, <b style="color:var(--text)">${STUDENT.name}</b></div>
   </div><div class="zone-map">`;
-
   ZONE_META.forEach(z=>{
-    const zdata=G.zones[`zone${z.num}`];
-    const stars=zdata?.stars||0;
+    const zd=G.zones[`zone${z.num}`];const stars=zd?.stars||0;
     const done=z.num<G.zone,active=z.num===G.zone,locked=z.num>G.zone;
     let cls=locked?'locked':done?'done':active?'active':'';
-    let right=locked
-      ?'<span style="font-size:18px;opacity:.4">🔒</span>'
-      :done?`<div class="zone-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>`
-      :'<span style="font-size:12px;font-weight:800;color:var(--green)">ENTER →</span>';
+    let right=locked?'<span style="font-size:18px;opacity:.4">🔒</span>':done?`<div class="zone-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>`:'<span style="font-size:12px;font-weight:800;color:var(--green)">ENTER →</span>';
     html+=`<div class="zone-card ${cls}" onclick="${active||done?`startZone(${z.num})`:''}">
       <div class="zone-icon">${z.icon}</div>
-      <div class="zone-info">
-        <div class="zone-num">Zone ${z.num}</div>
-        <div class="zone-title">${z.name}</div>
-        <div class="zone-desc">${z.desc}</div>
-      </div>${right}</div>`;
+      <div class="zone-info"><div class="zone-num">Zone ${z.num}</div><div class="zone-title">${z.name}</div><div class="zone-desc">${z.desc}</div></div>
+      ${right}</div>`;
   });
-  html+='</div>';
-  render(html);
+  html+='</div>';render(html);
 }
 
-// ── START ZONE ────────────────────────────────────────────────────────────────
 window.startZone=function(num){
-  G.zone=num;G.q=0;G.score=0;G.errors=[];G.streak=0;
+  G.zone=num;G.q=0;G.score=0;G.errors=[];G.streak=0;G.z2blendStep=0;
   updateTopBar();showStory(num);
+};
+window.runZone=function(num){
+  if(num===1)z1next();else if(num===2)z2next();else if(num===3)z3next();
+  else if(num===4)z4next();else if(num===5)z5next();
+  else if(num===6)z6start();else z7next();
 };
 
 function showStory(num){
@@ -533,103 +537,173 @@ function showStory(num){
     <div class="story-title">${s.title}</div>
     <div class="story-text">${s.text}</div>
   </div>
-  <div style="font-size:12px;color:var(--sub);text-align:center;margin:0 0 12px">8 questions · 1–3 stars based on accuracy · errors can be corrected for 1 point</div>
+  <div style="font-size:12px;color:var(--sub);text-align:center;margin:0 0 12px">8 questions · 1–3 stars · errors can be corrected for 1 point</div>
   <button class="btn-launch" onclick="runZone(${num})">🔬 Begin Zone ${num} — ${z.name}</button>`);
 }
 
-window.runZone=function(num){
-  if(num===1)z1next();else if(num===2)z2next();else if(num===3)z3next();
-  else if(num===4)z4next();else if(num===5)z5next();
-  else if(num===6)z6start();else if(num===7)z7next();
-};
-
-// ── ZONE 1 ────────────────────────────────────────────────────────────────────
+// ── ZONE 1 — WELDS & EXCEPTIONS ───────────────────────────────────────────────
 function z1next(){
   if(G.q>=G.total){zoneComplete();return;}
-  const item=WELD_Q[G.q%WELD_Q.length];
-  const choices=WELD_C[G.q%WELD_C.length];
-  const label=item.exception?'CLOSED SYLLABLE EXCEPTION':'WELDED SOUND';
-  render(`<div class="sec" style="text-align:center">${label} — ${G.q+1} of ${G.total}</div>
-    <div class="tile-display">${item.display.split('').map(l=>`<div class="tile tile-consonant">${l}</div>`).join('')}</div>
-    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px">${item.exception?'What closed syllable exception do you see?':'What is the welded sound in this word?'}</div>
-    <div class="choices">${choices.map(c=>`<button class="choice" onclick="chkWeld('${c}','${item.weld}','${item.rule.replace(/'/g,"\\'")}','${item.word}')">${c}</button>`).join('')}</div>
+  const item=Z1_ITEMS[G.q%Z1_ITEMS.length];
+  const segs=WORDS[item.wordKey];
+  const typeLabel=item.type==='exception'?'CLOSED SYLLABLE EXCEPTION':'WELDED SOUND';
+  const questionText=item.type==='exception'?'What closed syllable exception do you see in this word?':'What is the welded sound in this word?';
+  render(`
+    <div class="sec" style="text-align:center">${typeLabel} — ${G.q+1} of ${G.total}</div>
+    <div class="tile-display">${buildTiles(segs)}</div>
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px">${questionText}</div>
+    <div class="choices">${item.choices.map(c=>`<button class="choice" onclick="chkWeld('${c}','${item.weld}',\`${item.rule}\`,'${item.wordKey}')">${c}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
-window.chkWeld=function(chosen,correct,rule,word){
+window.chkWeld=function(chosen,correct,rule,wordKey){
   if(chosen===correct){
     markBtn(chosen,correct);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
     setTimeout(()=>{G.q++;z1next();},800);
   }else{
     markBtn(chosen,correct);G.streak=0;
-    showErr(`The welded sound in <b>${word}</b> is <b>-${correct}-</b>. ${rule}`,`-${correct}-`,()=>{G.q++;G.errors.push({q:word,wrong:chosen,correct});z1next();});
+    const display=`<div class="tile tw" style="margin:0 auto">${correct}</div>`;
+    showErr(rule,display,()=>{G.q++;G.errors.push({q:wordKey,wrong:chosen,correct});z1next();});
   }
 };
 
-// ── ZONE 2 ────────────────────────────────────────────────────────────────────
+// ── ZONE 2 — 2-LETTER BLENDS ──────────────────────────────────────────────────
 function z2next(){
   if(G.q>=G.total){zoneComplete();return;}
-  const item=BLEND2_Q[G.q%BLEND2_Q.length];
-  render(`<div class="sec" style="text-align:center">2-LETTER BLEND — ${G.q+1} of ${G.total}</div>
-    <div style="font-size:13px;color:var(--sub);text-align:center;margin:6px 0 10px">Tap the two letters that form the blend</div>
-    <div class="swipe-word" id="sw">${item.word.split('').map((l,i)=>`<div class="swipe-letter" id="sl${i}" data-i="${i}" onclick="tapL(${i})">${l}</div>`).join('')}</div>
+  G.z2blendStep=0;
+  renderZ2Question();
+}
+
+function renderZ2Question(){
+  const item=Z2_ITEMS[G.q%Z2_ITEMS.length];
+  const segs=WORDS[item.wordKey];
+  const totalBlends=item.blends.length;
+  const stepLabel=totalBlends>1?` (blend ${G.z2blendStep+1} of ${totalBlends})`:'';
+  const currentBlend=item.blends[G.z2blendStep];
+  const promptText=currentBlend.isWeld
+    ?`Now find the <b>welded sound</b> at the end${stepLabel}`
+    :`Tap the letters that form the blend${stepLabel}`;
+
+  // show hint if this is the second+ blend
+  let hintHtml='';
+  if(G.z2blendStep>0){
+    const prev=item.blends.slice(0,G.z2blendStep).map(b=>`<b>${b.blend.toUpperCase()}</b>`).join(' and ');
+    hintHtml=`<div class="hint-banner">✓ Found ${prev} — but there's another blend to mark!</div>`;
+  }
+
+  render(`
+    <div class="sec" style="text-align:center">2-LETTER BLEND — ${G.q+1} of ${G.total}${stepLabel}</div>
+    ${hintHtml}
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin:6px 0 10px">${promptText}</div>
+    <div class="swipe-word" id="sw">${buildSwipeTiles(segs)}</div>
     <div id="bfb" style="text-align:center;font-size:13px;color:var(--sub);margin:8px 0">Tap each letter in the blend</div>
-    <button class="btn btn-green btn-full" style="margin-top:6px" onclick="subBlend2('${item.blend}','${item.rule.replace(/'/g,"\\'")}','${item.word}')">Check blend ✓</button>
+    <button class="btn btn-green btn-full" style="margin-top:6px" onclick="subBlend2()">Check ✓</button>
     ${scoreBar()}`);
   window._tap=new Set();
+  // lock already-found blends from previous steps
+  item.blends.slice(0,G.z2blendStep).forEach(prev=>{
+    prev.indices.forEach(i=>{
+      const el=document.getElementById('sl'+i);
+      if(el){el.classList.add('locked');el.onclick=null;}
+    });
+  });
 }
+
 window.tapL=function(i){
   const el=document.getElementById('sl'+i);
+  if(!el||el.classList.contains('locked'))return;
   if(!window._tap)window._tap=new Set();
   if(window._tap.has(i)){window._tap.delete(i);el.classList.remove('swept');}
   else{window._tap.add(i);el.classList.add('swept');}
-  document.getElementById('bfb').textContent='Selected: '+[...window._tap].sort().map(j=>document.getElementById('sl'+j).textContent).join('');
+  const item=Z2_ITEMS[G.q%Z2_ITEMS.length];
+  const segs=WORDS[item.wordKey];
+  const chosen=[...window._tap].sort((a,b)=>a-b).map(j=>segs[j]?.s||'').join('');
+  document.getElementById('bfb').textContent='Selected: '+chosen;
 };
-window.subBlend2=function(correct,rule,word){
+
+window.subBlend2=function(){
+  const item=Z2_ITEMS[G.q%Z2_ITEMS.length];
+  const segs=WORDS[item.wordKey];
+  const currentBlend=item.blends[G.z2blendStep];
   const tapped=[...window._tap].sort((a,b)=>a-b);
-  const chosen=tapped.map(i=>document.getElementById('sl'+i).textContent).join('');
-  if(JSON.stringify(tapped)==='[0,1]'&&chosen.toLowerCase()===correct){
-    [0,1].forEach(i=>{const el=document.getElementById('sl'+i);if(el)el.classList.replace('swept','locked');});
-    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
-    document.getElementById('bfb').textContent='✓ '+correct.toUpperCase()+' is the blend!';
-    setTimeout(()=>{G.q++;z2next();},900);
+  const chosen=tapped.map(j=>segs[j]?.s||'').join('');
+  const correctStr=currentBlend.blend;
+  const correctIdx=currentBlend.indices;
+
+  const isCorrect=JSON.stringify(tapped)===JSON.stringify(correctIdx)||chosen.toLowerCase()===correctStr;
+
+  if(isCorrect){
+    // lock found tiles
+    tapped.forEach(i=>{
+      const el=document.getElementById('sl'+i);
+      if(el){el.classList.remove('swept');el.classList.add('locked');el.onclick=null;}
+    });
+    document.getElementById('bfb').textContent=`✓ ${correctStr.toUpperCase()} found!`;
+    G.z2blendStep++;
+    if(G.z2blendStep<item.blends.length){
+      // more blends to find
+      G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+      setTimeout(()=>renderZ2Question(),900);
+    } else {
+      // all blends found
+      G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+      document.getElementById('bfb').textContent=`✓ All blends marked in ${item.display}!`;
+      setTimeout(()=>{G.q++;G.z2blendStep=0;z2next();},900);
+    }
   }else{
+    // wrong
     G.streak=0;
-    showErr(`The blend in <b>${word}</b> is <b>${correct.toUpperCase()}</b>. ${rule}`,`${correct.toUpperCase()} — /`+correct.split('').join('/ /')+`/`,()=>{G.q++;G.errors.push({q:word,wrong:chosen,correct});z2next();});
+    window._tap.forEach(i=>{const el=document.getElementById('sl'+i);if(el){el.classList.remove('swept');el.classList.add('wrong-flash');setTimeout(()=>el.classList.remove('wrong-flash'),400);}});
+    window._tap=new Set();
+    const displayTile=currentBlend.isWeld
+      ?`<div class="tile tw" style="margin:0 auto">${correctStr}</div>`
+      :`<div style="display:flex;gap:6px;justify-content:center">${correctStr.split('').map(l=>`<div class="tile tc">${l}</div>`).join('')}</div>`;
+    showErr(currentBlend.rule,displayTile,()=>{
+      G.errors.push({q:item.display,wrong:chosen,correct:correctStr});
+      G.z2blendStep++;
+      if(G.z2blendStep<item.blends.length)renderZ2Question();
+      else{G.q++;G.z2blendStep=0;z2next();}
+    });
   }
 };
 
-// ── ZONE 3 ────────────────────────────────────────────────────────────────────
+// ── ZONE 3 — 3-LETTER BLENDS ──────────────────────────────────────────────────
 function z3next(){
   if(G.q>=G.total){zoneComplete();return;}
-  const item=BLEND3_Q[G.q%BLEND3_Q.length];
-  render(`<div class="sec" style="text-align:center">3-LETTER BLEND — ${G.q+1} of ${G.total}</div>
+  const item=Z3_ITEMS[G.q%Z3_ITEMS.length];
+  const segs=WORDS[item.wordKey];
+  render(`
+    <div class="sec" style="text-align:center">3-LETTER BLEND — ${G.q+1} of ${G.total}</div>
     <div style="font-size:13px;color:var(--sub);text-align:center;margin:6px 0 10px">Swipe across the three-letter blend</div>
-    <div class="swipe-word" id="sw" style="touch-action:none">${item.word.split('').map((l,i)=>`<div class="swipe-letter" id="sl${i}" data-i="${i}">${l}</div>`).join('')}</div>
+    <div class="swipe-word" id="sw" style="touch-action:none">${buildSwipeTiles(segs)}</div>
     <div id="bfb" style="text-align:center;font-size:13px;color:var(--sub);margin:8px 0">Swipe or tap the three blend letters</div>
-    <button class="btn btn-green btn-full" style="margin-top:6px" onclick="subBlend3('${item.blend}','${item.rule.replace(/'/g,"\\'")}','${item.word}')">Check blend ✓</button>
+    <button class="btn btn-green btn-full" style="margin-top:6px" onclick="subBlend3('${item.blend}',\`${item.rule}\`,'${item.wordKey}')">Check blend ✓</button>
     ${scoreBar()}`);
   window._sw3=new Set();
   setupSwipe();
 }
+
 function setupSwipe(){
   const c=document.getElementById('sw');if(!c)return;
   let on=false;
   const mark=i=>{
-    if(!window._sw3.has(i)){
+    if(window._sw3&&!window._sw3.has(i)){
       window._sw3.add(i);
       const el=document.getElementById('sl'+i);if(el)el.classList.add('swept');
+      const segs=WORDS[Z3_ITEMS[G.q%Z3_ITEMS.length].wordKey];
       const fb=document.getElementById('bfb');
-      if(fb)fb.textContent='Sweeping: '+[...window._sw3].sort((a,b)=>a-b).map(j=>{const e=document.getElementById('sl'+j);return e?e.textContent:'';}).join('');
+      if(fb)fb.textContent='Sweeping: '+[...window._sw3].sort((a,b)=>a-b).map(j=>segs[j]?.s||'').join('');
     }
   };
   c.addEventListener('touchstart',e=>{on=true;e.preventDefault();const t=e.touches[0];const el=document.elementFromPoint(t.clientX,t.clientY);if(el&&el.dataset.i!=null)mark(parseInt(el.dataset.i));},{passive:false});
   c.addEventListener('touchmove',e=>{if(!on)return;e.preventDefault();const t=e.touches[0];const el=document.elementFromPoint(t.clientX,t.clientY);if(el&&el.dataset.i!=null)mark(parseInt(el.dataset.i));},{passive:false});
   c.addEventListener('touchend',()=>on=false);
-  c.querySelectorAll('.swipe-letter').forEach(el=>el.addEventListener('click',()=>mark(parseInt(el.dataset.i))));
+  c.querySelectorAll('.sl').forEach(el=>el.addEventListener('click',()=>mark(parseInt(el.dataset.i))));
 }
-window.subBlend3=function(correct,rule,word){
+
+window.subBlend3=function(correct,rule,wordKey){
+  const segs=WORDS[wordKey];
   const sw=[...window._sw3].sort((a,b)=>a-b);
-  const chosen=sw.map(i=>{const e=document.getElementById('sl'+i);return e?e.textContent:'';}).join('');
+  const chosen=sw.map(i=>segs[i]?.s||'').join('');
   if(chosen.toLowerCase()===correct&&sw[0]===0&&sw.length===3){
     [0,1,2].forEach(i=>{const el=document.getElementById('sl'+i);if(el){el.classList.remove('swept');el.classList.add('locked');}});
     G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
@@ -637,11 +711,14 @@ window.subBlend3=function(correct,rule,word){
     setTimeout(()=>{G.q++;z3next();},900);
   }else{
     G.streak=0;
-    showErr(`The blend in <b>${word}</b> is <b>${correct.toUpperCase()}</b>. ${rule}`,`${correct.toUpperCase()} — /`+correct.split('').join('/ /')+`/`,()=>{G.q++;G.errors.push({q:word,wrong:chosen,correct});z3next();});
+    window._sw3.forEach(i=>{const el=document.getElementById('sl'+i);if(el){el.classList.remove('swept');el.classList.add('wrong-flash');setTimeout(()=>el.classList.remove('wrong-flash'),400);}});
+    window._sw3=new Set();
+    const displayTile=`<div style="display:flex;gap:6px;justify-content:center">${correct.split('').map(l=>`<div class="tile tc">${l}</div>`).join('')}</div>`;
+    showErr(rule,displayTile,()=>{G.errors.push({q:wordKey,wrong:chosen,correct});z3next();});
   }
 };
 
-// ── ZONE 4 ────────────────────────────────────────────────────────────────────
+// ── ZONE 4 — LATIN BASES ──────────────────────────────────────────────────────
 function z4next(){
   if(G.q>=G.total){zoneComplete();return;}
   const pool=G.substep==='2.5'?BASES.slice(14):G.substep==='both'?BASES:BASES.slice(0,14);
@@ -650,11 +727,12 @@ function z4next(){
   const choices=[item,...wrongs].sort(()=>Math.random()-.5);
   const qtype=G.q%2===0?'meaning':'base';
   if(qtype==='meaning')choices.forEach(c=>c._lbl=c.m);else choices.forEach(c=>c._lbl=c.b);
-  render(`<div class="sec" style="text-align:center">LATIN BASE — ${G.q+1} of ${G.total}</div>
-    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:4px">${qtype==='meaning'?'What does this base mean?':'Which base has this meaning?'}</div>
+  render(`
+    <div class="sec" style="text-align:center">LATIN BASE — ${G.q+1} of ${G.total}</div>
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:6px">${qtype==='meaning'?'What does this base mean?':'Which base has this meaning?'}</div>
     <div class="tile-display">${qtype==='meaning'?`<div class="tile tile-base">${item.b}</div>`:`<div style="font-size:20px;font-weight:800;color:var(--amber)">"${item.m}"</div>`}</div>
     <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:10px">Example words: <b style="color:var(--text)">${item.ex}</b></div>
-    <div class="choices">${choices.map(c=>`<button class="choice" onclick="chkBase('${c._lbl.replace(/'/g,"\\'")}','${(qtype==='meaning'?item.m:item.b).replace(/'/g,"\\'")}','${item.rule.replace(/'/g,"\\'")}','${item.b}')">${c._lbl}</button>`).join('')}</div>
+    <div class="choices">${choices.map(c=>`<button class="choice" onclick="chkBase(\`${c._lbl}\`,\`${qtype==='meaning'?item.m:item.b}\`,\`${item.rule}\`,\`${item.b}\`)">${c._lbl}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
 window.chkBase=function(chosen,correct,rule,base){
@@ -667,16 +745,17 @@ window.chkBase=function(chosen,correct,rule,base){
   }
 };
 
-// ── ZONE 5 ────────────────────────────────────────────────────────────────────
+// ── ZONE 5 — SENTENCES ────────────────────────────────────────────────────────
 function z5next(){
   if(G.q>=G.total){zoneComplete();return;}
   const item=SENTS[G.q%SENTS.length];
-  render(`<div class="sec" style="text-align:center">SENTENCE READING — ${G.q+1} of ${G.total}</div>
+  render(`
+    <div class="sec" style="text-align:center">SENTENCE READING — ${G.q+1} of ${G.total}</div>
     <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:10px">Read aloud · Tap words to scoop phrases</div>
     <div class="scoop-sentence">
       <div class="scoop-words" id="scoop-words">${item.text.split(' ').map((w,i)=>`<span class="scoop-word" id="sw${i}" onclick="scoop(${i})">${w}</span>`).join(' ')}</div>
     </div>
-    <div style="font-size:11px;color:var(--sub);text-align:center;margin:8px 0">Look for the blend: <b style="color:var(--green)">${item.blend.toUpperCase()}</b></div>
+    <div style="font-size:11px;color:var(--sub);text-align:center;margin:8px 0">Look for the blend: <b style="color:var(--green)">${item.blend}</b></div>
     <div class="teacher-btns">
       <button class="btn btn-green" onclick="sentOk(true)">✓ Read correctly</button>
       <button class="btn btn-ghost" onclick="sentOk(false)">✗ Needs practice</button>
@@ -684,11 +763,7 @@ function z5next(){
     ${scoreBar()}`);
   window._sc=new Set();
 }
-window.scoop=function(i){
-  const el=document.getElementById('sw'+i);if(!el)return;
-  if(window._sc.has(i)){window._sc.delete(i);el.classList.remove('scooped');}
-  else{window._sc.add(i);el.classList.add('scooped');}
-};
+window.scoop=function(i){const el=document.getElementById('sw'+i);if(!el)return;if(window._sc.has(i)){window._sc.delete(i);el.classList.remove('scooped');}else{window._sc.add(i);el.classList.add('scooped');}};
 window.sentOk=async function(ok){
   if(ok){G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;}
   else{G.streak=0;G.errors.push({q:SENTS[G.q%SENTS.length].text,wrong:'needs practice',correct:'correct read'});}
@@ -696,11 +771,12 @@ window.sentOk=async function(ok){
   G.q++;z5next();
 };
 
-// ── ZONE 6 ────────────────────────────────────────────────────────────────────
+// ── ZONE 6 — PASSAGE ──────────────────────────────────────────────────────────
 function z6start(){
   G.passageIdx=G.substep==='2.5'?1:0;
   const p=PASSAGES[G.passageIdx];
-  render(`<div class="sec" style="text-align:center">ARCHIVE ROOM — Read the passage</div>
+  render(`
+    <div class="sec" style="text-align:center">ARCHIVE ROOM — Read the passage</div>
     <div class="passage-box">
       <div class="passage-title-display">${p.title}</div>
       <div class="passage-substep">${p.substep}</div>
@@ -712,9 +788,10 @@ window.z6questions=function(){G.q=0;z6next();};
 function z6next(){
   if(G.q>=PASSAGES[G.passageIdx].questions.length){zoneComplete();return;}
   const p=PASSAGES[G.passageIdx],item=p.questions[G.q];
-  render(`<div class="sec" style="text-align:center">COMPREHENSION — ${G.q+1} of ${p.questions.length}</div>
+  render(`
+    <div class="sec" style="text-align:center">COMPREHENSION — ${G.q+1} of ${p.questions.length}</div>
     <div class="card" style="font-size:15px;font-weight:700;margin-bottom:10px">${item.q}</div>
-    <div class="choices">${item.opts.map((o,i)=>`<button class="choice" onclick="chkPass(${i},${item.ans},'${item.rule.replace(/'/g,"\\'")}','${item.opts[item.ans].replace(/'/g,"\\'")}' )">${o}</button>`).join('')}</div>
+    <div class="choices">${item.opts.map((o,i)=>`<button class="choice" onclick="chkPass(${i},${item.ans},\`${item.rule}\`,\`${item.opts[item.ans]}\`)">${o}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
 window.chkPass=function(chosen,correct,rule,correctText){
@@ -727,14 +804,15 @@ window.chkPass=function(chosen,correct,rule,correctText){
   }
 };
 
-// ── ZONE 7 ────────────────────────────────────────────────────────────────────
+// ── ZONE 7 — VAULT ────────────────────────────────────────────────────────────
 function z7next(){
   if(G.q>=G.total){zoneComplete();return;}
   const item=VAULT_Q[G.q%VAULT_Q.length];
   const typeLabel=item.type==='base'?'LATIN BASE':item.type==='blend'?'BLEND':'WELDED SOUND';
-  render(`<div class="sec" style="text-align:center">THE VAULT — ${typeLabel} — ${G.q+1} of ${G.total}</div>
+  render(`
+    <div class="sec" style="text-align:center">THE VAULT — ${typeLabel} — ${G.q+1} of ${G.total}</div>
     <div class="tile-display"><div style="font-size:17px;font-weight:800;color:var(--text);text-align:center;padding:8px">${item.q}</div></div>
-    <div class="choices">${item.opts.map((o,i)=>`<button class="choice" onclick="chkVault(${i},${item.ans},'${item.rule.replace(/'/g,"\\'")}','${item.opts[item.ans].replace(/'/g,"\\'")}' )">${o}</button>`).join('')}</div>
+    <div class="choices">${item.opts.map((o,i)=>`<button class="choice" onclick="chkVault(${i},${item.ans},\`${item.rule}\`,\`${item.opts[item.ans]}\`)">${o}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
 window.chkVault=function(chosen,correct,rule,correctText){
@@ -743,7 +821,7 @@ window.chkVault=function(chosen,correct,rule,correctText){
     setTimeout(()=>{G.q++;z7next();},800);
   }else{
     markBtn(chosen,correct,true);G.streak=0;
-    showErr(rule,correctText,()=>{G.q++;G.errors.push({q:VAULT_Q[G.q%VAULT_Q.length]?.q||'',wrong:chosen,correct:correctText});z7next();});
+    showErr(rule,correctText,()=>{G.q++;G.errors.push({q:'',wrong:chosen,correct:correctText});z7next();});
   }
 };
 
@@ -754,7 +832,6 @@ function scoreBar(){
     ${G.streak>1?`<span class="streak">🔥 ${G.streak} in a row</span>`:''}
   </div>`;
 }
-
 function markBtn(chosen,correct,byIndex=false){
   document.querySelectorAll('.choice').forEach((b,i)=>{
     b.disabled=true;
@@ -768,7 +845,9 @@ function markBtn(chosen,correct,byIndex=false){
 let _cb=null;
 function showErr(ruleHtml,correctDisplay,cb){
   document.getElementById('popup-rule').innerHTML=ruleHtml;
-  document.getElementById('popup-correct').textContent='✓ '+correctDisplay;
+  const pc=document.getElementById('popup-correct');
+  if(correctDisplay.startsWith('<'))pc.innerHTML=correctDisplay;
+  else pc.textContent='✓ '+correctDisplay;
   document.getElementById('error-popup').style.display='flex';
   _cb=cb;
 }
@@ -788,15 +867,10 @@ async function zoneComplete(){
     STUDENT.currentZone=Math.max(STUDENT.currentZone||1,G.zone+1);
     sessionStorage.setItem('wdl_student',JSON.stringify(STUDENT));
   }catch(e){console.error('Save error',e);}
-
-  const msgs={3:'Perfect! Sample fully restored to the lab. 🧬',2:'Good work! Sample secured with minor contamination.',1:'Sample recovered! A few readings need reinforcement.'};
+  const msgs={3:'Perfect! Sample fully restored to the lab. 🧬',2:'Good work! Sample secured with minor contamination.',1:'Sample recovered! A few readings still need reinforcement.'};
   const vialPct=stars===3?100:stars===2?66:33;
-
   let errSec='';
-  if(G.errors.length){
-    errSec=`<div class="error-list"><div class="sec" style="margin-bottom:6px">Review these</div>${G.errors.map(e=>`<div class="error-item"><b>${e.q}</b> → <span>${e.correct}</span></div>`).join('')}</div>`;
-  }
-
+  if(G.errors.length)errSec=`<div class="error-list"><div class="sec" style="margin-bottom:6px">Review these</div>${G.errors.map(e=>`<div class="error-item"><b>${e.q}</b> → <span>${e.correct}</span></div>`).join('')}</div>`;
   const isLast=G.zone===7;
   render(`<div class="results">
     <div class="vial-container"><div><div class="vial-cap"></div><div class="vial"><div class="vial-fill" style="height:${vialPct}%"></div></div></div></div>
@@ -811,53 +885,33 @@ async function zoneComplete(){
     </div>
     <div style="font-size:13px;color:var(--sub);margin-bottom:14px">${msgs[stars]}</div>
     ${errSec}
-    ${isLast
-      ?`<button class="btn-launch" onclick="labRestored()">🏆 Restore the Lab!</button>`
-      :`<button class="btn-launch" onclick="startZone(${G.zone+1})">Next: ${ZONE_META[G.zone]?.icon} ${ZONE_META[G.zone]?.name} →</button>`
-    }
+    ${isLast?`<button class="btn-launch" onclick="labRestored()">🏆 Restore the Lab!</button>`:`<button class="btn-launch" onclick="startZone(${G.zone+1})">Next: ${ZONE_META[G.zone]?.icon} ${ZONE_META[G.zone]?.name} →</button>`}
     <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="showZoneMap()">← Mission map</button>
     ${stars<3?`<button class="btn btn-ghost btn-full" style="margin-top:4px" onclick="startZone(${G.zone})">↺ Replay zone</button>`:''}
   </div>`);
 }
-
 window.labRestored=function(){
   fireConfetti();setTimeout(fireConfetti,700);
   render(`<div class="results">
     <div style="font-size:70px;margin-bottom:12px;filter:drop-shadow(0 0 30px var(--green))">🔬</div>
     <div class="result-title" style="font-size:22px;color:var(--lime)">LAB FULLY RESTORED!</div>
-    <div style="font-size:15px;color:var(--sub);margin:14px 0 20px;line-height:1.7">
-      Outstanding work, <b style="color:var(--text)">${STUDENT.name}</b>!<br>
-      Every sample is back in its vial.<br>
-      The Word DNA Lab is secure. 🧬
-    </div>
+    <div style="font-size:15px;color:var(--sub);margin:14px 0 20px;line-height:1.7">Outstanding work, <b style="color:var(--text)">${STUDENT.name}</b>!<br>Every sample is back in its vial.<br>The Word DNA Lab is secure. 🧬</div>
     <div style="font-size:36px;margin-bottom:20px">🏆</div>
     <button class="btn-launch" onclick="showZoneMap()">Play again</button>
     <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="window.location.href='index.html'">← Student select</button>
   </div>`);
 };
 
-// ── CONFETTI ──────────────────────────────────────────────────────────────────
 function fireConfetti(){
-  const cv=document.getElementById('confetti');
-  const ctx=cv.getContext('2d');
+  const cv=document.getElementById('confetti');const ctx=cv.getContext('2d');
   cv.width=window.innerWidth;cv.height=window.innerHeight;
-  const pieces=[];
-  const cols=['#00e5a0','#76ff03','#00bcd4','#ffab00','#fff','#00f0a8'];
+  const pieces=[];const cols=['#00e5a0','#76ff03','#00bcd4','#ffab00','#fff','#00f0a8'];
   for(let i=0;i<90;i++)pieces.push({x:Math.random()*cv.width,y:-10,r:Math.random()*7+3,c:cols[Math.floor(Math.random()*cols.length)],vx:(Math.random()-.5)*5,vy:Math.random()*4+2,rot:Math.random()*360,vr:(Math.random()-.5)*12});
   let t=0;
-  function draw(){
-    ctx.clearRect(0,0,cv.width,cv.height);
-    pieces.forEach(p=>{
-      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
-      ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
-      ctx.restore();p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.06;
-    });
-    t++;if(t<140)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);
-  }
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pieces.forEach(p=>{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.06;});t++;if(t<140)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
   draw();
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
 showZoneMap();
 </script>
 </body>
