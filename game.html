@@ -8,256 +8,317 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --navy:#0d1021;--navy2:#161929;--navy3:#1e2240;--navy4:#252b50;
-  --violet:#6c63ff;--violet-lt:#8b85ff;--violet-dk:#4d45cc;
-  --teal:#4ecfb3;--teal-dk:#32a88f;--teal-lt:rgba(78,207,179,.15);
-  --gold:#f5c842;--gold-lt:rgba(245,200,66,.15);
-  --coral:#ff6b6b;--coral-lt:rgba(255,107,107,.15);
-  --text:#e8eaf6;--sub:rgba(232,234,246,.45);--border:rgba(255,255,255,.08);
+  --black:#061412;--dark:#0a1e1a;--dark2:#0d2b22;--dark3:#112e24;--dark4:#163830;
+  --green:#00e5a0;--green-dk:#00b37d;--green-lt:rgba(0,229,160,.12);--green-glow:rgba(0,229,160,.25);
+  --cyan:#00bcd4;--cyan-lt:rgba(0,188,212,.12);
+  --lime:#76ff03;--lime-lt:rgba(118,255,3,.12);
+  --red:#ff5252;--red-lt:rgba(255,82,82,.12);
+  --amber:#ffab00;--amber-lt:rgba(255,171,0,.12);
+  --text:#e0f2ee;--sub:rgba(224,242,238,.45);--border:rgba(0,229,160,.12);
   --r:14px;--rs:10px;
 }
 html,body{height:100%;overflow:hidden}
-body{font-family:'Nunito',sans-serif;background:var(--navy);color:var(--text);display:flex;flex-direction:column}
+body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);display:flex;flex-direction:column}
 
-/* ── STARS ── */
-.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
-.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) infinite alternate}
-@keyframes twinkle{from{opacity:.1}to{opacity:.7}}
+/* ── HEX BG ── */
+.hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3Cpath d='M28 34 L56 50 L56 84 L28 100 L0 84 L0 50 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 100px}
+
+/* scan line — subtle, only at top */
+.scan-line{position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);z-index:1;animation:scan 8s linear infinite;opacity:.25}
+@keyframes scan{from{top:0}to{top:100vh}}
 
 /* ── LAYOUT ── */
-#app{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;overflow:hidden}
+#app{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;overflow:hidden}
 
 /* ── TOP BAR ── */
-.top-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(13,16,33,.85);border-bottom:1px solid var(--border);flex-shrink:0}
-.top-bar .zone-label{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase}
-.top-bar .zone-name{font-size:15px;font-weight:800;flex:1}
-.top-bar .student-name{font-size:12px;color:var(--sub);font-weight:700}
-.progress-wrap{padding:0 16px 8px;background:rgba(13,16,33,.85);flex-shrink:0}
-.prog-bg{background:rgba(255,255,255,.08);border-radius:20px;height:5px}
-.prog-fill{height:5px;border-radius:20px;background:linear-gradient(90deg,var(--violet),var(--teal));transition:width .4s}
+.top-bar{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  background:rgba(6,20,18,.92);border-bottom:1px solid var(--border);flex-shrink:0;
+  backdrop-filter:blur(8px);
+}
+.top-bar .zone-label{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;opacity:.8}
+.top-bar .zone-name{font-size:15px;font-weight:800;flex:1;color:var(--text)}
+.top-bar .student-chip{font-size:11px;font-weight:700;color:var(--dark);background:var(--green);padding:4px 10px;border-radius:20px}
 
-/* ── SCROLL AREA ── */
+/* DNA sequencer progress bar */
+.seq-wrap{padding:6px 16px 8px;background:rgba(6,20,18,.92);flex-shrink:0;border-bottom:1px solid var(--border)}
+.seq-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--green);opacity:.6;text-transform:uppercase;margin-bottom:4px}
+.seq-bg{background:rgba(0,229,160,.08);border-radius:2px;height:6px;position:relative;overflow:hidden}
+.seq-fill{height:6px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .4s;position:relative}
+.seq-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4));animation:seqShine 1.5s ease-in-out infinite}
+@keyframes seqShine{0%,100%{opacity:0}50%{opacity:1}}
+.seq-dots{display:flex;gap:4px;margin-top:4px}
+.seq-dot{width:6px;height:6px;border-radius:50%;background:rgba(0,229,160,.15);transition:all .3s}
+.seq-dot.done{background:var(--green);box-shadow:0 0 6px var(--green)}
+.seq-dot.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:dotPulse 1s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+
+/* ── SCROLL ── */
 .scroll{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
 
 /* ── ZONE MAP ── */
-.zone-map{display:flex;flex-direction:column;gap:10px}
+.zone-map{display:flex;flex-direction:column;gap:8px}
 .zone-card{
   display:flex;align-items:center;gap:14px;
-  background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px 18px;cursor:pointer;transition:all .2s;
+  background:var(--dark);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
 }
-.zone-card:hover{border-color:var(--violet);background:var(--navy3)}
-.zone-card.active{border-color:var(--violet);box-shadow:0 0 20px rgba(108,99,255,.25)}
-.zone-card.locked{opacity:.4;cursor:not-allowed}
-.zone-card.done{border-color:rgba(78,207,179,.3)}
-.zone-icon{font-size:28px;flex-shrink:0}
+.zone-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);opacity:0;transition:opacity .2s}
+.zone-card:hover:not(.locked){border-color:rgba(0,229,160,.35);background:var(--dark2)}
+.zone-card:hover:not(.locked)::before{opacity:1}
+.zone-card.active{border-color:rgba(0,229,160,.4);box-shadow:0 0 20px rgba(0,229,160,.1)}
+.zone-card.active::before{opacity:1}
+.zone-card.locked{opacity:.35;cursor:not-allowed}
+.zone-card.done{border-color:rgba(0,229,160,.2)}
+.zone-card.done::before{opacity:.5}
+.zone-icon{font-size:26px;flex-shrink:0}
 .zone-info{flex:1}
-.zone-num{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--sub);text-transform:uppercase}
-.zone-title{font-size:16px;font-weight:800;margin:2px 0}
-.zone-desc{font-size:12px;color:var(--sub)}
-.zone-stars{font-size:16px;letter-spacing:2px}
+.zone-num{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--green);opacity:.7;text-transform:uppercase}
+.zone-title{font-size:15px;font-weight:800;margin:2px 0}
+.zone-desc{font-size:11px;color:var(--sub)}
+.zone-stars{font-size:14px;letter-spacing:1px}
 
 /* ── STORY PANEL ── */
 .story-panel{
-  background:var(--navy2);border:1px solid rgba(108,99,255,.3);border-radius:var(--r);
-  padding:20px;margin-bottom:16px;text-align:center;
-  box-shadow:0 0 30px rgba(108,99,255,.1);
+  background:var(--dark);border:1px solid rgba(0,229,160,.2);border-radius:var(--r);
+  padding:20px;margin-bottom:14px;position:relative;overflow:hidden;
 }
-.story-icon{font-size:48px;margin-bottom:10px}
-.story-title{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--teal);margin-bottom:8px;letter-spacing:1px}
-.story-text{font-size:15px;line-height:1.65;color:var(--sub)}
+.story-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.6}
+.story-icon{font-size:44px;text-align:center;margin-bottom:10px;filter:drop-shadow(0 0 16px var(--green))}
+.story-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--green);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.story-text{font-size:14px;line-height:1.7;color:var(--sub);text-align:center}
 .story-text b{color:var(--text)}
 
-/* ── QUESTION AREA ── */
-.q-area{display:flex;flex-direction:column;gap:12px}
-
-/* tile display */
+/* ── TILE DISPLAY ── */
 .tile-display{
   display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-  padding:20px;background:linear-gradient(135deg,var(--navy3),var(--navy4));
+  padding:20px 16px;
+  background:var(--dark2);
   border-radius:var(--r);border:1px solid var(--border);
-  min-height:90px;align-items:center;
-  animation:tileIn .4s ease;
+  min-height:88px;align-items:center;
+  animation:tileIn .35s ease;position:relative;overflow:hidden;
 }
-@keyframes tileIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.tile-display::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,229,160,.03),transparent);pointer-events:none}
+@keyframes tileIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+
+/* wilson-style tiles */
 .tile{
   display:inline-flex;align-items:center;justify-content:center;
   min-width:44px;height:48px;padding:0 10px;
   border-radius:8px;font-size:20px;font-weight:900;
-  border:2px solid transparent;cursor:default;
-  transition:all .2s;user-select:none;
+  border:2px solid transparent;transition:all .2s;user-select:none;
 }
-.tile-consonant{background:#f4b8b8;color:#2c0a0a;border-color:#e8a0a0}
-.tile-vowel{background:#f5e88a;color:#2c2000;border-color:#e5d060}
-.tile-weld{background:#b8d9b0;color:#0a2c08;border-color:#90c488}
-.tile-base{background:linear-gradient(135deg,var(--violet),var(--violet-dk));color:#fff;border-color:var(--violet-lt);font-size:16px;min-width:60px;letter-spacing:1px}
-.tile-selected{box-shadow:0 0 0 3px var(--gold);transform:scale(1.1)}
-.tile-correct{box-shadow:0 0 0 3px var(--teal);background:rgba(78,207,179,.3)!important}
-.tile-wrong{box-shadow:0 0 0 3px var(--coral);animation:shake .4s}
+.tile-consonant{background:#3d1a1a;color:#ffb3b3;border-color:#5a2020}
+.tile-vowel{background:#2e2a00;color:#ffe566;border-color:#4a4200}
+.tile-weld{background:#0d2e14;color:#7dff9a;border-color:#1a5028}
+.tile-base{
+  background:linear-gradient(135deg,var(--dark3),var(--dark4));
+  color:var(--green);border-color:rgba(0,229,160,.3);
+  font-size:16px;min-width:64px;letter-spacing:1px;
+  box-shadow:0 0 12px rgba(0,229,160,.1);
+}
+.tile-selected{box-shadow:0 0 0 3px var(--amber);transform:scale(1.08)}
+.tile-correct{box-shadow:0 0 0 3px var(--green),0 0 16px var(--green-glow);animation:lockIn .3s ease}
+.tile-wrong{box-shadow:0 0 0 3px var(--red);animation:shake .4s}
+@keyframes lockIn{0%{transform:scale(1.15)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
-/* swipe word */
+/* ── SWIPE WORD ── */
 .swipe-word{
-  display:flex;gap:4px;justify-content:center;flex-wrap:wrap;
-  padding:24px 16px;background:linear-gradient(135deg,var(--navy3),var(--navy4));
+  display:flex;gap:5px;justify-content:center;flex-wrap:wrap;
+  padding:24px 16px;background:var(--dark2);
   border-radius:var(--r);border:1px solid var(--border);
-  user-select:none;-webkit-user-select:none;
+  user-select:none;-webkit-user-select:none;touch-action:none;
 }
 .swipe-letter{
-  width:52px;height:60px;display:flex;align-items:center;justify-content:center;
-  border-radius:10px;font-size:26px;font-weight:900;
-  background:var(--navy2);border:2px solid var(--border);
-  transition:all .15s;
+  width:50px;height:58px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;font-size:24px;font-weight:900;
+  background:var(--dark3);border:2px solid var(--border);transition:all .15s;
+  color:var(--text);
 }
-.swipe-letter.swept{background:var(--gold-lt);border-color:var(--gold);color:var(--gold)}
-.swipe-letter.locked{background:var(--teal-lt);border-color:var(--teal);color:var(--teal)}
+.swipe-letter.swept{background:var(--amber-lt);border-color:var(--amber);color:var(--amber)}
+.swipe-letter.locked{background:var(--green-lt);border-color:var(--green);color:var(--green);box-shadow:0 0 10px var(--green-glow)}
 
-/* scooping */
-.scoop-sentence{
-  padding:20px 16px;background:var(--navy2);border-radius:var(--r);
-  border:1px solid var(--border);font-size:18px;font-weight:700;
-  line-height:2;position:relative;
-}
-.scoop-canvas{position:absolute;inset:0;border-radius:var(--r);pointer-events:none}
-.scoop-words{display:flex;flex-wrap:wrap;gap:4px 10px;cursor:crosshair}
-.scoop-word{padding:4px 2px;border-radius:4px;position:relative;transition:background .2s}
-.scoop-word.scooped{color:var(--gold)}
-
-/* choice buttons */
-.choices{display:flex;flex-direction:column;gap:8px}
+/* ── CHOICES ── */
+.choices{display:flex;flex-direction:column;gap:7px}
 .choice{
-  padding:14px 18px;border-radius:var(--r);
-  background:var(--navy3);border:2px solid var(--border);
-  font-size:16px;font-weight:700;color:var(--text);
+  padding:13px 18px;border-radius:var(--rs);
+  background:var(--dark2);border:1.5px solid var(--border);
+  font-size:15px;font-weight:700;color:var(--text);
   cursor:pointer;transition:all .15s;text-align:left;
-  font-family:'Nunito',sans-serif;
+  font-family:'Nunito',sans-serif;position:relative;overflow:hidden;
 }
-.choice:hover{border-color:var(--violet);background:var(--navy4);transform:translateX(4px)}
+.choice::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--green);opacity:.1;transition:width .2s}
+.choice:hover:not(:disabled){border-color:rgba(0,229,160,.4);background:var(--dark3)}
+.choice:hover:not(:disabled)::before{width:4px}
 .choice:active{transform:scale(.98)}
-.choice.correct{background:var(--teal-lt);border-color:var(--teal);color:var(--teal)}
-.choice.wrong{background:var(--coral-lt);border-color:var(--coral);color:var(--coral)}
 .choice:disabled{cursor:default}
+.choice.correct{background:var(--green-lt);border-color:var(--green);color:var(--green);box-shadow:0 0 16px rgba(0,229,160,.15)}
+.choice.wrong{background:var(--red-lt);border-color:var(--red);color:var(--red)}
 
-/* score line */
-.score-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
-.score-badge{font-size:14px;font-weight:800;color:rgba(255,255,255,.6)}
-.streak{display:inline-flex;align-items:center;gap:4px;background:var(--gold-lt);border:1px solid rgba(245,200,66,.3);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--gold)}
+/* ── FEEDBACK ── */
+.fb{text-align:center;padding:13px 18px;border-radius:var(--rs);margin:10px 0;font-weight:800;font-size:15px;animation:popIn .3s ease;border:1px solid transparent}
+@keyframes popIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.fb.ok{background:var(--green-lt);color:var(--green);border-color:rgba(0,229,160,.25)}
+.fb.no{background:var(--red-lt);color:var(--red);border-color:rgba(255,82,82,.25)}
+
+/* ── EXAMPLE BOX ── */
+.ex-box{background:var(--amber-lt);border:1px solid rgba(255,171,0,.2);border-radius:var(--rs);padding:11px 15px;margin-top:10px}
+.ex-box .sec{color:var(--amber);margin-bottom:3px}
+.ex-box p{font-size:13px;color:rgba(224,242,238,.8);font-weight:600}
+
+/* ── SCORE ── */
+.score-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;min-height:36px}
+.score-badge{font-size:14px;font-weight:800;color:var(--sub)}
+.streak{display:inline-flex;align-items:center;gap:4px;background:var(--lime-lt);border:1px solid rgba(118,255,3,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--lime)}
+
+/* ── SCOOPING ── */
+.scoop-sentence{
+  padding:20px 16px;background:var(--dark2);border-radius:var(--r);
+  border:1px solid var(--border);font-size:19px;font-weight:700;line-height:2;
+}
+.scoop-words{display:flex;flex-wrap:wrap;gap:4px 10px}
+.scoop-word{padding:3px 2px;border-radius:4px;transition:color .15s;cursor:pointer;position:relative}
+.scoop-word.scooped{color:var(--green)}
+.scoop-word.scooped::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--green);border-radius:2px}
+.teacher-btns{display:flex;gap:10px;margin-top:14px}
+.teacher-btns .btn{flex:1;padding:15px;font-size:15px;justify-content:center}
+
+/* ── PASSAGE ── */
+.passage-box{
+  background:var(--dark);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px;color:var(--text);font-size:15px;line-height:1.8;
+  max-height:400px;overflow-y:auto;
+}
+.passage-box p{margin-bottom:14px;color:rgba(224,242,238,.75)}
+.passage-title-display{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;text-align:center;color:var(--green);margin-bottom:4px}
+.passage-substep{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--sub);text-align:center;margin-bottom:16px}
+
+/* ── COMP OPTIONS ── */
+.comp-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.comp-q{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text)}
+.comp-opt{
+  display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;
+  padding:10px 14px;border-radius:var(--rs);border:1.5px solid var(--border);
+  background:rgba(0,229,160,.03);transition:all .15s;font-size:14px;font-weight:600;color:var(--sub);
+}
+.comp-opt:hover{border-color:rgba(0,229,160,.3);color:var(--text);background:var(--green-lt)}
+.comp-opt.selected{border-color:var(--green);background:var(--green-lt);color:var(--green)}
+.comp-opt.reveal-ok{border-color:var(--green);background:var(--green-lt);color:var(--green)}
+.comp-opt.reveal-no{border-color:var(--red);background:var(--red-lt);color:var(--red);opacity:.6}
+.radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(0,229,160,.3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;transition:all .2s}
+.comp-opt.selected .radio-dot{border-color:var(--green);background:var(--green);color:#061412}
 
 /* ── BUTTONS ── */
 .btn{font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;border:none;border-radius:var(--rs);padding:10px 18px;font-size:14px;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn:hover{transform:translateY(-2px)}
 .btn:active{transform:scale(.97)}
-.btn-violet{background:var(--violet);color:#fff;box-shadow:0 4px 14px rgba(108,99,255,.4)}
-.btn-violet:hover{box-shadow:0 6px 20px rgba(108,99,255,.6)}
-.btn-teal{background:var(--teal);color:#0d1021;box-shadow:0 4px 14px rgba(78,207,179,.3)}
-.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
-.btn-full{width:100%;padding:15px;}
-.btn-launch{background:linear-gradient(135deg,var(--violet),var(--teal));color:#fff;border-radius:var(--r);box-shadow:0 6px 24px rgba(108,99,255,.4);width:100%;padding:16px;font-size:17px;margin-top:8px}
+.btn-green{background:var(--green);color:#061412;box-shadow:0 4px 16px rgba(0,229,160,.3)}
+.btn-green:hover{background:#00f0a8;box-shadow:0 6px 24px rgba(0,229,160,.5)}
+.btn-cyan{background:var(--cyan);color:#061412}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.25)}
+.btn-full{width:100%;padding:14px}
+.btn-launch{
+  width:100%;padding:16px;font-size:16px;
+  background:linear-gradient(135deg,var(--green),var(--cyan));
+  color:#061412;border-radius:var(--r);
+  box-shadow:0 6px 24px rgba(0,229,160,.25);
+  font-family:'Nunito',sans-serif;font-weight:900;cursor:pointer;border:none;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;
+}
+.btn-launch:hover{box-shadow:0 8px 32px rgba(0,229,160,.45);transform:translateY(-2px)}
 
 /* ── ERROR POPUP ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.popup{background:var(--navy2);border:1px solid rgba(255,107,107,.3);border-radius:var(--r);padding:24px;max-width:440px;width:100%;animation:popIn .3s ease}
-@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.popup-icon{font-size:40px;text-align:center;margin-bottom:10px}
-.popup-title{font-size:17px;font-weight:900;color:var(--coral);text-align:center;margin-bottom:8px}
-.popup-rule{font-size:15px;line-height:1.6;color:var(--text);text-align:center;margin-bottom:16px}
-.popup-rule b{color:var(--gold)}
-.popup-correct{background:var(--teal-lt);border:1px solid rgba(78,207,179,.3);border-radius:var(--rs);padding:12px;text-align:center;font-size:16px;font-weight:800;color:var(--teal);margin-bottom:16px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.popup{
+  background:var(--dark);border:1px solid rgba(255,82,82,.4);border-radius:var(--r);
+  padding:24px;max-width:440px;width:100%;animation:popIn .3s ease;
+  box-shadow:0 0 40px rgba(255,82,82,.15),inset 0 1px 0 rgba(255,82,82,.1);
+  position:relative;overflow:hidden;
+}
+.popup::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:.8}
+.popup-icon{font-size:36px;text-align:center;margin-bottom:10px}
+.popup-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--red);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.popup-rule{font-size:14px;line-height:1.65;color:var(--sub);text-align:center;margin-bottom:14px}
+.popup-rule b{color:var(--text)}
+.popup-correct{
+  background:var(--green-lt);border:1px solid rgba(0,229,160,.3);border-radius:var(--rs);
+  padding:12px;text-align:center;font-size:16px;font-weight:800;color:var(--green);margin-bottom:16px;
+  box-shadow:0 0 14px rgba(0,229,160,.1);
+}
 
 /* ── RESULTS ── */
-.results{text-align:center;padding:20px 0}
-.result-emoji{font-size:64px;margin-bottom:12px;animation:bounce .6s ease}
+.results{text-align:center;padding:16px 0}
+.result-emoji{font-size:60px;margin-bottom:10px;animation:bounce .6s ease;filter:drop-shadow(0 0 20px var(--green))}
 @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-.result-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;margin-bottom:6px}
-.result-sub{font-size:14px;color:var(--sub);margin-bottom:20px}
-.stars-display{font-size:44px;letter-spacing:8px;margin-bottom:20px}
-.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.rstat{background:var(--navy3);border-radius:var(--rs);padding:14px;text-align:center}
-.rstat-n{font-size:26px;font-weight:900;color:var(--gold)}
-.rstat-l{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
-.error-list{background:var(--navy3);border-radius:var(--rs);padding:14px;text-align:left;margin-bottom:16px}
-.error-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;color:rgba(255,255,255,.6)}
+.result-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--green);margin-bottom:4px}
+.result-sub{font-size:13px;color:var(--sub);margin-bottom:18px}
+.stars-display{font-size:40px;letter-spacing:6px;margin-bottom:18px;filter:drop-shadow(0 0 10px var(--amber))}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.rstat{background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center}
+.rstat-n{font-size:24px;font-weight:900;color:var(--green)}
+.rstat-l{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.error-list{background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;text-align:left;margin-bottom:14px}
+.error-item{padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
 .error-item:last-child{border-bottom:none}
-.error-item b{color:var(--coral)}
-.error-item span{color:var(--teal)}
+.error-item b{color:var(--red)}
+.error-item span{color:var(--green)}
 
-/* ── CONFETTI ── */
+/* ── VIAL (zone complete) ── */
+.vial-container{display:flex;justify-content:center;margin:16px 0}
+.vial{width:40px;height:80px;border-radius:0 0 20px 20px;border:2px solid var(--green);position:relative;overflow:hidden;background:var(--dark2)}
+.vial-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,var(--cyan),var(--green));transition:height .8s ease;box-shadow:0 0 10px var(--green)}
+.vial-cap{width:46px;height:10px;background:var(--green);border-radius:4px 4px 0 0;margin:0 auto}
+
+/* ── MISC ── */
+.sec{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);opacity:.7;margin-bottom:6px}
+.card{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.card-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:300}
-
-/* ── ZONE COMPLETE BANNER ── */
-.zone-complete{
-  text-align:center;padding:24px;
-  background:linear-gradient(135deg,rgba(108,99,255,.2),rgba(78,207,179,.15));
-  border:1px solid rgba(108,99,255,.3);border-radius:var(--r);margin-bottom:16px;
-}
-
-/* ── SENTENCE READING ── */
-.sentence-display{
-  padding:24px 20px;background:linear-gradient(135deg,var(--navy3),var(--navy4));
-  border-radius:var(--r);border:1px solid var(--border);
-  font-size:20px;font-weight:700;line-height:1.6;text-align:center;
-  position:relative;min-height:100px;display:flex;align-items:center;justify-content:center;
-}
-.teacher-btns{display:flex;gap:10px;margin-top:12px}
-.teacher-btns .btn{flex:1;padding:16px;font-size:16px}
-
-/* ── sec label ── */
-.sec{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
-
-/* ── card ── */
-.card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
-.card-title{font-size:16px;font-weight:800;margin-bottom:8px}
 </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
-<div class="stars" id="stars"></div>
+<div class="hex-bg"></div>
+<div class="scan-line"></div>
 
 <div id="app">
   <div class="top-bar">
-    <div>
+    <div style="flex:1">
       <div class="zone-label" id="tb-zone-label">Zone 1</div>
       <div class="zone-name" id="tb-zone-name">Lab Unlock</div>
     </div>
-    <div class="student-name" id="tb-student"></div>
+    <div class="student-chip" id="tb-student"></div>
   </div>
-  <div class="progress-wrap">
-    <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="seq-wrap">
+    <div class="seq-label">DNA Sequencer — Mission Progress</div>
+    <div class="seq-bg"><div class="seq-fill" id="seq-fill" style="width:0%"></div></div>
+    <div class="seq-dots" id="seq-dots"></div>
   </div>
-  <div class="scroll" id="scroll">
-    <!-- content injected here -->
-  </div>
+  <div class="scroll" id="scroll"></div>
 </div>
 
 <div class="overlay" id="error-popup" style="display:none">
   <div class="popup">
-    <div class="popup-icon">🔍</div>
-    <div class="popup-title" id="popup-title">Not quite!</div>
+    <div class="popup-icon">⚠️</div>
+    <div class="popup-title">LAB ALERT — CORRECTION NEEDED</div>
     <div class="popup-rule" id="popup-rule"></div>
     <div class="popup-correct" id="popup-correct"></div>
-    <button class="btn btn-violet btn-full" onclick="dismissPopup()">Try again — I've got this! →</button>
+    <button class="btn btn-green btn-full" onclick="dismissPopup()">✓ Got it — try again</button>
   </div>
 </div>
 
 <script type="module">
 import { getStudent, saveZoneProgress, saveScoop, updateCurrentZone } from './firebase.js';
 
-// ── STARS ─────────────────────────────────────────────────────────────────────
-const starsEl = document.getElementById('stars');
-for(let i=0;i<60;i++){
-  const s=document.createElement('div');s.className='star';
-  const sz=Math.random()*2+.5;
-  s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*4+2).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s`;
-  starsEl.appendChild(s);
-}
-
-// ── SESSION ───────────────────────────────────────────────────────────────────
+// session
 let STUDENT = JSON.parse(sessionStorage.getItem('wdl_student') || 'null');
 if(!STUDENT){ window.location.href='index.html'; }
 document.getElementById('tb-student').textContent = STUDENT.name;
 
-// ── ZONE DATA ─────────────────────────────────────────────────────────────────
-const ZONE_META = [
+// ── ZONE META ─────────────────────────────────────────────────────────────────
+const ZONE_META=[
   {num:1,icon:'🔓',name:'Lab Unlock',    desc:'Welded sounds & closed syllable exceptions'},
   {num:2,icon:'🔬',name:'The Centrifuge', desc:'Two-letter blends'},
   {num:3,icon:'⚗️',name:'The Sequencer',  desc:'Three-letter blends'},
@@ -267,658 +328,531 @@ const ZONE_META = [
   {num:7,icon:'🏆',name:'The Vault',      desc:'Boss round — all skills'},
 ];
 
-const STORIES = {
+const STORIES={
   1:{title:'SECURITY BREACH DETECTED',text:'Someone broke into the <b>Word DNA Lab</b> last night and scrambled everything! The welded sound samples are all mixed up. <b>Restore the Lab Unlock room</b> to begin repairs.'},
   2:{title:'CENTRIFUGE OFFLINE',text:'The blend centrifuge was sabotaged — two-letter blend samples are scattered everywhere. <b>Sort them back into the centrifuge</b> to restore power.'},
   3:{title:'SEQUENCER CORRUPTED',text:'The three-letter blend sequencer has been scrambled. The str-, scr-, spr-, and spl- samples are all mixed up. <b>Sweep to restore the sequence.</b>'},
   4:{title:'SAMPLES MISSING',text:'The Latin base samples — the DNA of words — were stolen from their storage vials. <b>Identify each base</b> to get them back where they belong.'},
   5:{title:'EVIDENCE SCATTERED',text:'The evidence board was destroyed. Sentences are jumbled. <b>Read each sentence</b> and scoop the phrases to rebuild the evidence.'},
   6:{title:'ARCHIVE IN CHAOS',text:'The archive room passages were shredded. <b>Read each passage</b> and answer the comprehension questions to reconstruct the files.'},
-  7:{title:'THE VAULT — FINAL CHALLENGE',text:'All the samples are restored — but the intruder locked the vault. Only a <b>Lab Master</b> who knows ALL the skills can unlock it. This is your final test.'},
+  7:{title:'THE VAULT — FINAL CHALLENGE',text:'All samples restored — but the intruder locked the vault. Only a <b>Lab Master</b> who knows ALL the skills can unlock it. This is your final test.'},
 };
 
 // ── GAME DATA ─────────────────────────────────────────────────────────────────
-const WELD_QUESTIONS = [
-  {word:'sing',   weld:'ing', consonants:['s'],        rule:'The welded sound -ing- keeps /s/ /ing/ together as one tap.', display:'sing'},
-  {word:'blank',  weld:'ank', consonants:['bl'],       rule:'-ank- is a welded sound. The letters a-n-k stay glued together.', display:'blank'},
-  {word:'trunk',  weld:'unk', consonants:['tr'],       rule:'-unk- is a welded sound. Think: skunk, trunk, chunk.', display:'trunk'},
-  {word:'strong', weld:'ong', consonants:['str'],      rule:'-ong- is a welded sound. Think: song, long, strong.', display:'strong'},
-  {word:'think',  weld:'ink', consonants:['th'],       rule:'-ink- is a welded sound. Think: pink, drink, rink.', display:'think'},
-  {word:'clang',  weld:'ang', consonants:['cl'],       rule:'-ang- is a welded sound. Think: rang, bang, clang.', display:'clang'},
-  {word:'blind',  weld:'ind', consonants:['bl'],       rule:'-ind- is a closed syllable exception. The i says its long sound.', display:'blind', exception:true},
-  {word:'cold',   weld:'old', consonants:['c'],        rule:'-old- is a closed syllable exception. The o says its long sound.', display:'cold', exception:true},
-  {word:'most',   weld:'ost', consonants:['m'],        rule:'-ost- is a closed syllable exception. Think: most, post, host.', display:'most', exception:true},
-  {word:'child',  weld:'ild', consonants:['ch'],       rule:'-ild- is a closed syllable exception. The i says its long sound.', display:'child', exception:true},
+const WELD_Q=[
+  {word:'sing',  weld:'ing',consonants:['s'],  rule:'The welded sound -ing- keeps /s/ /ing/ together as one tap.',display:'sing'},
+  {word:'blank', weld:'ank',consonants:['bl'], rule:'-ank- is a welded sound. The letters a-n-k stay glued together.',display:'blank'},
+  {word:'trunk', weld:'unk',consonants:['tr'], rule:'-unk- is a welded sound. Think: skunk, trunk, chunk.',display:'trunk'},
+  {word:'strong',weld:'ong',consonants:['str'],rule:'-ong- is a welded sound. Think: song, long, strong.',display:'strong'},
+  {word:'think', weld:'ink',consonants:['th'], rule:'-ink- is a welded sound. Think: pink, drink, rink.',display:'think'},
+  {word:'clang', weld:'ang',consonants:['cl'], rule:'-ang- is a welded sound. Think: rang, bang, clang.',display:'clang'},
+  {word:'blind', weld:'ind',consonants:['bl'], rule:'-ind- is a closed syllable exception. The i says its long sound.',display:'blind',exception:true},
+  {word:'cold',  weld:'old',consonants:['c'],  rule:'-old- is a closed syllable exception. The o says its long sound.',display:'cold',exception:true},
+];
+const WELD_C=[
+  ['ing','ang','unk','ink'],['ank','ink','ong','ung'],['unk','ink','ank','ang'],['ong','ung','ang','ank'],
+  ['ink','ing','ank','ong'],['ang','ing','ong','unk'],['ind','old','ost','ild'],['old','ind','olt','ost'],
 ];
 
-const WELD_CHOICES = [
-  ['ing','ang','unk','ink'],
-  ['ank','ink','ong','ung'],
-  ['unk','ink','ank','ang'],
-  ['ong','ung','ang','ank'],
-  ['ink','ing','ank','ong'],
-  ['ang','ing','ong','unk'],
-  ['ind','old','ost','ild'],
-  ['old','ind','olt','ost'],
-  ['ost','old','olt','ind'],
-  ['ild','ind','old','olt'],
+const BLEND2_Q=[
+  {word:'trunk', blend:'tr',rule:'TR is a two-letter blend. Each letter makes its own sound: /t/ /r/.'},
+  {word:'bring', blend:'br',rule:'BR is a two-letter blend. /b/ /r/ — two separate sounds at the start.'},
+  {word:'stand', blend:'st',rule:'ST is a two-letter blend. /s/ /t/ — feel two separate taps.'},
+  {word:'clump', blend:'cl',rule:'CL is a two-letter blend. /k/ /l/ — two clear sounds together.'},
+  {word:'draft', blend:'dr',rule:'DR is a two-letter blend. /d/ /r/ — tap each one separately.'},
+  {word:'crisp', blend:'cr',rule:'CR is a two-letter blend. /k/ /r/ — both make sounds.'},
+  {word:'blend', blend:'bl',rule:'BL is a two-letter blend. /b/ /l/ — two sounds, not one.'},
+  {word:'frost', blend:'fr',rule:'FR is a two-letter blend. /f/ /r/ — think: from, frost, frog.'},
 ];
 
-const BLEND2_QUESTIONS = [
-  {word:'trunk',  blend:'tr', pos:[0,1], rule:'TR is a two-letter blend. Each letter makes its own sound: /t/ /r/.'},
-  {word:'bring',  blend:'br', pos:[0,1], rule:'BR is a two-letter blend. /b/ /r/ — two separate sounds at the start.'},
-  {word:'stand',  blend:'st', pos:[0,1], rule:'ST is a two-letter blend. /s/ /t/ — feel two separate taps.'},
-  {word:'clump',  blend:'cl', pos:[0,1], rule:'CL is a two-letter blend. /k/ /l/ — two clear sounds together.'},
-  {word:'draft',  blend:'dr', pos:[0,1], rule:'DR is a two-letter blend. /d/ /r/ — tap each one separately.'},
-  {word:'crisp',  blend:'cr', pos:[0,1], rule:'CR is a two-letter blend. /k/ /r/ — both make sounds.'},
-  {word:'blend',  blend:'bl', pos:[0,1], rule:'BL is a two-letter blend. /b/ /l/ — two sounds, not one.'},
-  {word:'frost',  blend:'fr', pos:[0,1], rule:'FR is a two-letter blend. /f/ /r/ — think: from, frost, frog.'},
+const BLEND3_Q=[
+  {word:'strap',  blend:'str',rule:'STR is a three-letter blend. Every letter makes its own sound: /s/ /t/ /r/.'},
+  {word:'scrap',  blend:'scr',rule:'SCR is a three-letter blend. /s/ /k/ /r/ — three separate sounds.'},
+  {word:'spring', blend:'spr',rule:'SPR is a three-letter blend. /s/ /p/ /r/ — sweep all three!'},
+  {word:'splash', blend:'spl',rule:'SPL is a three-letter blend. /s/ /p/ /l/ — three sounds at the start.'},
+  {word:'strong', blend:'str',rule:'STR again — /s/ /t/ /r/. Think: strong, strap, struck.'},
+  {word:'scrub',  blend:'scr',rule:'SCR — /s/ /k/ /r/. Think: scrub, scrap, scram.'},
+  {word:'sprint', blend:'spr',rule:'SPR — /s/ /p/ /r/. Think: sprint, spring, sprung.'},
+  {word:'split',  blend:'spl',rule:'SPL — /s/ /p/ /l/. Think: split, splash, splat.'},
 ];
 
-const BLEND3_QUESTIONS = [
-  {word:'strap',   blend:'str', pos:[0,1,2], rule:'STR is a three-letter blend. Every letter makes its own sound: /s/ /t/ /r/.'},
-  {word:'scrap',   blend:'scr', pos:[0,1,2], rule:'SCR is a three-letter blend. /s/ /k/ /r/ — three separate sounds.'},
-  {word:'spring',  blend:'spr', pos:[0,1,2], rule:'SPR is a three-letter blend. /s/ /p/ /r/ — sweep all three!'},
-  {word:'splash',  blend:'spl', pos:[0,1,2], rule:'SPL is a three-letter blend. /s/ /p/ /l/ — three sounds at the start.'},
-  {word:'strong',  blend:'str', pos:[0,1,2], rule:'STR again — /s/ /t/ /r/. Think: strong, strap, struck.'},
-  {word:'scrub',   blend:'scr', pos:[0,1,2], rule:'SCR — /s/ /k/ /r/. Think: scrub, scrap, scram.'},
-  {word:'sprint',  blend:'spr', pos:[0,1,2], rule:'SPR — /s/ /p/ /r/. Think: sprint, spring, sprung.'},
-  {word:'split',   blend:'spl', pos:[0,1,2], rule:'SPL — /s/ /p/ /l/. Think: split, splash, splat.'},
+const BASES=[
+  {b:'-fess-',m:'acknowledge',   ex:'confess, profess',   rule:'-fess- means ACKNOWLEDGE. Confess = to admit something.'},
+  {b:'-gress-',m:'step / degree',ex:'progress, Congress', rule:'-gress- means STEP. Progress = to step forward.'},
+  {b:'-mand-',m:'order',         ex:'command, demand',    rule:'-mand- means ORDER. Command = to give an order.'},
+  {b:'-mit-',m:'send',           ex:'submit, transmit',   rule:'-mit- means SEND. Submit = to send in. Transmit = to send across.'},
+  {b:'-pel-',m:'drive / push',   ex:'expel, propel',      rule:'-pel- means DRIVE or PUSH. Expel = to push out.'},
+  {b:'-pend-',m:'hang',          ex:'suspend, depend',    rule:'-pend- means HANG. Suspend = to hang up. Depend = to hang on.'},
+  {b:'-press-',m:'press / push', ex:'compress, express',  rule:'-press- means PRESS. Compress = to press together.'},
+  {b:'-rupt-',m:'break',         ex:'disrupt, interrupt', rule:'-rupt- means BREAK. Interrupt = to break into. Disrupt = to break apart.'},
+  {b:'-sent-',m:'feel / perceive',ex:'consent, absent',   rule:'-sent- means FEEL. Consent = to feel in agreement.'},
+  {b:'-sist-',m:'place / stand', ex:'insist, resist',     rule:'-sist- means STAND. Resist = to stand against.'},
+  {b:'-stant-',m:'standing',     ex:'constant, instant',  rule:'-stant- means STANDING. Constant = always standing there.'},
+  {b:'-tend-',m:'stretch / reach',ex:'extend, attend',    rule:'-tend- means STRETCH. Extend = to stretch out.'},
+  {b:'-tent-',m:'stretch / reach',ex:'intent, extent',    rule:'-tent- means STRETCH. Intent = stretched toward a goal.'},
+  {b:'-vent-',m:'come',          ex:'invent, prevent',    rule:'-vent- means COME. Invent = to come up with.'},
+  {b:'-dict-',m:'say / tell',    ex:'predict, dictate',   rule:'-dict- means SAY. Predict = to tell before it happens.'},
+  {b:'-duct-',m:'lead',          ex:'conduct, product',   rule:'-duct- means LEAD. Conduct = to lead together.'},
+  {b:'-fect-',m:'make / do',     ex:'infect, perfect',    rule:'-fect- means MAKE. Perfect = completely made.'},
+  {b:'-flect-',m:'bend / curve', ex:'reflect, deflect',   rule:'-flect- means BEND. Reflect = to bend back.'},
+  {b:'-ject-',m:'throw',         ex:'eject, reject',      rule:'-ject- means THROW. Eject = to throw out.'},
+  {b:'-lect-',m:'gather / choose',ex:'select, collect',   rule:'-lect- means GATHER. Select = to choose from.'},
+  {b:'-spect-',m:'look / see',   ex:'inspect, respect',   rule:'-spect- means LOOK. Inspect = to look carefully.'},
+  {b:'-struct-',m:'build',       ex:'construct, instruct',rule:'-struct- means BUILD. Construct = to build together.'},
+  {b:'-tract-',m:'draw / pull',  ex:'contract, attract',  rule:'-tract- means DRAW or PULL. Attract = to pull toward.'},
+  {b:'-vict-',m:'conquer',       ex:'evict, convict',     rule:'-vict- means CONQUER. Evict = to conquer out of a home.'},
 ];
 
-const BASES_DATA = [
-  {b:'-fess-',m:'acknowledge',    ex:'confess, profess',         rule:'-fess- means ACKNOWLEDGE or ADMIT. Confess = to admit something.'},
-  {b:'-gress-',m:'step / degree', ex:'progress, Congress',       rule:'-gress- means STEP or DEGREE. Progress = to step forward.'},
-  {b:'-mand-',m:'order',          ex:'command, demand',          rule:'-mand- means ORDER. Command = to give an order.'},
-  {b:'-mit-',m:'send',            ex:'submit, transmit',         rule:'-mit- means SEND. Submit = to send in. Transmit = to send across.'},
-  {b:'-pel-',m:'drive / push',    ex:'expel, propel',            rule:'-pel- means DRIVE or PUSH. Expel = to push out.'},
-  {b:'-pend-',m:'hang',           ex:'suspend, depend',          rule:'-pend- means HANG. Suspend = to hang up. Depend = to hang on.'},
-  {b:'-press-',m:'press / push',  ex:'compress, express',        rule:'-press- means PRESS or PUSH AGAINST. Compress = to press together.'},
-  {b:'-rupt-',m:'break',          ex:'disrupt, interrupt',       rule:'-rupt- means BREAK. Interrupt = to break into. Disrupt = to break apart.'},
-  {b:'-sent-',m:'feel / perceive',ex:'consent, absent',          rule:'-sent- means FEEL or PERCEIVE. Consent = to feel in agreement.'},
-  {b:'-sist-',m:'place / stand',  ex:'insist, resist',           rule:'-sist- means PLACE or STAND. Resist = to stand against.'},
-  {b:'-stant-',m:'standing',      ex:'constant, instant',        rule:'-stant- means STANDING. Constant = always standing there.'},
-  {b:'-tend-',m:'stretch / reach',ex:'extend, attend',           rule:'-tend- means STRETCH or REACH. Extend = to stretch out.'},
-  {b:'-tent-',m:'stretch / reach',ex:'intent, extent',           rule:'-tent- means STRETCH or REACH. Intent = stretched toward a goal.'},
-  {b:'-vent-',m:'come',           ex:'invent, prevent',          rule:'-vent- means COME. Invent = to come up with. Prevent = to come before.'},
-  {b:'-dict-',m:'say / tell',     ex:'predict, dictate',         rule:'-dict- means SAY or TELL. Predict = to tell before it happens.'},
-  {b:'-duct-',m:'lead',           ex:'conduct, product',         rule:'-duct- means LEAD. Conduct = to lead together.'},
-  {b:'-fect-',m:'make / do',      ex:'infect, perfect',          rule:'-fect- means MAKE or DO. Perfect = completely made. Infect = to do harm to.'},
-  {b:'-flect-',m:'bend / curve',  ex:'reflect, deflect',         rule:'-flect- means BEND or CURVE. Reflect = to bend back.'},
-  {b:'-ject-',m:'throw',          ex:'eject, reject',            rule:'-ject- means THROW. Eject = to throw out. Reject = to throw back.'},
-  {b:'-lect-',m:'gather / choose',ex:'select, collect',          rule:'-lect- means GATHER or CHOOSE. Select = to choose from. Collect = to gather together.'},
-  {b:'-spect-',m:'look / see',    ex:'inspect, respect',         rule:'-spect- means LOOK or SEE. Inspect = to look carefully. Respect = to look back.'},
-  {b:'-struct-',m:'build',        ex:'construct, instruct',      rule:'-struct- means BUILD. Construct = to build together.'},
-  {b:'-tract-',m:'draw / pull',   ex:'contract, attract',        rule:'-tract- means DRAW or PULL. Attract = to pull toward. Contract = to pull together.'},
-  {b:'-vict-',m:'conquer',        ex:'evict, convict',           rule:'-vict- means CONQUER. Evict = to conquer someone out of their home.'},
+const SENTS=[
+  {text:'The bat clung to the only branch.',blend:'br'},
+  {text:'Can you put the plant stand on the deck?',blend:'st'},
+  {text:'The strong wind brings dust to the front.',blend:'str'},
+  {text:'Do not scrub if there is no mud.',blend:'scr'},
+  {text:'Fran had to scrub each pot!',blend:'scr'},
+  {text:'Each spring I get some plants.',blend:'spr'},
+  {text:'The kids will split up all the work.',blend:'spl'},
+  {text:'Brad had to stand in the brisk cold wind.',blend:'br'},
 ];
 
-const SENTENCES_5 = [
-  {text:'The bat clung to the only branch.',     scoop:['The bat','clung to','the only branch.'],   blend:'br',base:null},
-  {text:'Can you put the plant stand on the deck?', scoop:['Can you put','the plant stand','on the deck?'], blend:'st',base:null},
-  {text:'Brad had to stand in the brisk cold wind.', scoop:['Brad had to stand','in the brisk','cold wind.'], blend:'br',base:null},
-  {text:'The strong wind brings dust to the front.', scoop:['The strong wind','brings dust','to the front.'], blend:'str',base:null},
-  {text:'Do not scrub if there is no mud.',      scoop:['Do not scrub','if there','is no mud.'],    blend:'scr',base:null},
-  {text:'Fran had to scrub each pot!',           scoop:['Fran had','to scrub','each pot!'],        blend:'scr',base:null},
-  {text:'Each spring I get some plants.',        scoop:['Each spring','I get','some plants.'],     blend:'spr',base:null},
-  {text:'I spent ten bucks on this plant.',      scoop:['I spent','ten bucks','on this plant.'],   blend:'sp',base:null},
-];
-
-const PASSAGES = [
+const PASSAGES=[
   {
-    title:'At the Pond', substep:'2.4 AB',
-    text:'Frank made a call to Ben and told him about the plan he had to swim at Flax Pond. Ben said he did want to come but asked if he could bring his dog, Skip. Frank said that it was always okay for Skip to come with them.\n\nFrank met Ben at the pond for lunch and a swim. They had hot wings, chips, and some drinks. Then they sat on a small hill to rest. Ben\'s pet dog, Skip, went for a run in the wet grass. He was a fast dog. Ben had to stand up and dash off to chase Skip. Ben had to try not to slip on the wet grass, but he got a cramp in his leg and fell.\n\nHe hit the front of his chin on a big clump of branches. Not only did Ben bang his chin, he got a big cut on his lip that bled. Ben had to put a pad on the cut for a bit.\n\nThen, it was time for a swim. Skip went into the pond with Ben and Frank. Frank had a ball to toss to Skip many times. Skip had fun as he swam with the ball.\n\nThen, Ben\'s mom sent him a text. He told Frank, "I must go now, but we should come back to spend a day soon."',
+    title:'At the Pond',substep:'2.4 AB',
+    text:'Frank made a call to Ben and told him about the plan he had to swim at Flax Pond. Ben said he did want to come but asked if he could bring his dog, Skip. Frank said that it was always okay for Skip to come with them.\n\nFrank met Ben at the pond for lunch and a swim. They had hot wings, chips, and some drinks. Then they sat on a small hill to rest. Ben\'s pet dog, Skip, went for a run in the wet grass. He was a fast dog. Ben had to stand up and dash off to chase Skip. Ben had to try not to slip on the wet grass, but he got a cramp in his leg and fell.\n\nHe hit the front of his chin on a big clump of branches. Ben had to put a pad on the cut for a bit.\n\nThen, it was time for a swim. Skip went into the pond with Ben and Frank. Frank had a ball to toss to Skip many times. Skip had fun as he swam with the ball.\n\nThen, Ben\'s mom sent him a text. He told Frank, "I must go now, but we should come back to spend a day soon."',
     questions:[
       {q:'Where did Frank and Ben plan to swim?',opts:['Flax Pond','Blue Lake','Flat Pond','The River'],ans:0,rule:'The story says Frank told Ben about his plan to swim at Flax Pond.'},
       {q:'Why did Ben fall down?',opts:['Skip pulled him','He got a cramp and slipped','He tripped on a log','He was pushed'],ans:1,rule:'Ben got a cramp in his leg while trying not to slip on the wet grass.'},
       {q:'What did Frank toss to Skip in the pond?',opts:['A stick','A treat','A ball','A toy fish'],ans:2,rule:'The story says Frank had a ball to toss to Skip many times.'},
       {q:'Why did Ben have to leave?',opts:['He was hurt','His mom texted him','It got dark','Skip ran off'],ans:1,rule:'Ben\'s mom sent him a text telling him it was time to go.'},
-      {q:'What word has a 2-letter blend in this sentence: "Ben had to stand up and dash off"?',opts:['stand','dash','had','off'],ans:0,rule:'STAND starts with the blend ST — /s/ /t/ are two separate sounds.'},
-      {q:'What does the base -mit- mean in the word "submit"?',opts:['push','send','hang','break'],ans:1,rule:'-mit- means SEND. Submit = to send in. Trans-mit = to send across.'},
+      {q:'What word has a 2-letter blend: "Ben had to stand up"?',opts:['stand','had','Ben','up'],ans:0,rule:'STAND starts with the blend ST — /s/ /t/ are two separate sounds.'},
+      {q:'What does the base -mit- mean in "submit"?',opts:['push','send','hang','break'],ans:1,rule:'-mit- means SEND. Submit = to send in. Trans-mit = to send across.'},
       {q:'What welded sound do you hear at the end of "clump"?',opts:['ump','unk','ing','ang'],ans:0,rule:'CLUMP ends in the welded sound -ump. The letters u-m-p stay glued together.'},
-      {q:'The word "branch" starts with which blend?',opts:['br','bl','pr','tr'],ans:0,rule:'BRANCH starts with the blend BR — /b/ /r/ are two separate sounds.'},
+      {q:'The word "branch" starts with which blend?',opts:['br','bl','pr','tr'],ans:0,rule:'BRANCH starts with BR — /b/ /r/ are two separate sounds.'},
     ]
   },
   {
-    title:"Brad's Bad Day", substep:'2.4 B',
-    text:"Brad fell in the slush by his front step and his bag was all wet. Brad did think that fall would be the last of his bad luck for now. He said he would try to go on and he kept his chin up on the way to the bus stop.\n\nBrad then had to rush to get the bus and he cut his leg on a branch. Now he had to run with a limp just to get there in time. When the bus went past his stop, Brad said, \"What is going on?\" He then had to call a cab and stand in the brisk, cold wind. The cab did not come for a long time.\n\nAt last, Brad got to his job at the shop where he sold prints. At the shop, Brad did not sell any prints. The day did drag. At last, Brad's shift came to an end. But his bad luck did not end. As the bus was about to come to the last stop, it got a flat when it ran into a trench of mud! Brad had such a bad day. The next day had to be better.",
+    title:"Brad's Bad Day",substep:'2.4 B',
+    text:"Brad fell in the slush by his front step and his bag was all wet. Brad did think that fall would be the last of his bad luck for now. He said he would try to go on and he kept his chin up on the way to the bus stop.\n\nBrad then had to rush to get the bus and he cut his leg on a branch. Now he had to run with a limp just to get there in time. When the bus went past his stop, Brad said, \"What is going on?\" He then had to call a cab and stand in the brisk, cold wind.\n\nAt last, Brad got to his job at the shop where he sold prints. At the shop, Brad did not sell any prints. The day did drag.\n\nAt last, Brad's shift came to an end. But his bad luck did not end. As the bus was about to come to the last stop, it got a flat when it ran into a trench of mud! The next day had to be better.",
     questions:[
       {q:'How did Brad\'s bad day start?',opts:['He missed the bus','He fell in the slush','He lost his bag','He was late'],ans:1,rule:'The story opens with Brad falling in the slush by his front step.'},
-      {q:'How did Brad hurt his leg?',opts:['He fell on ice','He cut it on a branch','He twisted his ankle','He tripped on a step'],ans:1,rule:'Brad had to rush and cut his leg on a branch on the way to the bus.'},
+      {q:'How did Brad hurt his leg?',opts:['He fell on ice','He cut it on a branch','He twisted his ankle','He tripped'],ans:1,rule:'Brad had to rush and cut his leg on a branch on the way to the bus.'},
       {q:'What was Brad\'s job?',opts:['He drove a cab','He sold prints','He fixed buses','He worked at a pond'],ans:1,rule:'The story says Brad got to his job at the shop where he sold prints.'},
       {q:'What happened to the bus at the end of the day?',opts:['It went past his stop','It got a flat in mud','It broke down','It ran out of gas'],ans:1,rule:'The bus got a flat when it ran into a trench of mud.'},
       {q:'What blend starts the word "branch"?',opts:['br','bl','gr','tr'],ans:0,rule:'BRANCH starts with BR — /b/ /r/ are both heard as separate sounds.'},
       {q:'What blend starts the word "brisk"?',opts:['br','bl','gr','cr'],ans:0,rule:'BRISK starts with BR — think: bring, brad, branch, brisk.'},
-      {q:'What welded sound ends "stand"?',opts:['and','ant','and','ank'],ans:0,rule:'STAND ends in the welded sound -and. The letters a-n-d stay together.'},
+      {q:'What welded sound is in "stand"?',opts:['and','ant','ank','ing'],ans:0,rule:'STAND ends in the welded sound -and. The letters a-n-d stay together.'},
       {q:'What does -rupt- mean in "disrupt"?',opts:['push','send','break','pull'],ans:2,rule:'-rupt- means BREAK. Disrupt = to break apart. Interrupt = to break into.'},
     ]
   }
 ];
 
-const VAULT_QUESTIONS = [
-  {type:'base',  q:'What does -rupt- mean?',        opts:['break','send','hang','push'],   ans:0, rule:'-rupt- means BREAK. Disrupt, interrupt, rupture.'},
-  {type:'base',  q:'What does -struct- mean?',      opts:['cut','build','pull','throw'],   ans:1, rule:'-struct- means BUILD. Construct, instruct, structure.'},
-  {type:'base',  q:'What does -tract- mean?',       opts:['send','look','draw/pull','come'],ans:2,rule:'-tract- means DRAW or PULL. Attract, contract, subtract.'},
-  {type:'blend', q:'What blend starts SPRING?',     opts:['str','scr','spr','spl'],        ans:2, rule:'SPRING starts with SPR — /s/ /p/ /r/ — three letter blend.'},
-  {type:'blend', q:'What blend starts SCRAP?',      opts:['str','scr','spr','spl'],        ans:1, rule:'SCRAP starts with SCR — /s/ /k/ /r/ — three letter blend.'},
-  {type:'blend', q:'What blend starts STRAP?',      opts:['str','scr','spr','spl'],        ans:0, rule:'STRAP starts with STR — /s/ /t/ /r/ — three letter blend.'},
-  {type:'weld',  q:'What welded sound ends TRUNK?', opts:['unk','ink','ang','ong'],        ans:0, rule:'-unk- is a welded sound. Trunk, skunk, chunk, dunk.'},
-  {type:'weld',  q:'What welded sound ends CLANG?', opts:['ing','ang','ank','ong'],        ans:1, rule:'-ang- is a welded sound. Clang, bang, rang, sang.'},
+const VAULT_Q=[
+  {type:'base', q:'What does -rupt- mean?',       opts:['break','send','hang','push'],    ans:0,rule:'-rupt- means BREAK. Disrupt, interrupt, rupture.'},
+  {type:'base', q:'What does -struct- mean?',     opts:['cut','build','pull','throw'],    ans:1,rule:'-struct- means BUILD. Construct, instruct, structure.'},
+  {type:'base', q:'What does -tract- mean?',      opts:['send','look','draw/pull','come'],ans:2,rule:'-tract- means DRAW or PULL. Attract, contract, subtract.'},
+  {type:'blend',q:'What blend starts SPRING?',    opts:['str','scr','spr','spl'],         ans:2,rule:'SPRING starts with SPR — /s/ /p/ /r/ — three letter blend.'},
+  {type:'blend',q:'What blend starts SCRAP?',     opts:['str','scr','spr','spl'],         ans:1,rule:'SCRAP starts with SCR — /s/ /k/ /r/ — three letter blend.'},
+  {type:'blend',q:'What blend starts STRAP?',     opts:['str','scr','spr','spl'],         ans:0,rule:'STRAP starts with STR — /s/ /t/ /r/ — three letter blend.'},
+  {type:'weld', q:'What welded sound ends TRUNK?',opts:['unk','ink','ang','ong'],          ans:0,rule:'-unk- is a welded sound. Trunk, skunk, chunk, dunk.'},
+  {type:'weld', q:'What welded sound ends CLANG?',opts:['ing','ang','ank','ong'],          ans:1,rule:'-ang- is a welded sound. Clang, bang, rang, sang.'},
 ];
 
 // ── GAME STATE ────────────────────────────────────────────────────────────────
-let G = {
-  zone: STUDENT.currentZone || 1,
-  q: 0,
-  total: 8,
-  score: 0,
-  errors: [],
-  streak: 0,
-  bestStreak: 0,
-  pendingCorrection: null,
-  passageIdx: 0,
-  substep: STUDENT.substep || '2.4',
-  zones: STUDENT.zones || {},
+let G={
+  zone:STUDENT.currentZone||1, q:0, total:8,
+  score:0, errors:[], streak:0, bestStreak:0,
+  pendingCallback:null, passageIdx:0,
+  substep:STUDENT.substep||'2.4',
+  zones:STUDENT.zones||{},
 };
 
-// ── RENDER ENGINE ─────────────────────────────────────────────────────────────
-const scroll = document.getElementById('scroll');
-function render(html){ scroll.innerHTML = html; scroll.scrollTop = 0; }
+// ── RENDER ────────────────────────────────────────────────────────────────────
+const scroll=document.getElementById('scroll');
+function render(html){scroll.innerHTML=html;scroll.scrollTop=0;}
 
 function updateTopBar(){
-  const z = ZONE_META[G.zone-1];
-  document.getElementById('tb-zone-label').textContent = `Zone ${G.zone} of 7`;
-  document.getElementById('tb-zone-name').textContent = `${z.icon} ${z.name}`;
-  const pct = ((G.zone-1)/7*100);
-  document.getElementById('prog-fill').style.width = pct+'%';
+  const z=ZONE_META[G.zone-1];
+  document.getElementById('tb-zone-label').textContent=`Zone ${G.zone} of 7`;
+  document.getElementById('tb-zone-name').textContent=`${z.icon} ${z.name}`;
+  // sequencer dots
+  document.getElementById('seq-fill').style.width=((G.zone-1)/7*100)+'%';
+  const dots=document.getElementById('seq-dots');
+  dots.innerHTML=ZONE_META.map(zm=>{
+    const cls=zm.num<G.zone?'done':zm.num===G.zone?'active':'';
+    return `<div class="seq-dot ${cls}" title="${zm.name}"></div>`;
+  }).join('');
 }
 
 // ── ZONE MAP ──────────────────────────────────────────────────────────────────
 function showZoneMap(){
-  updateTopBar();
-  document.getElementById('tb-zone-label').textContent = 'Operation Word DNA';
-  document.getElementById('tb-zone-name').textContent = 'Mission Map';
-  document.getElementById('prog-fill').style.width = ((G.zone-1)/7*100)+'%';
+  document.getElementById('tb-zone-label').textContent='Operation Word DNA';
+  document.getElementById('tb-zone-name').textContent='🔬 Mission Map';
+  document.getElementById('seq-fill').style.width=((G.zone-1)/7*100)+'%';
+  const dots=document.getElementById('seq-dots');
+  dots.innerHTML=ZONE_META.map(zm=>{
+    const cls=zm.num<G.zone?'done':zm.num===G.zone?'active':'';
+    return `<div class="seq-dot ${cls}"></div>`;
+  }).join('');
 
-  let html = `<div style="text-align:center;padding:8px 0 16px">
-    <div style="font-size:36px;margin-bottom:8px">🔬</div>
-    <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--teal);letter-spacing:2px;margin-bottom:4px">MISSION ACTIVE</div>
-    <div style="font-size:15px;font-weight:700;color:var(--sub)">Welcome back, <b style="color:var(--text)">${STUDENT.name}</b></div>
-  </div>
-  <div class="zone-map">`;
+  let html=`<div style="text-align:center;padding:8px 0 16px">
+    <div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 0 16px var(--green))">🔬</div>
+    <div style="font-family:'Orbitron',monospace;font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:4px;opacity:.8">MISSION ACTIVE</div>
+    <div style="font-size:14px;font-weight:700;color:var(--sub)">Welcome back, <b style="color:var(--text)">${STUDENT.name}</b></div>
+  </div><div class="zone-map">`;
 
   ZONE_META.forEach(z=>{
-    const zdata = G.zones[`zone${z.num}`];
-    const stars = zdata?.stars || 0;
-    const done = z.num < G.zone;
-    const active = z.num === G.zone;
-    const locked = z.num > G.zone;
-    let cls = locked ? 'locked' : done ? 'done' : active ? 'active' : '';
-    let starStr = done ? (stars===3?'⭐⭐⭐':stars===2?'⭐⭐':'⭐') : '';
-    let rightContent = locked
-      ? '<span style="font-size:20px;color:var(--sub)">🔒</span>'
-      : done ? `<div class="zone-stars">${starStr}</div>` : '<span style="font-size:13px;font-weight:800;color:var(--violet)">PLAY →</span>';
-
-    html += `<div class="zone-card ${cls}" onclick="${active||done?`startZone(${z.num})`:''}">
+    const zdata=G.zones[`zone${z.num}`];
+    const stars=zdata?.stars||0;
+    const done=z.num<G.zone,active=z.num===G.zone,locked=z.num>G.zone;
+    let cls=locked?'locked':done?'done':active?'active':'';
+    let right=locked
+      ?'<span style="font-size:18px;opacity:.4">🔒</span>'
+      :done?`<div class="zone-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>`
+      :'<span style="font-size:12px;font-weight:800;color:var(--green)">ENTER →</span>';
+    html+=`<div class="zone-card ${cls}" onclick="${active||done?`startZone(${z.num})`:''}">
       <div class="zone-icon">${z.icon}</div>
       <div class="zone-info">
         <div class="zone-num">Zone ${z.num}</div>
         <div class="zone-title">${z.name}</div>
         <div class="zone-desc">${z.desc}</div>
-      </div>
-      ${rightContent}
-    </div>`;
+      </div>${right}</div>`;
   });
-
-  html += `</div>`;
+  html+='</div>';
   render(html);
 }
 
 // ── START ZONE ────────────────────────────────────────────────────────────────
-window.startZone = function(num){
-  G.zone = num;
-  G.q = 0;
-  G.score = 0;
-  G.errors = [];
-  G.streak = 0;
-  updateTopBar();
-  showStory(num);
+window.startZone=function(num){
+  G.zone=num;G.q=0;G.score=0;G.errors=[];G.streak=0;
+  updateTopBar();showStory(num);
 };
 
 function showStory(num){
-  const s = STORIES[num];
-  const z = ZONE_META[num-1];
+  const s=STORIES[num],z=ZONE_META[num-1];
   render(`<div class="story-panel">
     <div class="story-icon">${z.icon}</div>
     <div class="story-title">${s.title}</div>
     <div class="story-text">${s.text}</div>
   </div>
-  <div style="margin-top:8px">
-    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px">8 questions · 1–3 stars based on accuracy</div>
-    <button class="btn btn-launch" onclick="runZone(${num})">🔬 Begin Zone ${num}</button>
-  </div>`);
+  <div style="font-size:12px;color:var(--sub);text-align:center;margin:0 0 12px">8 questions · 1–3 stars based on accuracy · errors can be corrected for 1 point</div>
+  <button class="btn-launch" onclick="runZone(${num})">🔬 Begin Zone ${num} — ${z.name}</button>`);
 }
 
-// ── ZONE RUNNERS ──────────────────────────────────────────────────────────────
-window.runZone = function(num){
-  if(num===1) zone1Next();
-  else if(num===2) zone2Next();
-  else if(num===3) zone3Next();
-  else if(num===4) zone4Next();
-  else if(num===5) zone5Next();
-  else if(num===6) zone6Start();
-  else if(num===7) zone7Next();
+window.runZone=function(num){
+  if(num===1)z1next();else if(num===2)z2next();else if(num===3)z3next();
+  else if(num===4)z4next();else if(num===5)z5next();
+  else if(num===6)z6start();else if(num===7)z7next();
 };
 
-// ── ZONE 1 — WELDS & EXCEPTIONS ───────────────────────────────────────────────
-function zone1Next(){
-  if(G.q >= G.total){ zoneComplete(); return; }
-  const item = WELD_QUESTIONS[G.q];
-  const choices = WELD_CHOICES[G.q];
-  const label = item.exception ? 'CLOSED SYLLABLE EXCEPTION' : 'WELDED SOUND';
-  render(`
-    <div class="sec" style="text-align:center">${label} — Question ${G.q+1} of ${G.total}</div>
-    <div class="tile-display">
-      ${item.display.split('').map(l=>`<div class="tile tile-consonant">${l}</div>`).join('')}
-    </div>
-    <div style="font-size:14px;color:var(--sub);text-align:center;margin-bottom:12px">
-      ${item.exception ? 'What closed syllable exception do you see?' : 'What is the welded sound in this word?'}
-    </div>
-    <div class="choices">
-      ${choices.map(c=>`<button class="choice" onclick="checkWeld('${c}','${item.weld}','${item.rule.replace(/'/g,"\\'")}','${item.word}')">${c}</button>`).join('')}
-    </div>
+// ── ZONE 1 ────────────────────────────────────────────────────────────────────
+function z1next(){
+  if(G.q>=G.total){zoneComplete();return;}
+  const item=WELD_Q[G.q%WELD_Q.length];
+  const choices=WELD_C[G.q%WELD_C.length];
+  const label=item.exception?'CLOSED SYLLABLE EXCEPTION':'WELDED SOUND';
+  render(`<div class="sec" style="text-align:center">${label} — ${G.q+1} of ${G.total}</div>
+    <div class="tile-display">${item.display.split('').map(l=>`<div class="tile tile-consonant">${l}</div>`).join('')}</div>
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px">${item.exception?'What closed syllable exception do you see?':'What is the welded sound in this word?'}</div>
+    <div class="choices">${choices.map(c=>`<button class="choice" onclick="chkWeld('${c}','${item.weld}','${item.rule.replace(/'/g,"\\'")}','${item.word}')">${c}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
-
-window.checkWeld = function(chosen, correct, rule, word){
-  if(chosen === correct){
-    markButtons(chosen, correct);
-    G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak;
-    setTimeout(()=>{ G.q++; zone1Next(); }, 800);
-  } else {
-    markButtons(chosen, correct);
-    G.streak=0;
-    const ruleText = `The welded sound in <b>${word}</b> is <b>-${correct}-</b>. ${rule}`;
-    showError(ruleText, `-${correct}-`, ()=>{ G.q++; G.errors.push({q:word, wrong:chosen, correct}); zone1Next(); });
+window.chkWeld=function(chosen,correct,rule,word){
+  if(chosen===correct){
+    markBtn(chosen,correct);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    setTimeout(()=>{G.q++;z1next();},800);
+  }else{
+    markBtn(chosen,correct);G.streak=0;
+    showErr(`The welded sound in <b>${word}</b> is <b>-${correct}-</b>. ${rule}`,`-${correct}-`,()=>{G.q++;G.errors.push({q:word,wrong:chosen,correct});z1next();});
   }
 };
 
-// ── ZONE 2 — 2-LETTER BLENDS ──────────────────────────────────────────────────
-function zone2Next(){
-  if(G.q >= G.total){ zoneComplete(); return; }
-  const item = BLEND2_QUESTIONS[G.q];
-  render(`
-    <div class="sec" style="text-align:center">2-LETTER BLEND — Question ${G.q+1} of ${G.total}</div>
-    <div style="font-size:13px;color:var(--sub);text-align:center;margin:8px 0">Tap the two letters that make the blend</div>
-    <div class="swipe-word" id="swipe-word">
-      ${item.word.split('').map((l,i)=>`<div class="swipe-letter" id="sl-${i}" data-i="${i}" ontouchstart="tapLetter(${i},event)" onclick="tapLetter(${i},event)">${l}</div>`).join('')}
-    </div>
-    <div id="blend-feedback" style="text-align:center;font-size:14px;color:var(--sub);margin:8px 0">Tap each letter in the blend</div>
-    <button class="btn btn-violet btn-full" id="blend-submit" onclick="submitBlend2('${item.blend}','${item.rule.replace(/'/g,"\\'")}','${item.word}')" style="margin-top:8px">Check blend</button>
+// ── ZONE 2 ────────────────────────────────────────────────────────────────────
+function z2next(){
+  if(G.q>=G.total){zoneComplete();return;}
+  const item=BLEND2_Q[G.q%BLEND2_Q.length];
+  render(`<div class="sec" style="text-align:center">2-LETTER BLEND — ${G.q+1} of ${G.total}</div>
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin:6px 0 10px">Tap the two letters that form the blend</div>
+    <div class="swipe-word" id="sw">${item.word.split('').map((l,i)=>`<div class="swipe-letter" id="sl${i}" data-i="${i}" onclick="tapL(${i})">${l}</div>`).join('')}</div>
+    <div id="bfb" style="text-align:center;font-size:13px;color:var(--sub);margin:8px 0">Tap each letter in the blend</div>
+    <button class="btn btn-green btn-full" style="margin-top:6px" onclick="subBlend2('${item.blend}','${item.rule.replace(/'/g,"\\'")}','${item.word}')">Check blend ✓</button>
     ${scoreBar()}`);
-  window._tapped = new Set();
+  window._tap=new Set();
 }
-
-window.tapLetter = function(i, e){
-  e.preventDefault();
-  const el = document.getElementById(`sl-${i}`);
-  if(!window._tapped) window._tapped = new Set();
-  if(window._tapped.has(i)){ window._tapped.delete(i); el.classList.remove('swept'); }
-  else { window._tapped.add(i); el.classList.add('swept'); }
-  document.getElementById('blend-feedback').textContent = `Selected: ${[...window._tapped].sort().map(j=>document.querySelector(`#sl-${j}`).textContent).join('')}`;
+window.tapL=function(i){
+  const el=document.getElementById('sl'+i);
+  if(!window._tap)window._tap=new Set();
+  if(window._tap.has(i)){window._tap.delete(i);el.classList.remove('swept');}
+  else{window._tap.add(i);el.classList.add('swept');}
+  document.getElementById('bfb').textContent='Selected: '+[...window._tap].sort().map(j=>document.getElementById('sl'+j).textContent).join('');
 };
-
-window.submitBlend2 = function(correct, rule, word){
-  const tapped = [...window._tapped].sort();
-  const correctIdx = [0,1];
-  const chosen = tapped.map(i=>document.querySelector(`#sl-${i}`).textContent).join('');
-  if(JSON.stringify(tapped)===JSON.stringify(correctIdx) && chosen.toLowerCase()===correct){
-    document.querySelectorAll('.swipe-letter').forEach((el,i)=>{ if(i<2) el.classList.add('locked'); });
-    G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak;
-    document.getElementById('blend-feedback').textContent = `✓ ${correct.toUpperCase()} is the blend!`;
-    setTimeout(()=>{ G.q++; zone2Next(); }, 900);
-  } else {
-    const ruleText = `The blend in <b>${word}</b> is <b>${correct.toUpperCase()}</b>. ${rule}`;
+window.subBlend2=function(correct,rule,word){
+  const tapped=[...window._tap].sort((a,b)=>a-b);
+  const chosen=tapped.map(i=>document.getElementById('sl'+i).textContent).join('');
+  if(JSON.stringify(tapped)==='[0,1]'&&chosen.toLowerCase()===correct){
+    [0,1].forEach(i=>{const el=document.getElementById('sl'+i);if(el)el.classList.replace('swept','locked');});
+    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    document.getElementById('bfb').textContent='✓ '+correct.toUpperCase()+' is the blend!';
+    setTimeout(()=>{G.q++;z2next();},900);
+  }else{
     G.streak=0;
-    showError(ruleText, `${correct.toUpperCase()} — /`+correct.split('').join('/ /')+`/`, ()=>{ G.q++; G.errors.push({q:word,wrong:chosen,correct}); zone2Next(); });
+    showErr(`The blend in <b>${word}</b> is <b>${correct.toUpperCase()}</b>. ${rule}`,`${correct.toUpperCase()} — /`+correct.split('').join('/ /')+`/`,()=>{G.q++;G.errors.push({q:word,wrong:chosen,correct});z2next();});
   }
 };
 
-// ── ZONE 3 — 3-LETTER BLENDS (SWIPE) ─────────────────────────────────────────
-function zone3Next(){
-  if(G.q >= G.total){ zoneComplete(); return; }
-  const item = BLEND3_QUESTIONS[G.q];
-  render(`
-    <div class="sec" style="text-align:center">3-LETTER BLEND — Question ${G.q+1} of ${G.total}</div>
-    <div style="font-size:13px;color:var(--sub);text-align:center;margin:8px 0">Swipe across the three-letter blend</div>
-    <div class="swipe-word" id="swipe-word" style="touch-action:none">
-      ${item.word.split('').map((l,i)=>`<div class="swipe-letter" id="sl-${i}" data-i="${i}">${l}</div>`).join('')}
-    </div>
-    <div id="blend-feedback" style="text-align:center;font-size:14px;color:var(--sub);margin:8px 0">Swipe or tap the three blend letters</div>
-    <button class="btn btn-violet btn-full" id="blend-submit" onclick="submitBlend3('${item.blend}','${item.rule.replace(/'/g,"\\'")}','${item.word}')" style="margin-top:8px">Check blend</button>
+// ── ZONE 3 ────────────────────────────────────────────────────────────────────
+function z3next(){
+  if(G.q>=G.total){zoneComplete();return;}
+  const item=BLEND3_Q[G.q%BLEND3_Q.length];
+  render(`<div class="sec" style="text-align:center">3-LETTER BLEND — ${G.q+1} of ${G.total}</div>
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin:6px 0 10px">Swipe across the three-letter blend</div>
+    <div class="swipe-word" id="sw" style="touch-action:none">${item.word.split('').map((l,i)=>`<div class="swipe-letter" id="sl${i}" data-i="${i}">${l}</div>`).join('')}</div>
+    <div id="bfb" style="text-align:center;font-size:13px;color:var(--sub);margin:8px 0">Swipe or tap the three blend letters</div>
+    <button class="btn btn-green btn-full" style="margin-top:6px" onclick="subBlend3('${item.blend}','${item.rule.replace(/'/g,"\\'")}','${item.word}')">Check blend ✓</button>
     ${scoreBar()}`);
-  window._swept3 = new Set();
-  setupSwipe3();
+  window._sw3=new Set();
+  setupSwipe();
 }
-
-function setupSwipe3(){
-  const container = document.getElementById('swipe-word');
-  if(!container) return;
-  let sweeping = false;
-  const mark = (i)=>{
-    if(!window._swept3.has(i)){
-      window._swept3.add(i);
-      const el=document.getElementById(`sl-${i}`);
-      if(el) el.classList.add('swept');
-      document.getElementById('blend-feedback').textContent = `Sweeping: ${[...window._swept3].sort((a,b)=>a-b).map(j=>document.querySelector(`#sl-${j}`).textContent).join('')}`;
+function setupSwipe(){
+  const c=document.getElementById('sw');if(!c)return;
+  let on=false;
+  const mark=i=>{
+    if(!window._sw3.has(i)){
+      window._sw3.add(i);
+      const el=document.getElementById('sl'+i);if(el)el.classList.add('swept');
+      const fb=document.getElementById('bfb');
+      if(fb)fb.textContent='Sweeping: '+[...window._sw3].sort((a,b)=>a-b).map(j=>{const e=document.getElementById('sl'+j);return e?e.textContent:'';}).join('');
     }
   };
-  container.addEventListener('touchstart',(e)=>{ sweeping=true; e.preventDefault();
-    const t=e.touches[0]; const el=document.elementFromPoint(t.clientX,t.clientY);
-    if(el&&el.dataset.i!=null) mark(parseInt(el.dataset.i));
-  },{passive:false});
-  container.addEventListener('touchmove',(e)=>{ if(!sweeping) return; e.preventDefault();
-    const t=e.touches[0]; const el=document.elementFromPoint(t.clientX,t.clientY);
-    if(el&&el.dataset.i!=null) mark(parseInt(el.dataset.i));
-  },{passive:false});
-  container.addEventListener('touchend',()=>{ sweeping=false; });
-  // click fallback
-  container.querySelectorAll('.swipe-letter').forEach(el=>{
-    el.addEventListener('click',()=>{ mark(parseInt(el.dataset.i)); });
-  });
+  c.addEventListener('touchstart',e=>{on=true;e.preventDefault();const t=e.touches[0];const el=document.elementFromPoint(t.clientX,t.clientY);if(el&&el.dataset.i!=null)mark(parseInt(el.dataset.i));},{passive:false});
+  c.addEventListener('touchmove',e=>{if(!on)return;e.preventDefault();const t=e.touches[0];const el=document.elementFromPoint(t.clientX,t.clientY);if(el&&el.dataset.i!=null)mark(parseInt(el.dataset.i));},{passive:false});
+  c.addEventListener('touchend',()=>on=false);
+  c.querySelectorAll('.swipe-letter').forEach(el=>el.addEventListener('click',()=>mark(parseInt(el.dataset.i))));
 }
-
-window.submitBlend3 = function(correct, rule, word){
-  const swept = [...window._swept3].sort((a,b)=>a-b);
-  const chosen = swept.map(i=>document.querySelector(`#sl-${i}`)?.textContent||'').join('');
-  if(chosen.toLowerCase()===correct && swept[0]===0 && swept.length===3){
-    [0,1,2].forEach(i=>{ const el=document.getElementById(`sl-${i}`); if(el) el.classList.add('locked'); });
-    G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak;
-    document.getElementById('blend-feedback').textContent=`✓ ${correct.toUpperCase()} is the blend!`;
-    setTimeout(()=>{ G.q++; zone3Next(); },900);
-  } else {
+window.subBlend3=function(correct,rule,word){
+  const sw=[...window._sw3].sort((a,b)=>a-b);
+  const chosen=sw.map(i=>{const e=document.getElementById('sl'+i);return e?e.textContent:'';}).join('');
+  if(chosen.toLowerCase()===correct&&sw[0]===0&&sw.length===3){
+    [0,1,2].forEach(i=>{const el=document.getElementById('sl'+i);if(el){el.classList.remove('swept');el.classList.add('locked');}});
+    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const fb=document.getElementById('bfb');if(fb)fb.textContent='✓ '+correct.toUpperCase()+' is the blend!';
+    setTimeout(()=>{G.q++;z3next();},900);
+  }else{
     G.streak=0;
-    const ruleText=`The blend in <b>${word}</b> is <b>${correct.toUpperCase()}</b>. ${rule}`;
-    showError(ruleText,`${correct.toUpperCase()} — /`+correct.split('').join('/ /')+`/`,()=>{ G.q++; G.errors.push({q:word,wrong:chosen,correct}); zone3Next(); });
+    showErr(`The blend in <b>${word}</b> is <b>${correct.toUpperCase()}</b>. ${rule}`,`${correct.toUpperCase()} — /`+correct.split('').join('/ /')+`/`,()=>{G.q++;G.errors.push({q:word,wrong:chosen,correct});z3next();});
   }
 };
 
-// ── ZONE 4 — LATIN BASES ──────────────────────────────────────────────────────
-function zone4Next(){
-  if(G.q >= G.total){ zoneComplete(); return; }
-  const pool = G.substep==='2.5' ? BASES_DATA.slice(14) : G.substep==='both' ? BASES_DATA : BASES_DATA.slice(0,14);
-  const item = pool[G.q % pool.length];
-  const wrongs = pool.filter(b=>b.b!==item.b).sort(()=>Math.random()-.5).slice(0,3);
-  const choices = [item,...wrongs].sort(()=>Math.random()-.5);
-  const qtype = G.q%2===0 ? 'meaning' : 'base';
-
-  let mainDisplay, questionText;
-  if(qtype==='meaning'){
-    mainDisplay=`<div class="tile-display"><div class="tile tile-base">${item.b}</div></div>`;
-    questionText='What does this base mean?';
-    choices.forEach(c=>c._lbl=c.m);
-  } else {
-    mainDisplay=`<div class="tile-display"><div style="font-size:22px;font-weight:800;color:var(--gold)">"${item.m}"</div></div>`;
-    questionText='Which base has this meaning?';
-    choices.forEach(c=>c._lbl=c.b);
-  }
-
-  render(`
-    <div class="sec" style="text-align:center">LATIN BASE — Question ${G.q+1} of ${G.total}</div>
-    <div style="font-size:14px;color:var(--sub);text-align:center;margin-bottom:4px">${questionText}</div>
-    ${mainDisplay}
-    <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px">Example words: ${item.ex}</div>
-    <div class="choices">
-      ${choices.map(c=>`<button class="choice" onclick="checkBase('${c._lbl}','${qtype==='meaning'?item.m:item.b}','${item.rule.replace(/'/g,"\\'")}','${item.b}')">${c._lbl}</button>`).join('')}
-    </div>
+// ── ZONE 4 ────────────────────────────────────────────────────────────────────
+function z4next(){
+  if(G.q>=G.total){zoneComplete();return;}
+  const pool=G.substep==='2.5'?BASES.slice(14):G.substep==='both'?BASES:BASES.slice(0,14);
+  const item=pool[G.q%pool.length];
+  const wrongs=pool.filter(b=>b.b!==item.b).sort(()=>Math.random()-.5).slice(0,3);
+  const choices=[item,...wrongs].sort(()=>Math.random()-.5);
+  const qtype=G.q%2===0?'meaning':'base';
+  if(qtype==='meaning')choices.forEach(c=>c._lbl=c.m);else choices.forEach(c=>c._lbl=c.b);
+  render(`<div class="sec" style="text-align:center">LATIN BASE — ${G.q+1} of ${G.total}</div>
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:4px">${qtype==='meaning'?'What does this base mean?':'Which base has this meaning?'}</div>
+    <div class="tile-display">${qtype==='meaning'?`<div class="tile tile-base">${item.b}</div>`:`<div style="font-size:20px;font-weight:800;color:var(--amber)">"${item.m}"</div>`}</div>
+    <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:10px">Example words: <b style="color:var(--text)">${item.ex}</b></div>
+    <div class="choices">${choices.map(c=>`<button class="choice" onclick="chkBase('${c._lbl.replace(/'/g,"\\'")}','${(qtype==='meaning'?item.m:item.b).replace(/'/g,"\\'")}','${item.rule.replace(/'/g,"\\'")}','${item.b}')">${c._lbl}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
-
-window.checkBase = function(chosen, correct, rule, base){
+window.chkBase=function(chosen,correct,rule,base){
   if(chosen===correct){
-    markButtons(chosen,correct);
-    G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak;
-    setTimeout(()=>{ G.q++; zone4Next(); },800);
-  } else {
-    markButtons(chosen,correct);
-    G.streak=0;
-    showError(rule, `${base} = "${correct}"`, ()=>{ G.q++; G.errors.push({q:base,wrong:chosen,correct}); zone4Next(); });
+    markBtn(chosen,correct);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    setTimeout(()=>{G.q++;z4next();},800);
+  }else{
+    markBtn(chosen,correct);G.streak=0;
+    showErr(rule,`${base} = "${correct}"`,()=>{G.q++;G.errors.push({q:base,wrong:chosen,correct});z4next();});
   }
 };
 
-// ── ZONE 5 — SENTENCE READING + SCOOPING ──────────────────────────────────────
-function zone5Next(){
-  if(G.q >= G.total){ zoneComplete(); return; }
-  const item = SENTENCES_5[G.q % SENTENCES_5.length];
-  render(`
-    <div class="sec" style="text-align:center">SENTENCE READING — ${G.q+1} of ${G.total}</div>
-    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px">Read the sentence aloud, then scoop the phrases</div>
-    <div class="scoop-sentence" id="scoop-area">
-      <div class="scoop-words" id="scoop-words">
-        ${item.text.split(' ').map((w,i)=>`<span class="scoop-word" id="sw-${i}" onclick="scoop(${i})">${w}</span>`).join(' ')}
-      </div>
+// ── ZONE 5 ────────────────────────────────────────────────────────────────────
+function z5next(){
+  if(G.q>=G.total){zoneComplete();return;}
+  const item=SENTS[G.q%SENTS.length];
+  render(`<div class="sec" style="text-align:center">SENTENCE READING — ${G.q+1} of ${G.total}</div>
+    <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:10px">Read aloud · Tap words to scoop phrases</div>
+    <div class="scoop-sentence">
+      <div class="scoop-words" id="scoop-words">${item.text.split(' ').map((w,i)=>`<span class="scoop-word" id="sw${i}" onclick="scoop(${i})">${w}</span>`).join(' ')}</div>
     </div>
-    <div style="font-size:12px;color:var(--sub);text-align:center;margin:8px 0">Tap words to scoop phrases · Blend: <b style="color:var(--violet-lt)">${item.blend||'—'}</b></div>
+    <div style="font-size:11px;color:var(--sub);text-align:center;margin:8px 0">Look for the blend: <b style="color:var(--green)">${item.blend.toUpperCase()}</b></div>
     <div class="teacher-btns">
-      <button class="btn btn-teal" onclick="sentCorrect(true)">✓ Read correctly</button>
-      <button class="btn btn-ghost" onclick="sentCorrect(false)">✗ Needs practice</button>
+      <button class="btn btn-green" onclick="sentOk(true)">✓ Read correctly</button>
+      <button class="btn btn-ghost" onclick="sentOk(false)">✗ Needs practice</button>
     </div>
     ${scoreBar()}`);
-  window._scooped = new Set();
+  window._sc=new Set();
 }
-
-window.scoop = function(i){
-  if(window._scooped.has(i)){ window._scooped.delete(i); document.getElementById(`sw-${i}`).classList.remove('scooped'); }
-  else { window._scooped.add(i); document.getElementById(`sw-${i}`).classList.add('scooped'); }
+window.scoop=function(i){
+  const el=document.getElementById('sw'+i);if(!el)return;
+  if(window._sc.has(i)){window._sc.delete(i);el.classList.remove('scooped');}
+  else{window._sc.add(i);el.classList.add('scooped');}
+};
+window.sentOk=async function(ok){
+  if(ok){G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;}
+  else{G.streak=0;G.errors.push({q:SENTS[G.q%SENTS.length].text,wrong:'needs practice',correct:'correct read'});}
+  try{await saveScoop(STUDENT.id,5,G.q,ok);}catch(e){}
+  G.q++;z5next();
 };
 
-window.sentCorrect = async function(ok){
-  if(ok){ G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak; }
-  else { G.streak=0; G.errors.push({q:SENTENCES_5[G.q%SENTENCES_5.length].text, wrong:'needs practice', correct:'correct read'}); }
-  try { await saveScoop(STUDENT.id, 5, G.q, ok); } catch(e){}
-  G.q++;
-  zone5Next();
-};
-
-// ── ZONE 6 — PASSAGE + COMPREHENSION ─────────────────────────────────────────
-function zone6Start(){
-  G.passageIdx = G.substep==='2.5' ? 1 : 0;
-  const p = PASSAGES[G.passageIdx];
-  render(`
-    <div class="sec" style="text-align:center">ARCHIVE ROOM — Read the passage</div>
-    <div class="card">
-      <div class="card-title">${p.title} <span style="font-size:11px;color:var(--sub);font-weight:600">(${p.substep})</span></div>
-      <div style="font-size:15px;line-height:1.75;color:var(--sub)">
-        ${p.text.split('\n\n').map(para=>`<p style="margin-bottom:12px;color:rgba(232,234,246,.7)">${para}</p>`).join('')}
-      </div>
+// ── ZONE 6 ────────────────────────────────────────────────────────────────────
+function z6start(){
+  G.passageIdx=G.substep==='2.5'?1:0;
+  const p=PASSAGES[G.passageIdx];
+  render(`<div class="sec" style="text-align:center">ARCHIVE ROOM — Read the passage</div>
+    <div class="passage-box">
+      <div class="passage-title-display">${p.title}</div>
+      <div class="passage-substep">${p.substep}</div>
+      ${p.text.split('\n\n').map(para=>`<p>${para}</p>`).join('')}
     </div>
-    <button class="btn btn-launch" onclick="zone6Questions()">Answer questions →</button>`);
+    <button class="btn-launch" onclick="z6questions()" style="margin-top:12px">Answer questions →</button>`);
 }
-
-window.zone6Questions = function(){
-  const p = PASSAGES[G.passageIdx];
-  G.q = 0;
-  zone6Next(p);
-};
-
-function zone6Next(p){
-  if(G.q >= p.questions.length){ zoneComplete(); return; }
-  const item = p.questions[G.q];
-  render(`
-    <div class="sec" style="text-align:center">COMPREHENSION — Question ${G.q+1} of ${p.questions.length}</div>
-    <div class="card" style="font-size:15px;font-weight:700;margin-bottom:12px">${item.q}</div>
-    <div class="choices">
-      ${item.opts.map((o,i)=>`<button class="choice" onclick="checkPassage(${i},${item.ans},'${item.rule.replace(/'/g,"\\'")}','${item.opts[item.ans].replace(/'/g,"\\'")}')">${o}</button>`).join('')}
-    </div>
+window.z6questions=function(){G.q=0;z6next();};
+function z6next(){
+  if(G.q>=PASSAGES[G.passageIdx].questions.length){zoneComplete();return;}
+  const p=PASSAGES[G.passageIdx],item=p.questions[G.q];
+  render(`<div class="sec" style="text-align:center">COMPREHENSION — ${G.q+1} of ${p.questions.length}</div>
+    <div class="card" style="font-size:15px;font-weight:700;margin-bottom:10px">${item.q}</div>
+    <div class="choices">${item.opts.map((o,i)=>`<button class="choice" onclick="chkPass(${i},${item.ans},'${item.rule.replace(/'/g,"\\'")}','${item.opts[item.ans].replace(/'/g,"\\'")}' )">${o}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
-
-window.checkPassage = function(chosen, correct, rule, correctText){
-  const p = PASSAGES[G.passageIdx];
+window.chkPass=function(chosen,correct,rule,correctText){
   if(chosen===correct){
-    markButtons(chosen, correct, true);
-    G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak;
-    setTimeout(()=>{ G.q++; zone6Next(p); },800);
-  } else {
-    markButtons(chosen, correct, true);
-    G.streak=0;
-    showError(rule, correctText, ()=>{ G.q++; G.errors.push({q:'Passage Q'+(G.q+1), wrong:chosen, correct:correctText}); zone6Next(p); });
+    markBtn(chosen,correct,true);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    setTimeout(()=>{G.q++;z6next();},800);
+  }else{
+    markBtn(chosen,correct,true);G.streak=0;
+    showErr(rule,correctText,()=>{G.q++;G.errors.push({q:'Passage Q'+(G.q+1),wrong:chosen,correct:correctText});z6next();});
   }
 };
 
-// ── ZONE 7 — VAULT BOSS ───────────────────────────────────────────────────────
-function zone7Next(){
-  if(G.q >= G.total){ zoneComplete(); return; }
-  const item = VAULT_QUESTIONS[G.q % VAULT_QUESTIONS.length];
-  const typeLabel = item.type==='base'?'LATIN BASE':item.type==='blend'?'BLEND':'WELDED SOUND';
-  render(`
-    <div class="sec" style="text-align:center">THE VAULT — ${typeLabel} — ${G.q+1} of ${G.total}</div>
-    <div class="tile-display">
-      <div style="font-size:18px;font-weight:800;color:var(--text);text-align:center">${item.q}</div>
-    </div>
-    <div class="choices">
-      ${item.opts.map((o,i)=>`<button class="choice" onclick="checkVault(${i},${item.ans},'${item.rule.replace(/'/g,"\\'")}','${item.opts[item.ans].replace(/'/g,"\\'")}')">${o}</button>`).join('')}
-    </div>
+// ── ZONE 7 ────────────────────────────────────────────────────────────────────
+function z7next(){
+  if(G.q>=G.total){zoneComplete();return;}
+  const item=VAULT_Q[G.q%VAULT_Q.length];
+  const typeLabel=item.type==='base'?'LATIN BASE':item.type==='blend'?'BLEND':'WELDED SOUND';
+  render(`<div class="sec" style="text-align:center">THE VAULT — ${typeLabel} — ${G.q+1} of ${G.total}</div>
+    <div class="tile-display"><div style="font-size:17px;font-weight:800;color:var(--text);text-align:center;padding:8px">${item.q}</div></div>
+    <div class="choices">${item.opts.map((o,i)=>`<button class="choice" onclick="chkVault(${i},${item.ans},'${item.rule.replace(/'/g,"\\'")}','${item.opts[item.ans].replace(/'/g,"\\'")}' )">${o}</button>`).join('')}</div>
     ${scoreBar()}`);
 }
-
-window.checkVault = function(chosen, correct, rule, correctText){
+window.chkVault=function(chosen,correct,rule,correctText){
   if(chosen===correct){
-    markButtons(chosen,correct,true);
-    G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak;
-    setTimeout(()=>{ G.q++; zone7Next(); },800);
-  } else {
-    markButtons(chosen,correct,true);
-    G.streak=0;
-    showError(rule, correctText, ()=>{ G.q++; G.errors.push({q:VAULT_QUESTIONS[G.q%VAULT_QUESTIONS.length]?.q||'', wrong:chosen, correct:correctText}); zone7Next(); });
+    markBtn(chosen,correct,true);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    setTimeout(()=>{G.q++;z7next();},800);
+  }else{
+    markBtn(chosen,correct,true);G.streak=0;
+    showErr(rule,correctText,()=>{G.q++;G.errors.push({q:VAULT_Q[G.q%VAULT_Q.length]?.q||'',wrong:chosen,correct:correctText});z7next();});
   }
 };
 
-// ── SHARED HELPERS ────────────────────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 function scoreBar(){
   return `<div class="score-line">
-    <span class="score-badge">Score: ${G.score}/${G.q}</span>
+    <span class="score-badge">Score: ${G.score} / ${G.q}</span>
     ${G.streak>1?`<span class="streak">🔥 ${G.streak} in a row</span>`:''}
   </div>`;
 }
 
-function markButtons(chosen, correct, byIndex=false){
+function markBtn(chosen,correct,byIndex=false){
   document.querySelectorAll('.choice').forEach((b,i)=>{
     b.disabled=true;
-    const match = byIndex ? i===correct : b.textContent.trim()===correct;
-    const isMine = byIndex ? i===chosen : b.textContent.trim()===chosen;
-    if(match) b.classList.add('correct');
-    else if(isMine && !match) b.classList.add('wrong');
+    const isOk=byIndex?i===correct:b.textContent.trim()===correct;
+    const isMine=byIndex?i===chosen:b.textContent.trim()===chosen;
+    if(isOk)b.classList.add('correct');
+    else if(isMine&&!isOk)b.classList.add('wrong');
   });
 }
 
-// ── ERROR POPUP ───────────────────────────────────────────────────────────────
-let _popupCallback = null;
-function showError(ruleHtml, correctDisplay, callback){
-  document.getElementById('popup-rule').innerHTML = ruleHtml;
-  document.getElementById('popup-correct').textContent = '✓ ' + correctDisplay;
-  document.getElementById('error-popup').style.display = 'flex';
-  _popupCallback = callback;
+let _cb=null;
+function showErr(ruleHtml,correctDisplay,cb){
+  document.getElementById('popup-rule').innerHTML=ruleHtml;
+  document.getElementById('popup-correct').textContent='✓ '+correctDisplay;
+  document.getElementById('error-popup').style.display='flex';
+  _cb=cb;
 }
-window.dismissPopup = function(){
-  document.getElementById('error-popup').style.display = 'none';
-  if(_popupCallback){ _popupCallback(); _popupCallback=null; }
+window.dismissPopup=function(){
+  document.getElementById('error-popup').style.display='none';
+  if(_cb){_cb();_cb=null;}
 };
 
 // ── ZONE COMPLETE ─────────────────────────────────────────────────────────────
 async function zoneComplete(){
-  const pct = Math.round(G.score/G.total*100);
-  const stars = pct>=90 ? 3 : pct>=70 ? 2 : 1;
-  const emoji = stars===3?'⭐':stars===2?'🌟':'✨';
-  const starsStr = '⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  const pct=Math.round(G.score/G.total*100);
+  const stars=pct>=90?3:pct>=70?2:1;
+  if(stars===3)fireConfetti();
+  try{
+    await saveZoneProgress(STUDENT.id,G.zone,stars,{correct:G.score,total:G.total,errors:G.errors,currentZone:G.zone+1});
+    G.zones[`zone${G.zone}`]={stars,lastScore:G.score,total:G.total};
+    STUDENT.currentZone=Math.max(STUDENT.currentZone||1,G.zone+1);
+    sessionStorage.setItem('wdl_student',JSON.stringify(STUDENT));
+  }catch(e){console.error('Save error',e);}
 
-  if(stars===3) fireConfetti();
+  const msgs={3:'Perfect! Sample fully restored to the lab. 🧬',2:'Good work! Sample secured with minor contamination.',1:'Sample recovered! A few readings need reinforcement.'};
+  const vialPct=stars===3?100:stars===2?66:33;
 
-  // save to firebase
-  try {
-    await saveZoneProgress(STUDENT.id, G.zone, stars, {
-      correct: G.score, total: G.total,
-      errors: G.errors, currentZone: G.zone+1
-    });
-    G.zones[`zone${G.zone}`] = { stars, lastScore:G.score, total:G.total };
-    STUDENT.currentZone = Math.max(STUDENT.currentZone||1, G.zone+1);
-    sessionStorage.setItem('wdl_student', JSON.stringify(STUDENT));
-  } catch(e){ console.error('Save error',e); }
-
-  const messages = {
-    3:'Perfect score! The lab is one step closer to being restored! 🔬',
-    2:'Great work! Zone secured with some minor repairs still needed.',
-    1:'Zone cleared! A few bases still need reinforcement — you can replay anytime.'
-  };
-
-  let errorSection = '';
+  let errSec='';
   if(G.errors.length){
-    errorSection = `<div class="error-list">
-      <div class="sec" style="margin-bottom:8px">Review these</div>
-      ${G.errors.map(e=>`<div class="error-item"><b>${e.q}</b> → <span>${e.correct}</span></div>`).join('')}
-    </div>`;
+    errSec=`<div class="error-list"><div class="sec" style="margin-bottom:6px">Review these</div>${G.errors.map(e=>`<div class="error-item"><b>${e.q}</b> → <span>${e.correct}</span></div>`).join('')}</div>`;
   }
 
-  const isLast = G.zone===7;
-  render(`
-    <div class="results">
-      <div class="result-emoji">${emoji}</div>
-      <div class="result-title">Zone ${G.zone} Complete!</div>
-      <div class="result-sub">${ZONE_META[G.zone-1].name}</div>
-      <div class="stars-display">${starsStr}</div>
-      <div class="result-grid">
-        <div class="rstat"><div class="rstat-n">${G.score}/${G.total}</div><div class="rstat-l">Score</div></div>
-        <div class="rstat"><div class="rstat-n">${pct}%</div><div class="rstat-l">Accuracy</div></div>
-        <div class="rstat"><div class="rstat-n">${G.bestStreak}</div><div class="rstat-l">Best streak</div></div>
-        <div class="rstat"><div class="rstat-n">${G.errors.length}</div><div class="rstat-l">Errors</div></div>
-      </div>
-      <div style="font-size:14px;color:var(--sub);margin-bottom:16px">${messages[stars]}</div>
-      ${errorSection}
-      ${isLast
-        ? `<button class="btn btn-launch" onclick="showLabRestored()">🏆 Restore the Lab!</button>`
-        : `<button class="btn btn-launch" onclick="startZone(${G.zone+1})">Next zone: ${ZONE_META[G.zone]?.icon} ${ZONE_META[G.zone]?.name} →</button>`
-      }
-      <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="showZoneMap()">← Mission map</button>
-      ${stars<3?`<button class="btn btn-ghost btn-full" style="margin-top:4px" onclick="startZone(${G.zone})">↺ Replay this zone</button>`:''}
-    </div>`);
+  const isLast=G.zone===7;
+  render(`<div class="results">
+    <div class="vial-container"><div><div class="vial-cap"></div><div class="vial"><div class="vial-fill" style="height:${vialPct}%"></div></div></div></div>
+    <div class="result-title" style="margin-top:12px">Zone ${G.zone} Complete!</div>
+    <div class="result-sub">${ZONE_META[G.zone-1].name}</div>
+    <div class="stars-display">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    <div class="result-grid">
+      <div class="rstat"><div class="rstat-n">${G.score}/${G.total}</div><div class="rstat-l">Score</div></div>
+      <div class="rstat"><div class="rstat-n">${pct}%</div><div class="rstat-l">Accuracy</div></div>
+      <div class="rstat"><div class="rstat-n">${G.bestStreak}</div><div class="rstat-l">Best streak</div></div>
+      <div class="rstat"><div class="rstat-n">${G.errors.length}</div><div class="rstat-l">Errors</div></div>
+    </div>
+    <div style="font-size:13px;color:var(--sub);margin-bottom:14px">${msgs[stars]}</div>
+    ${errSec}
+    ${isLast
+      ?`<button class="btn-launch" onclick="labRestored()">🏆 Restore the Lab!</button>`
+      :`<button class="btn-launch" onclick="startZone(${G.zone+1})">Next: ${ZONE_META[G.zone]?.icon} ${ZONE_META[G.zone]?.name} →</button>`
+    }
+    <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="showZoneMap()">← Mission map</button>
+    ${stars<3?`<button class="btn btn-ghost btn-full" style="margin-top:4px" onclick="startZone(${G.zone})">↺ Replay zone</button>`:''}
+  </div>`);
 }
 
-// ── LAB RESTORED ─────────────────────────────────────────────────────────────
-window.showLabRestored = function(){
-  fireConfetti();
-  setTimeout(fireConfetti, 800);
+window.labRestored=function(){
+  fireConfetti();setTimeout(fireConfetti,700);
   render(`<div class="results">
-    <div style="font-size:80px;margin-bottom:16px">🔬✨</div>
-    <div class="result-title" style="font-size:24px;color:var(--gold)">LAB RESTORED!</div>
-    <div style="font-size:15px;color:var(--sub);margin:12px 0 24px;line-height:1.6">
+    <div style="font-size:70px;margin-bottom:12px;filter:drop-shadow(0 0 30px var(--green))">🔬</div>
+    <div class="result-title" style="font-size:22px;color:var(--lime)">LAB FULLY RESTORED!</div>
+    <div style="font-size:15px;color:var(--sub);margin:14px 0 20px;line-height:1.7">
       Outstanding work, <b style="color:var(--text)">${STUDENT.name}</b>!<br>
-      The Word DNA Lab is back in business.<br>
-      Dr. Word is on her way back. 🧬
+      Every sample is back in its vial.<br>
+      The Word DNA Lab is secure. 🧬
     </div>
-    <div style="font-size:40px;margin-bottom:16px">🏆</div>
-    <button class="btn btn-launch" onclick="showZoneMap()">Play again</button>
-    <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="window.location.href='index.html'">← Back to student select</button>
+    <div style="font-size:36px;margin-bottom:20px">🏆</div>
+    <button class="btn-launch" onclick="showZoneMap()">Play again</button>
+    <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="window.location.href='index.html'">← Student select</button>
   </div>`);
 };
 
 // ── CONFETTI ──────────────────────────────────────────────────────────────────
 function fireConfetti(){
-  const canvas=document.getElementById('confetti');
-  const ctx=canvas.getContext('2d');
-  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const cv=document.getElementById('confetti');
+  const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
   const pieces=[];
-  const colors=['#6c63ff','#f5c842','#4ecfb3','#ff6b6b','#fff','#8b85ff'];
-  for(let i=0;i<90;i++) pieces.push({x:Math.random()*canvas.width,y:-10,r:Math.random()*7+3,c:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-.5)*5,vy:Math.random()*4+2,rot:Math.random()*360,vr:(Math.random()-.5)*12});
+  const cols=['#00e5a0','#76ff03','#00bcd4','#ffab00','#fff','#00f0a8'];
+  for(let i=0;i<90;i++)pieces.push({x:Math.random()*cv.width,y:-10,r:Math.random()*7+3,c:cols[Math.floor(Math.random()*cols.length)],vx:(Math.random()-.5)*5,vy:Math.random()*4+2,rot:Math.random()*360,vr:(Math.random()-.5)*12});
   let t=0;
   function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,cv.width,cv.height);
     pieces.forEach(p=>{
       ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
       ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
-      ctx.restore();
-      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.06;
+      ctx.restore();p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.06;
     });
-    t++;if(t<140) requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);
+    t++;if(t<140)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);
   }
   draw();
 }
