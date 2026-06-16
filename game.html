@@ -74,39 +74,44 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 .story-text b{color:var(--text)}
 
 /* ── WILSON TILES ── */
-.tile-display{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:20px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);min-height:88px;align-items:center;animation:tileIn .35s ease}
+.tile-display{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:24px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);min-height:100px;align-items:center;animation:tileIn .35s ease}
 @keyframes tileIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
 
 .tile{
   display:inline-flex;align-items:center;justify-content:center;
-  min-width:44px;height:50px;padding:0 10px;
-  border-radius:8px;font-size:20px;font-weight:900;
+  min-width:58px;height:66px;padding:0 12px;
+  border-radius:10px;font-size:26px;font-weight:900;
   border:2px solid transparent;transition:all .2s;user-select:none;
-  box-shadow:0 2px 4px rgba(0,0,0,.3);
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
 }
 /* Wilson consonant = yellow */
 .tc{background:var(--wc-bg);color:var(--wc-txt);border-color:var(--wc-border)}
 /* Wilson vowel = pink */
 .tv{background:var(--wv-bg);color:var(--wv-txt);border-color:var(--wv-border)}
 /* Wilson weld/exception/glued = green */
-.tw{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:52px;font-size:17px}
+.tw{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:68px;font-size:22px}
 /* Latin base tile */
-.tile-base{background:linear-gradient(135deg,var(--dark3),var(--dark4));color:var(--green);border-color:rgba(0,229,160,.3);font-size:16px;min-width:64px;letter-spacing:1px;box-shadow:0 0 12px rgba(0,229,160,.1)}
+.tile-base{background:linear-gradient(135deg,var(--dark3),var(--dark4));color:var(--green);border-color:rgba(0,229,160,.3);font-size:18px;min-width:72px;letter-spacing:1px;box-shadow:0 0 12px rgba(0,229,160,.1)}
 
 /* swipe word — also uses Wilson tile styling */
-.swipe-word{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;padding:20px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);user-select:none;-webkit-user-select:none;touch-action:none}
+.swipe-word{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:24px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);user-select:none;-webkit-user-select:none;touch-action:none}
 .sl{
-  min-width:44px;height:50px;padding:0 8px;
+  min-width:58px;height:66px;padding:0 10px;
   display:flex;align-items:center;justify-content:center;
-  border-radius:8px;font-size:20px;font-weight:900;
+  border-radius:10px;font-size:26px;font-weight:900;
   border:2px solid transparent;transition:all .15s;
-  box-shadow:0 2px 4px rgba(0,0,0,.3);cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;
 }
 .sl.sl-c{background:var(--wc-bg);color:var(--wc-txt);border-color:var(--wc-border)}
 .sl.sl-v{background:var(--wv-bg);color:var(--wv-txt);border-color:var(--wv-border)}
-.sl.sl-w{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:52px;font-size:17px}
-.sl.swept{box-shadow:0 0 0 3px var(--amber),0 2px 4px rgba(0,0,0,.3);transform:scale(1.08)}
-.sl.locked{box-shadow:0 0 0 3px var(--green),0 0 12px var(--green-glow);opacity:.85}
+.sl.sl-w{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:72px;font-size:22px}
+/* swept = tile is being selected — always amber glow regardless of type */
+.sl.swept{box-shadow:0 0 0 3px var(--amber),0 2px 6px rgba(0,0,0,.3);transform:scale(1.1)}
+/* locked consonant/vowel = amber ring (blend found) */
+.sl.sl-c.locked{box-shadow:0 0 0 3px var(--amber),0 0 14px rgba(255,171,0,.4);opacity:1}
+.sl.sl-v.locked{box-shadow:0 0 0 3px var(--amber),0 0 14px rgba(255,171,0,.4);opacity:1}
+/* locked weld = green ring (weld found) */
+.sl.sl-w.locked{box-shadow:0 0 0 3px var(--green),0 0 14px var(--green-glow);opacity:1}
 .sl.wrong-flash{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
