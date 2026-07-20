@@ -10,116 +10,122 @@
 :root{
   --black:#061412;--dark:#0a1e1a;--dark2:#0d2b22;--dark3:#112e24;
   --green:#00e5a0;--green-dk:#00b37d;--green-lt:rgba(0,229,160,.12);
-  --cyan:#00bcd4;--cyan-lt:rgba(0,188,212,.12);
-  --lime:#76ff03;--lime-lt:rgba(118,255,3,.1);
-  --red:#ff5252;--red-lt:rgba(255,82,82,.12);
-  --amber:#ffab00;--amber-lt:rgba(255,171,0,.12);
+  --cyan:#00bcd4;--red:#ff5252;--red-lt:rgba(255,82,82,.12);
+  --amber:#ffab00;
   --text:#e0f2ee;--sub:rgba(224,242,238,.45);--border:rgba(0,229,160,.12);
   --r:14px;--rs:10px;
 }
-html,body{height:100%;overflow-y:auto}
-body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);min-height:100vh;padding:20px}
-
-.hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3Cpath d='M28 34 L56 50 L56 84 L28 100 L0 84 L0 50 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 100px}
+html,body{min-height:100vh;overflow-y:auto}
+body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);padding:20px}
+.hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 100px}
 .scan-line{position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);z-index:1;animation:scan 8s linear infinite;opacity:.2}
 @keyframes scan{from{top:0}to{top:100vh}}
-.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.particle{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--green);opacity:0;animation:float var(--d,8s) var(--delay,0s) infinite ease-in-out}
-@keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.5}90%{opacity:.2}100%{transform:translateY(-20px) translateX(var(--dx,20px));opacity:0}}
-
 .wrap{position:relative;z-index:2;width:100%;max-width:480px;margin:0 auto}
-
-.logo-area{text-align:center;margin-bottom:24px;padding-top:16px}
+.logo-area{text-align:center;margin-bottom:24px;padding-top:8px}
 .logo-icon{font-size:48px;margin-bottom:8px;filter:drop-shadow(0 0 24px var(--green))}
-.logo-tag{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:4px}
 .logo-title{font-family:'Orbitron',monospace;font-size:24px;font-weight:900;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.logo-tag{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:4px}
 .logo-sub{font-size:12px;color:var(--sub)}
-
 .card{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.35}
 .card-title{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);opacity:.7;margin-bottom:12px}
-
-/* student select */
-.sel-wrap{position:relative;margin-bottom:12px}
-select{width:100%;padding:13px 16px;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);appearance:none;cursor:pointer;transition:border-color .2s}
-select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-lt)}
+.sel-wrap{position:relative;margin-bottom:10px}
+select{width:100%;padding:13px 16px;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);appearance:none;cursor:pointer}
+select:focus{outline:none;border-color:var(--green)}
 select option{background:var(--dark2)}
 .sel-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--green);pointer-events:none;font-size:12px}
-
-/* mode cards */
-.mode-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
-.mode-card{
-  display:flex;align-items:center;gap:14px;
-  background:var(--dark2);border:2px solid var(--border);border-radius:var(--r);
-  padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
-}
-.mode-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--green);opacity:.1;transition:width .2s}
-.mode-card:hover{border-color:rgba(0,229,160,.35);background:var(--dark3)}
-.mode-card:hover::before{width:4px}
-.mode-card.selected{border-color:var(--green);box-shadow:0 0 20px rgba(0,229,160,.12)}
-.mode-card.selected::before{width:4px;opacity:.2}
-.mode-icon{font-size:28px;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(0,229,160,.3))}
-.mode-info{flex:1}
-.mode-name{font-size:15px;font-weight:800;margin-bottom:2px}
-.mode-desc{font-size:12px;color:var(--sub);line-height:1.4}
-.mode-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;transition:all .2s}
-.mode-card.selected .mode-check{background:var(--green);border-color:var(--green);color:#061412}
-
-/* difficulty */
-.diff-row{display:flex;gap:6px;margin-top:10px}
-.diff-btn{flex:1;padding:8px 6px;text-align:center;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);font-size:12px;font-weight:800;color:var(--sub);cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif}
-.diff-btn.active{background:var(--red-lt);border-color:var(--red);color:var(--red)}
-
-/* pass and play names */
-.p2p-names{margin-top:10px;display:none}
-.name-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
-.name-label{font-size:12px;font-weight:800;color:var(--sub);min-width:60px;text-transform:uppercase;letter-spacing:.5px}
-input[type=text]{background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:14px;font-family:'Nunito',sans-serif;font-weight:600;color:var(--text);flex:1;transition:border-color .2s}
-input[type=text]:focus{outline:none;border-color:var(--green)}
-
-/* resume / zone dots */
 .resume-badge{background:var(--green-lt);border:1px solid rgba(0,229,160,.25);border-radius:var(--rs);padding:9px 13px;font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px;display:none}
 .zone-dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;display:none}
 .zdot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;border:2px solid var(--border)}
 .zdot-done{background:var(--green-lt);border-color:var(--green);color:var(--green)}
 .zdot-active{background:var(--green);border-color:var(--green);color:#061412;box-shadow:0 0 12px var(--green)}
 .zdot-lock{background:var(--dark2);color:var(--sub)}
-
+/* mode cards */
+.mode-card{display:flex;align-items:center;gap:14px;background:var(--dark2);border:2px solid var(--border);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;margin-bottom:8px}
+.mode-card:hover{border-color:rgba(0,229,160,.35);background:var(--dark3)}
+.mode-card.selected{border-color:var(--green);box-shadow:0 0 20px rgba(0,229,160,.12)}
+.mode-icon{font-size:26px;flex-shrink:0}
+.mode-info{flex:1}
+.mode-name{font-size:15px;font-weight:800;margin-bottom:2px}
+.mode-desc{font-size:12px;color:var(--sub)}
+.mode-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;transition:all .2s;color:transparent}
+.mode-card.selected .mode-check{background:var(--green);border-color:var(--green);color:#061412}
+/* difficulty */
+.diff-row{display:flex;gap:6px;margin-top:10px}
+.diff-btn{flex:1;padding:8px 4px;text-align:center;background:var(--dark);border:1.5px solid var(--border);border-radius:var(--rs);font-size:11px;font-weight:800;color:var(--sub);cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;line-height:1.4}
+.diff-btn.active{background:var(--red-lt);border-color:var(--red);color:var(--red)}
+/* p2p names */
+.p2p-names{margin-top:10px;display:none}
+.name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.name-label{font-size:11px;font-weight:800;color:var(--sub);min-width:60px;text-transform:uppercase;letter-spacing:.5px}
+input[type=text]{background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:14px;font-family:'Nunito',sans-serif;font-weight:600;color:var(--text);flex:1;transition:border-color .2s}
+input[type=text]:focus{outline:none;border-color:var(--green)}
 /* add student */
 .add-row{display:flex;gap:8px}
-.add-input{flex:1;padding:11px 13px;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--text);transition:border-color .2s}
+.add-input{flex:1;padding:11px 13px;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--text)}
 .add-input:focus{outline:none;border-color:var(--cyan)}
 .add-input::placeholder{color:var(--sub)}
 .pill-row{display:flex;gap:6px;margin-top:10px}
 .ss-pill{flex:1;padding:7px;text-align:center;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);font-size:12px;font-weight:800;color:var(--sub);cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif}
 .ss-pill.active{background:var(--green-lt);border-color:var(--green);color:var(--green)}
-
 /* buttons */
-.btn{font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;border:none;border-radius:var(--rs);padding:9px 16px;font-size:14px;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn{font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;border:none;border-radius:var(--rs);padding:9px 16px;font-size:14px;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn:hover{transform:translateY(-2px)}
 .btn:active{transform:scale(.97)}
 .btn-cyan{background:var(--cyan);color:#061412}
 .btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.25)}
 .btn-sm{padding:7px 13px;font-size:13px}
 .btn-launch{width:100%;padding:16px;font-size:17px;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061412;border-radius:var(--r);box-shadow:0 6px 28px rgba(0,229,160,.3);font-family:'Nunito',sans-serif;font-weight:900;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
 .btn-launch:hover{box-shadow:0 8px 36px rgba(0,229,160,.5);transform:translateY(-2px)}
 .btn-launch:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-
 .divider{display:flex;align-items:center;gap:10px;margin:10px 0}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
 .divider span{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase}
-
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark2);border:1px solid var(--green);border-radius:var(--rs);padding:11px 18px;font-size:14px;font-weight:700;color:var(--green);opacity:0;transition:opacity .3s;pointer-events:none;z-index:100;box-shadow:0 0 20px rgba(0,229,160,.2)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark2);border:1px solid var(--green);border-radius:var(--rs);padding:11px 18px;font-size:14px;font-weight:700;color:var(--green);opacity:0;transition:opacity .3s;pointer-events:none;z-index:100}
 .toast.show{opacity:1}
-
-/* helix warning */
-.helix-warning{background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.25);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:rgba(255,82,82,.8);font-weight:700;margin-top:10px;display:flex;align-items:center;gap:8px}
+/* teacher modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;backdrop-filter:blur(6px);overflow-y:auto;padding:20px}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:620px;margin:auto;position:relative;overflow:hidden}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.6}
+.modal-header{display:flex;align-items:center;padding:18px 20px 0;gap:12px}
+.modal-header h2{flex:1;font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:var(--green);letter-spacing:1px}
+.modal-close{background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px 8px;font-family:'Nunito',sans-serif}
+.tab-bar{display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid var(--border)}
+.tab{padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;color:var(--sub);border-bottom:2px solid transparent;transition:all .2s;font-family:'Nunito',sans-serif;background:none;border-top:none;border-left:none;border-right:none}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.tab-content{display:none;padding:20px}
+.tab-content.active{display:block}
+.roster-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.roster-row:last-child{border-bottom:none}
+.rr-name{font-size:15px;font-weight:700;flex:1}
+.rr-sub{font-size:11px;color:var(--sub);font-weight:600}
+.prog-student{margin-bottom:20px}
+.prog-name{font-size:15px;font-weight:800;margin-bottom:10px}
+.zone-prog-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.zpz-label{font-size:12px;font-weight:700;color:var(--sub);min-width:100px}
+.zpz-stars{font-size:14px;min-width:60px}
+.zpz-detail{font-size:11px;color:var(--sub)}
+.err-student{margin-bottom:16px}
+.err-zone{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--amber);margin:8px 0 4px}
+.err-item{font-size:13px;padding:4px 0;color:rgba(224,242,238,.7)}
+.err-item b{color:var(--red)}
+.err-item span{color:var(--green)}
+.sel-sm{padding:6px 10px;font-size:12px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Nunito',sans-serif}
+.input-sm{padding:7px 10px;font-size:13px;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Nunito',sans-serif;margin-bottom:0}
+@media print{
+  .modal-overlay{position:static;background:none;backdrop-filter:none;display:block!important;padding:0}
+  .modal{border:none;max-width:100%}
+  .modal::before,.modal-header,.tab-bar,.no-print{display:none!important}
+  .tab-content{display:block!important;page-break-after:always}
+  body{background:white;color:black}
+}
 </style>
 </head>
 <body>
 <div class="hex-bg"></div>
 <div class="scan-line"></div>
-<div class="particles" id="particles"></div>
 
 <div class="wrap">
   <div class="logo-area">
@@ -132,6 +138,7 @@ input[type=text]:focus{outline:none;border-color:var(--green)}
   <!-- STUDENT SELECT -->
   <div class="card">
     <div class="card-title">🧬 Who's in the lab today?</div>
+    <div id="db-status" style="font-size:12px;color:var(--amber);margin-bottom:8px;display:none">⚠️ Connecting to database...</div>
     <div class="sel-wrap">
       <select id="student-sel"><option value="">— Select a student —</option></select>
       <div class="sel-arrow">▼</div>
@@ -143,65 +150,51 @@ input[type=text]:focus{outline:none;border-color:var(--green)}
   <!-- MISSION MODE -->
   <div class="card">
     <div class="card-title">⚗️ Mission mode</div>
-    <div class="mode-grid">
-
-      <div class="mode-card selected" id="mode-solo" onclick="selectMode('solo')">
-        <div class="mode-icon">🧬</div>
-        <div class="mode-info">
-          <div class="mode-name">Solo Agent</div>
-          <div class="mode-desc">Repair the lab alone before Dr. Word returns</div>
-        </div>
-        <div class="mode-check" id="chk-solo">✓</div>
-      </div>
-
-      <div class="mode-card" id="mode-helix" onclick="selectMode('helix')">
-        <div class="mode-icon">🧫</div>
-        <div class="mode-info">
-          <div class="mode-name">vs Dr. Helix</div>
-          <div class="mode-desc">Race the intruder — lock down each zone before he corrupts it</div>
-          <!-- difficulty selector — shown when this mode is selected -->
-          <div id="diff-wrap" style="display:none;margin-top:10px">
-            <div style="font-size:10px;font-weight:800;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Dr. Helix difficulty</div>
-            <div class="diff-row">
-              <button class="diff-btn" id="d-easy" onclick="setDiff('easy',event)">😤 Desperate<br><span style="font-size:10px;font-weight:600">50% accuracy</span></button>
-              <button class="diff-btn active" id="d-med"  onclick="setDiff('med',event)">🧪 Dangerous<br><span style="font-size:10px;font-weight:600">70% accuracy</span></button>
-              <button class="diff-btn" id="d-hard" onclick="setDiff('hard',event)">💀 Masterful<br><span style="font-size:10px;font-weight:600">90% accuracy</span></button>
-            </div>
-            <div class="helix-warning">⚠️ Dr. Helix has breached the lab. Stop him before he corrupts every sample.</div>
+    <div class="mode-card selected" id="mode-solo" onclick="selectMode('solo')">
+      <div class="mode-icon">🧬</div>
+      <div class="mode-info"><div class="mode-name">Solo Agent</div><div class="mode-desc">Repair the lab alone before Dr. Word returns</div></div>
+      <div class="mode-check" id="chk-solo">✓</div>
+    </div>
+    <div class="mode-card" id="mode-helix" onclick="selectMode('helix')">
+      <div class="mode-icon">🧫</div>
+      <div class="mode-info">
+        <div class="mode-name">vs Dr. Helix</div>
+        <div class="mode-desc">Race the intruder — lock down each zone before he corrupts it</div>
+        <div id="diff-wrap" style="display:none;margin-top:10px">
+          <div style="font-size:10px;font-weight:800;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Dr. Helix difficulty</div>
+          <div class="diff-row">
+            <button class="diff-btn" id="d-easy" onclick="setDiff('easy',event)">😤 Desperate<br><span style="font-size:10px">50%</span></button>
+            <button class="diff-btn active" id="d-med" onclick="setDiff('med',event)">🧪 Dangerous<br><span style="font-size:10px">70%</span></button>
+            <button class="diff-btn" id="d-hard" onclick="setDiff('hard',event)">💀 Masterful<br><span style="font-size:10px">90%</span></button>
           </div>
         </div>
-        <div class="mode-check" id="chk-helix"></div>
       </div>
-
-      <div class="mode-card" id="mode-p2p" onclick="selectMode('p2p')">
-        <div class="mode-icon">👥</div>
-        <div class="mode-info">
-          <div class="mode-name">Two Agents</div>
-          <div class="mode-desc">Pass and play — same device, alternate questions</div>
-          <!-- agent names — shown when selected -->
-          <div class="p2p-names" id="p2p-names">
-            <div class="name-row" style="margin-top:10px">
-              <span class="name-label">Agent 1</span>
-              <input type="text" id="agent1" placeholder="Agent name" autocomplete="off" onclick="event.stopPropagation()">
-            </div>
-            <div class="name-row">
-              <span class="name-label">Agent 2</span>
-              <input type="text" id="agent2" placeholder="Agent name" autocomplete="off" onclick="event.stopPropagation()">
-            </div>
+      <div class="mode-check" id="chk-helix"></div>
+    </div>
+    <div class="mode-card" id="mode-p2p" onclick="selectMode('p2p')">
+      <div class="mode-icon">👥</div>
+      <div class="mode-info">
+        <div class="mode-name">Two Agents</div>
+        <div class="mode-desc">Pass and play — same device, alternate questions</div>
+        <div class="p2p-names" id="p2p-names">
+          <div class="name-row" style="margin-top:10px">
+            <span class="name-label">Agent 1</span>
+            <input type="text" id="agent1" placeholder="Agent name" autocomplete="off" onclick="event.stopPropagation()">
+          </div>
+          <div class="name-row">
+            <span class="name-label">Agent 2</span>
+            <input type="text" id="agent2" placeholder="Agent name" autocomplete="off" onclick="event.stopPropagation()">
           </div>
         </div>
-        <div class="mode-check" id="chk-p2p"></div>
       </div>
-
+      <div class="mode-check" id="chk-p2p"></div>
     </div>
   </div>
 
-  <!-- LAUNCH -->
   <button class="btn-launch" id="start-btn" disabled onclick="launchGame()">🚀 Enter the Lab</button>
 
-  <div class="divider" style="margin-top:16px"><span>or add a new student</span></div>
+  <div class="divider" style="margin-top:14px"><span>or add a new student</span></div>
 
-  <!-- ADD STUDENT -->
   <div class="card">
     <div class="card-title">➕ New student</div>
     <div class="add-row">
@@ -215,225 +208,26 @@ input[type=text]:focus{outline:none;border-color:var(--green)}
       <div class="ss-pill" data-ss="both" onclick="selectSS(this)">Both</div>
     </div>
   </div>
+
+  <button class="btn btn-ghost" style="width:100%;margin-top:4px;font-size:13px;padding:10px" onclick="openPIN()">🔬 Teacher Tools</button>
+  <button class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:13px;padding:10px" onclick="window.open('versus.html','_blank')">⚔️ Head to Head (2 devices)</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import { getStudents, addStudent as fbAdd, getStudent } from './firebase.js';
-
-// particles
-const pc=document.getElementById('particles');
-for(let i=0;i<20;i++){
-  const p=document.createElement('div');p.className='particle';
-  p.style.cssText=`left:${Math.random()*100}%;--d:${(Math.random()*10+6).toFixed(1)}s;--delay:${(Math.random()*8).toFixed(1)}s;--dx:${(Math.random()*60-30).toFixed(0)}px`;
-  pc.appendChild(p);
-}
-
-const ZONES=[
-  {num:1,icon:'🔓',name:'Lab Unlock'},{num:2,icon:'🔬',name:'Centrifuge'},
-  {num:3,icon:'⚗️',name:'Sequencer'},{num:4,icon:'🧫',name:'Sample Storage'},
-  {num:5,icon:'📋',name:'Evidence Board'},{num:6,icon:'📖',name:'Archive Room'},
-  {num:7,icon:'🏆',name:'The Vault'},
-];
-
-let students=[],selectedStudent=null,selectedSS='2.4';
-let selectedMode='solo',selectedDiff='med';
-
-// ── LOAD STUDENTS ─────────────────────────────────────────────────────────────
-async function loadStudents(){
-  try{
-    students=await getStudents();
-    const sel=document.getElementById('student-sel');
-    sel.innerHTML='<option value="">— Select a student —</option>';
-    students.sort((a,b)=>a.name.localeCompare(b.name)).forEach(s=>{
-      const o=document.createElement('option');o.value=s.id;o.textContent=s.name;sel.appendChild(o);
-    });
-  }catch(e){showToast('Could not connect to database');console.error(e);}
-}
-
-document.getElementById('student-sel').addEventListener('change',async function(){
-  const id=this.value;
-  if(!id){selectedStudent=null;resetUI();return;}
-  try{
-    selectedStudent=await getStudent(id);
-    renderStudentUI(selectedStudent);
-    document.getElementById('start-btn').disabled=false;
-  }catch(e){showToast('Error loading student');}
-});
-
-function renderStudentUI(s){
-  const curZone=s.currentZone||1;
-  const badge=document.getElementById('resume-badge');
-  const zd=document.getElementById('zone-dots');
-  const z=ZONES.find(z=>z.num===curZone);
-  if(curZone>1&&z){
-    badge.style.display='block';
-    document.getElementById('resume-zone').textContent=`Zone ${curZone} — ${z.icon} ${z.name}`;
-  } else {
-    badge.style.display='none';
-  }
-  zd.style.display='flex';
-  zd.innerHTML=ZONES.map(z=>{
-    const zd2=s.zones?.[`zone${z.num}`];const stars=zd2?.stars||0;
-    let cls='zdot-lock',label='🔒';
-    if(z.num<curZone){cls='zdot-done';label=stars===3?'⭐':stars===2?'★':'✓';}
-    if(z.num===curZone){cls='zdot-active';label=z.icon;}
-    return `<div class="zdot ${cls}" title="Zone ${z.num}: ${z.name}">${label}</div>`;
-  }).join('');
-}
-
-function resetUI(){
-  document.getElementById('resume-badge').style.display='none';
-  document.getElementById('zone-dots').style.display='none';
-  document.getElementById('start-btn').disabled=true;
-}
-
-// ── MODE SELECT ───────────────────────────────────────────────────────────────
-window.selectMode=function(mode){
-  selectedMode=mode;
-  ['solo','helix','p2p'].forEach(m=>{
-    const card=document.getElementById('mode-'+m);
-    const chk=document.getElementById('chk-'+m);
-    card.classList.remove('selected');
-    chk.textContent='';
-  });
-  document.getElementById('mode-'+mode).classList.add('selected');
-  document.getElementById('chk-'+mode).textContent='✓';
-  // show/hide sub-options
-  document.getElementById('diff-wrap').style.display=mode==='helix'?'block':'none';
-  document.getElementById('p2p-names').style.display=mode==='p2p'?'block':'none';
-};
-
-window.setDiff=function(d,e){
-  e.stopPropagation();
-  selectedDiff=d;
-  ['easy','med','hard'].forEach(x=>document.getElementById('d-'+x).classList.remove('active'));
-  document.getElementById('d-'+d).classList.add('active');
-};
-
-// ── SUBSTEP ───────────────────────────────────────────────────────────────────
-window.selectSS=function(el){
-  document.querySelectorAll('.ss-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  selectedSS=el.dataset.ss;
-};
-
-// ── ADD STUDENT ───────────────────────────────────────────────────────────────
-window.addStudent=async function(){
-  const name=document.getElementById('new-name').value.trim();
-  if(!name){showToast('Please enter a name');return;}
-  try{
-    await fbAdd(name,selectedSS);
-    document.getElementById('new-name').value='';
-    showToast(`✓ ${name} added to the lab!`);
-    await loadStudents();
-    const sel=document.getElementById('student-sel');
-    const match=Array.from(sel.options).find(o=>o.textContent===name);
-    if(match){sel.value=match.value;sel.dispatchEvent(new Event('change'));}
-  }catch(e){showToast('Error adding student');console.error(e);}
-};
-
-// ── LAUNCH ────────────────────────────────────────────────────────────────────
-window.launchGame=function(){
-  if(!selectedStudent)return;
-
-  // validate pass and play names
-  if(selectedMode==='p2p'){
-    const a1=document.getElementById('agent1').value.trim()||'Agent 1';
-    const a2=document.getElementById('agent2').value.trim()||'Agent 2';
-    sessionStorage.setItem('wdl_agents',JSON.stringify([a1,a2]));
-  }
-
-  sessionStorage.setItem('wdl_student',JSON.stringify({
-    id:selectedStudent.id,
-    name:selectedStudent.name,
-    substep:selectedStudent.substep||selectedSS,
-    currentZone:selectedStudent.currentZone||1,
-    zones:selectedStudent.zones||{}
-  }));
-  sessionStorage.setItem('wdl_mode',selectedMode);
-  sessionStorage.setItem('wdl_diff',selectedDiff);
-  window.location.href='game.html';
-};
-
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-document.getElementById('new-name').addEventListener('keydown',e=>{if(e.key==='Enter')window.addStudent();});
-loadStudents();
-</script>
-</body>
-</html>
-<!-- TEACHER TOOLS MODAL (appended) -->
-<style>
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;backdrop-filter:blur(6px)}
-.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px}
-.modal{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:620px;margin:auto;position:relative;overflow:hidden}
-.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.6}
-.modal-header{display:flex;align-items:center;padding:18px 20px 0;gap:12px}
-.modal-header h2{flex:1;font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:var(--green);letter-spacing:1px}
-.modal-close{background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px 8px;font-family:'Nunito',sans-serif}
-.modal-close:hover{color:var(--text)}
-/* tabs */
-.tab-bar{display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid var(--border);margin-bottom:0}
-.tab{padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;color:var(--sub);border-bottom:2px solid transparent;transition:all .2s;font-family:'Nunito',sans-serif;background:none;border-top:none;border-left:none;border-right:none}
-.tab:hover{color:var(--text)}
-.tab.active{color:var(--green);border-bottom-color:var(--green)}
-.tab-content{display:none;padding:20px}
-.tab-content.active{display:block}
-/* roster */
-.roster-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.roster-row:last-child{border-bottom:none}
-.rr-name{font-size:15px;font-weight:700;flex:1}
-.rr-sub{font-size:11px;color:var(--sub);font-weight:600}
-.rr-zone{font-size:12px;color:var(--green);font-weight:700}
-/* progress */
-.prog-student{margin-bottom:20px}
-.prog-name{font-size:15px;font-weight:800;margin-bottom:10px;color:var(--text)}
-.zone-prog-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.zpz-label{font-size:12px;font-weight:700;color:var(--sub);min-width:80px}
-.zpz-stars{font-size:14px;letter-spacing:2px;min-width:60px}
-.zpz-detail{font-size:11px;color:var(--sub)}
-/* error log */
-.err-student{margin-bottom:20px}
-.err-zone{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--amber);margin:8px 0 4px}
-.err-item{font-size:13px;padding:4px 0;color:rgba(224,242,238,.7)}
-.err-item b{color:var(--red)}
-.err-item span{color:var(--green)}
-/* head to head */
-.h2h-room-display{background:var(--dark2);border:1px solid rgba(0,229,160,.3);border-radius:var(--r);padding:20px;text-align:center;margin-top:12px}
-.h2h-code{font-family:'Orbitron',monospace;font-size:44px;font-weight:900;color:var(--green);letter-spacing:8px;text-shadow:0 0 24px rgba(0,229,160,.4)}
-/* print */
-@media print{
-  body{background:white;color:black}
-  .modal-overlay{position:static;background:none;backdrop-filter:none}
-  .modal{border:none;max-width:100%;box-shadow:none}
-  .modal::before{display:none}
-  .no-print{display:none!important}
-  .tab-content{display:block!important;page-break-after:always}
-  .tab-bar,.modal-header,.modal-close{display:none}
-  .prog-student{page-break-inside:avoid}
-}
-.sel-sm{padding:6px 10px;font-size:13px;width:auto}
-.input-sm{padding:7px 10px;font-size:13px;margin-bottom:0}
-</style>
-
 <!-- PIN MODAL -->
-<div class="modal-overlay" id="pin-overlay" style="display:none">
-  <div class="modal" style="max-width:340px;padding:32px 24px;text-align:center">
-    <div style="font-size:36px;margin-bottom:12px;filter:drop-shadow(0 0 16px var(--green))">🔬</div>
+<div style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)" id="pin-overlay">
+  <div style="background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:32px 24px;text-align:center;max-width:320px;width:100%">
+    <div style="font-size:36px;margin-bottom:12px">🔬</div>
     <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--green);letter-spacing:1px;margin-bottom:16px">TEACHER ACCESS</div>
-    <div style="font-size:13px;color:var(--sub);margin-bottom:12px">Enter PIN to access teacher tools</div>
-    <input type="password" id="pin-input" placeholder="••••" style="text-align:center;font-size:20px;letter-spacing:6px;margin-bottom:12px;width:100%;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);padding:12px;color:var(--text);font-family:'Nunito',sans-serif" maxlength="4">
+    <input type="password" id="pin-input" placeholder="••••" maxlength="4" style="text-align:center;font-size:24px;letter-spacing:8px;width:100%;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);padding:12px;color:var(--text);font-family:'Nunito',sans-serif;margin-bottom:10px">
     <div style="color:var(--red);font-size:13px;margin-bottom:10px;min-height:18px" id="pin-err"></div>
-    <button class="btn btn-green btn-full" onclick="checkPIN()">Unlock</button>
-    <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="closePIN()">Cancel</button>
+    <button class="btn-launch" onclick="checkPIN()" style="margin-top:0">Unlock</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closePIN()">Cancel</button>
   </div>
 </div>
 
-<!-- TEACHER TOOLS MODAL -->
+<!-- TEACHER MODAL -->
 <div class="modal-overlay" id="teacher-modal">
   <div class="modal">
     <div class="modal-header">
@@ -441,86 +235,202 @@ loadStudents();
       <button class="modal-close no-print" onclick="closeTeacher()">✕</button>
     </div>
     <div class="tab-bar no-print">
-      <button class="tab active" onclick="showTab('roster')">👥 Roster</button>
-      <button class="tab" onclick="showTab('progress')">📊 Progress</button>
-      <button class="tab" onclick="showTab('errors')">📋 Error Log</button>
-      <button class="tab" onclick="showTab('h2h')">⚔️ Head to Head</button>
+      <button class="tab active" onclick="showTab('roster',this)">👥 Roster</button>
+      <button class="tab" onclick="showTab('progress',this)">📊 Progress</button>
+      <button class="tab" onclick="showTab('errors',this)">📋 Errors</button>
     </div>
-
-    <!-- ROSTER TAB -->
     <div class="tab-content active" id="tab-roster">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <h3 style="flex:1;font-size:15px;font-weight:800;color:var(--text)">Student Roster</h3>
-        <button class="btn btn-green" style="font-size:12px;padding:7px 12px" onclick="printReport()">🖨️ Print report</button>
+        <div style="flex:1;font-size:15px;font-weight:800">Student Roster</div>
+        <button class="btn btn-ghost no-print" style="font-size:12px;padding:7px 12px" onclick="printReport()">🖨️ Print</button>
       </div>
       <div id="roster-list"><div style="color:var(--sub);font-size:14px">Loading...</div></div>
-      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
-        <div style="font-size:11px;font-weight:800;letter-spacing:1px;color:var(--green);opacity:.7;text-transform:uppercase;margin-bottom:10px">Add student</div>
+      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1px;color:var(--green);opacity:.7;text-transform:uppercase;margin-bottom:10px">Add student</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <input class="input-sm" type="text" id="t-new-name" placeholder="Student name" style="flex:1;min-width:120px;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 12px;font-size:13px;color:var(--text);font-family:'Nunito',sans-serif">
-          <select class="sel-sm" id="t-new-ss" style="background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Nunito',sans-serif">
-            <option value="2.4">2.4</option><option value="2.5">2.5</option><option value="both">Both</option>
-          </select>
-          <button class="btn btn-green" style="font-size:12px;padding:7px 12px" onclick="teacherAddStudent()">Add</button>
+          <input class="input-sm" type="text" id="t-new-name" placeholder="Student name" style="flex:1;min-width:120px">
+          <select class="sel-sm" id="t-new-ss"><option value="2.4">2.4</option><option value="2.5">2.5</option><option value="both">Both</option></select>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="teacherAdd()">Add</button>
         </div>
       </div>
     </div>
-
-    <!-- PROGRESS TAB -->
     <div class="tab-content" id="tab-progress">
-      <h3 style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px">Zone Progress</h3>
+      <div style="font-size:15px;font-weight:800;margin-bottom:14px">Zone Progress</div>
       <div id="progress-list"><div style="color:var(--sub);font-size:14px">Loading...</div></div>
     </div>
-
-    <!-- ERROR LOG TAB -->
     <div class="tab-content" id="tab-errors">
-      <h3 style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px">Error Log</h3>
+      <div style="font-size:15px;font-weight:800;margin-bottom:14px">Error Log</div>
       <div id="error-list"><div style="color:var(--sub);font-size:14px">Loading...</div></div>
     </div>
-
-    <!-- HEAD TO HEAD TAB -->
-    <div class="tab-content" id="tab-h2h">
-      <h3 style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px">⚔️ Head to Head</h3>
-      <p style="font-size:13px;color:var(--sub);margin-bottom:14px">Create a head-to-head match. Share the room code with the second device.</p>
-      <button class="btn btn-green btn-full" onclick="window.open('versus.html','_blank')">Open Head to Head Setup →</button>
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-        <div style="font-size:11px;font-weight:800;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-bottom:8px">Or join an existing room</div>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="join-code" placeholder="Enter room code" maxlength="4" style="flex:1;background:var(--dark2);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px;font-size:18px;color:var(--green);font-family:'Orbitron',monospace;text-align:center;letter-spacing:4px">
-          <button class="btn btn-green" onclick="joinRoom()">Join</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
 <script type="module">
-// ── TEACHER TOOLS SCRIPT ──────────────────────────────────────────────────────
-import { getStudents, addStudent as fbAdd, updateStudent, deleteStudent } from './firebase.js';
+// ── ALL FIREBASE LOADED DYNAMICALLY ──────────────────────────────────────────
+// This ensures the page ALWAYS renders even if Firebase fails
 
-const TEACHER_PIN = '1980';
-const ZONE_META = [
-  {num:1,icon:'🔓',name:'Lab Unlock'},
-  {num:2,icon:'🔬',name:'Centrifuge'},
-  {num:3,icon:'⚗️',name:'Sequencer'},
-  {num:4,icon:'🧫',name:'Sample Storage'},
-  {num:5,icon:'📋',name:'Evidence Board'},
-  {num:6,icon:'📖',name:'Archive Room'},
+const ZONE_META=[
+  {num:1,icon:'🔓',name:'Lab Unlock'},{num:2,icon:'🔬',name:'Centrifuge'},
+  {num:3,icon:'⚗️',name:'Sequencer'},{num:4,icon:'🧫',name:'Sample Storage'},
+  {num:5,icon:'📋',name:'Evidence Board'},{num:6,icon:'📖',name:'Archive Room'},
   {num:7,icon:'🏆',name:'The Vault'},
 ];
 
-let _allStudents = [];
+const TEACHER_PIN = '1980';
+let selectedMode = 'solo';
+let selectedDiff = 'med';
+let selectedSS   = '2.4';
+let selectedStudent = null;
+let allStudents = [];
 
-// Add teacher tools button to DOM
-const teacherBtn = document.createElement('button');
-teacherBtn.className = 'btn btn-ghost';
-teacherBtn.style.cssText = 'width:100%;margin-top:8px;font-size:13px;padding:10px';
-teacherBtn.textContent = '🔬 Teacher Tools';
-teacherBtn.onclick = () => openPIN();
-document.querySelector('.wrap').appendChild(teacherBtn);
+// Firebase function stubs — replaced when Firebase loads
+let FB = {
+  getStudents:    async () => [],
+  addStudent:     async () => null,
+  getStudent:     async () => null,
+  updateStudent:  async () => {},
+  deleteStudent:  async () => {},
+};
 
-// PIN
+// ── LOAD FIREBASE ─────────────────────────────────────────────────────────────
+(async () => {
+  const status = document.getElementById('db-status');
+  status.style.display = 'block';
+  try {
+    const fb = await import('./firebase.js');
+    FB.getStudents   = fb.getStudents;
+    FB.addStudent    = fb.addStudent;
+    FB.getStudent    = fb.getStudent;
+    FB.updateStudent = fb.updateStudent;
+    FB.deleteStudent = fb.deleteStudent;
+    status.style.display = 'none';
+    await loadStudents();
+  } catch(e) {
+    console.error('Firebase failed:', e);
+    status.textContent = '⚠️ Database unavailable — you can still play in offline mode';
+    status.style.color = 'var(--red)';
+    // Still allow launching without a saved student
+    document.getElementById('start-btn').disabled = false;
+    // Create a guest student
+    selectedStudent = {id:'guest', name:'Guest', substep:'2.4', currentZone:1, zones:{}};
+  }
+})();
+
+// ── STUDENTS ──────────────────────────────────────────────────────────────────
+async function loadStudents() {
+  try {
+    allStudents = await FB.getStudents();
+    const sel = document.getElementById('student-sel');
+    sel.innerHTML = '<option value="">— Select a student —</option>';
+    allStudents.sort((a,b)=>a.name.localeCompare(b.name)).forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id; o.textContent = s.name;
+      sel.appendChild(o);
+    });
+  } catch(e) { showToast('Could not load students'); }
+}
+
+document.getElementById('student-sel').addEventListener('change', async function(){
+  const id = this.value;
+  if(!id){ selectedStudent=null; resetUI(); return; }
+  try {
+    selectedStudent = await FB.getStudent(id);
+    renderStudentUI(selectedStudent);
+    document.getElementById('start-btn').disabled = false;
+  } catch(e) { showToast('Error loading student'); }
+});
+
+function renderStudentUI(s) {
+  const curZone = s.currentZone || 1;
+  const badge = document.getElementById('resume-badge');
+  const zd = document.getElementById('zone-dots');
+  const z = ZONE_META.find(z=>z.num===curZone);
+  if(curZone > 1 && z){
+    badge.style.display = 'block';
+    document.getElementById('resume-zone').textContent = `Zone ${curZone} — ${z.icon} ${z.name}`;
+  } else { badge.style.display = 'none'; }
+  zd.style.display = 'flex';
+  zd.innerHTML = ZONE_META.map(z => {
+    const zd2 = s.zones?.[`zone${z.num}`]; const stars = zd2?.stars || 0;
+    let cls='zdot-lock', label='🔒';
+    if(z.num < curZone){ cls='zdot-done'; label=stars===3?'⭐':stars===2?'★':'✓'; }
+    if(z.num === curZone){ cls='zdot-active'; label=z.icon; }
+    return `<div class="zdot ${cls}" title="${z.name}">${label}</div>`;
+  }).join('');
+}
+
+function resetUI(){
+  document.getElementById('resume-badge').style.display='none';
+  document.getElementById('zone-dots').style.display='none';
+  document.getElementById('start-btn').disabled=true;
+  selectedStudent=null;
+}
+
+window.addStudent = async function(){
+  const name = document.getElementById('new-name').value.trim();
+  if(!name){ showToast('Enter a name'); return; }
+  try {
+    await FB.addStudent(name, selectedSS);
+    document.getElementById('new-name').value='';
+    showToast(`✓ ${name} added!`);
+    await loadStudents();
+    const sel = document.getElementById('student-sel');
+    const match = Array.from(sel.options).find(o=>o.textContent===name);
+    if(match){ sel.value=match.value; sel.dispatchEvent(new Event('change')); }
+  } catch(e){ showToast('Error adding student'); }
+};
+
+document.getElementById('new-name').addEventListener('keydown', e=>{ if(e.key==='Enter') window.addStudent(); });
+
+// ── MODE SELECT ───────────────────────────────────────────────────────────────
+window.selectMode = function(mode){
+  selectedMode = mode;
+  ['solo','helix','p2p'].forEach(m=>{
+    document.getElementById('mode-'+m).classList.remove('selected');
+    document.getElementById('chk-'+m).textContent='';
+    document.getElementById('chk-'+m).style.color='transparent';
+  });
+  document.getElementById('mode-'+mode).classList.add('selected');
+  document.getElementById('chk-'+mode).textContent='✓';
+  document.getElementById('chk-'+mode).style.color='#061412';
+  document.getElementById('diff-wrap').style.display = mode==='helix'?'block':'none';
+  document.getElementById('p2p-names').style.display = mode==='p2p'?'block':'none';
+};
+
+window.setDiff = function(d, e){
+  e.stopPropagation();
+  selectedDiff = d;
+  ['easy','med','hard'].forEach(x=>document.getElementById('d-'+x).classList.remove('active'));
+  document.getElementById('d-'+d).classList.add('active');
+};
+
+window.selectSS = function(el){
+  document.querySelectorAll('.ss-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  selectedSS = el.dataset.ss;
+};
+
+// ── LAUNCH ────────────────────────────────────────────────────────────────────
+window.launchGame = function(){
+  const student = selectedStudent || {id:'guest',name:'Guest',substep:selectedSS,currentZone:1,zones:{}};
+  if(selectedMode==='p2p'){
+    const a1 = document.getElementById('agent1').value.trim() || 'Agent 1';
+    const a2 = document.getElementById('agent2').value.trim() || 'Agent 2';
+    sessionStorage.setItem('wdl_agents', JSON.stringify([a1,a2]));
+  }
+  sessionStorage.setItem('wdl_student', JSON.stringify({
+    id: student.id,
+    name: student.name,
+    substep: student.substep || selectedSS,
+    currentZone: student.currentZone || 1,
+    zones: student.zones || {}
+  }));
+  sessionStorage.setItem('wdl_mode', selectedMode);
+  sessionStorage.setItem('wdl_diff', selectedDiff);
+  window.location.href = 'game.html';
+};
+
+// ── TEACHER PIN ───────────────────────────────────────────────────────────────
 window.openPIN = function(){
   document.getElementById('pin-overlay').style.display='flex';
   setTimeout(()=>document.getElementById('pin-input').focus(),100);
@@ -531,10 +441,8 @@ window.closePIN = function(){
   document.getElementById('pin-err').textContent='';
 };
 window.checkPIN = function(){
-  const val = document.getElementById('pin-input').value;
-  if(val === TEACHER_PIN){
-    closePIN();
-    openTeacher();
+  if(document.getElementById('pin-input').value===TEACHER_PIN){
+    closePIN(); openTeacher();
   } else {
     document.getElementById('pin-err').textContent='Incorrect PIN';
     document.getElementById('pin-input').value='';
@@ -542,150 +450,120 @@ window.checkPIN = function(){
 };
 document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')window.checkPIN();});
 
-// Teacher modal
+// ── TEACHER TOOLS ─────────────────────────────────────────────────────────────
 window.openTeacher = async function(){
   document.getElementById('teacher-modal').classList.add('open');
-  _allStudents = await getStudents();
-  renderRoster();
-  renderProgress();
-  renderErrors();
+  try {
+    allStudents = await FB.getStudents();
+  } catch(e){}
+  renderRoster(); renderProgress(); renderErrors();
 };
 window.closeTeacher = function(){
   document.getElementById('teacher-modal').classList.remove('open');
 };
-
-// Tabs
-window.showTab = function(tab){
+window.showTab = function(tab, el){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
-  event.target.classList.add('active');
+  el.classList.add('active');
 };
 
-// ── ROSTER ────────────────────────────────────────────────────────────────────
 function renderRoster(){
   const el = document.getElementById('roster-list');
-  if(!_allStudents.length){ el.innerHTML='<div style="color:var(--sub);font-size:14px">No students yet.</div>'; return; }
-  el.innerHTML = _allStudents.map(s=>{
-    const curZone = s.currentZone || 1;
-    const starsTotal = Object.values(s.zones||{}).reduce((acc,z)=>acc+(z.stars||0),0);
+  if(!allStudents.length){ el.innerHTML='<div style="color:var(--sub);font-size:14px">No students yet.</div>'; return; }
+  el.innerHTML = allStudents.map(s=>{
+    const total = Object.values(s.zones||{}).reduce((a,z)=>a+(z.stars||0),0);
     return `<div class="roster-row">
-      <div>
-        <div class="rr-name">${s.name}</div>
-        <div class="rr-sub">Substep ${s.substep||'2.4'} · Zone ${curZone} of 7 · ${starsTotal} ⭐ total</div>
-      </div>
-      <select class="sel-sm" onchange="changeSubstep('${s.id}',this.value)" style="background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Nunito',sans-serif;font-size:12px;padding:5px 8px">
+      <div><div class="rr-name">${s.name}</div><div class="rr-sub">Substep ${s.substep||'2.4'} · Zone ${s.currentZone||1} of 7 · ${total}⭐</div></div>
+      <select class="sel-sm" onchange="changeSubstep('${s.id}',this.value)">
         <option value="2.4" ${s.substep==='2.4'?'selected':''}>2.4</option>
         <option value="2.5" ${s.substep==='2.5'?'selected':''}>2.5</option>
         <option value="both" ${s.substep==='both'?'selected':''}>Both</option>
       </select>
-      <button class="btn" style="font-size:11px;padding:5px 10px;color:var(--red);border-color:rgba(255,82,82,.3)" onclick="removeStudent('${s.id}','${s.name}')">Remove</button>
+      <button class="btn btn-ghost no-print" style="font-size:11px;padding:5px 10px;color:var(--red);border-color:rgba(255,82,82,.3)" onclick="removeStudent('${s.id}','${s.name}')">Remove</button>
     </div>`;
   }).join('');
 }
 
 window.changeSubstep = async function(id, substep){
-  try{ await updateStudent(id,{substep}); showToast('Substep updated'); }
-  catch(e){ showToast('Error updating student'); }
+  try{ await FB.updateStudent(id,{substep}); showToast('Updated'); }catch(e){ showToast('Error'); }
 };
-
 window.removeStudent = async function(id, name){
-  if(!confirm(`Remove ${name} from the roster? This cannot be undone.`)) return;
+  if(!confirm(`Remove ${name}?`)) return;
   try{
-    await deleteStudent(id);
-    _allStudents = _allStudents.filter(s=>s.id!==id);
+    await FB.deleteStudent(id);
+    allStudents = allStudents.filter(s=>s.id!==id);
     renderRoster(); renderProgress(); renderErrors();
+    await loadStudents();
     showToast(`${name} removed`);
-    // refresh main dropdown
-    if(window.loadStudents) window.loadStudents();
-  }catch(e){ showToast('Error removing student'); }
+  }catch(e){ showToast('Error removing'); }
 };
-
-window.teacherAddStudent = async function(){
+window.teacherAdd = async function(){
   const name = document.getElementById('t-new-name').value.trim();
   const ss   = document.getElementById('t-new-ss').value;
   if(!name){ showToast('Enter a name'); return; }
   try{
-    const id = await fbAdd(name, ss);
-    _allStudents.push({id, name, substep:ss, currentZone:1, zones:{}});
+    await FB.addStudent(name, ss);
     document.getElementById('t-new-name').value='';
+    allStudents = await FB.getStudents();
     renderRoster(); renderProgress(); renderErrors();
+    await loadStudents();
     showToast(`✓ ${name} added`);
-    if(window.loadStudents) window.loadStudents();
-  }catch(e){ showToast('Error adding student'); }
+  }catch(e){ showToast('Error adding'); }
 };
 
-// ── PROGRESS ──────────────────────────────────────────────────────────────────
 function renderProgress(){
   const el = document.getElementById('progress-list');
-  if(!_allStudents.length){ el.innerHTML='<div style="color:var(--sub);font-size:14px">No students yet.</div>'; return; }
-  el.innerHTML = _allStudents.map(s=>`
+  if(!allStudents.length){ el.innerHTML='<div style="color:var(--sub)">No students yet.</div>'; return; }
+  el.innerHTML = allStudents.map(s=>`
     <div class="prog-student">
       <div class="prog-name">${s.name} <span style="font-size:11px;color:var(--sub);font-weight:600">— Substep ${s.substep||'2.4'}</span></div>
       ${ZONE_META.map(z=>{
-        const zd = s.zones?.[`zone${z.num}`];
-        const stars = zd?.stars || 0;
-        const attempts = zd?.attempts || 0;
-        const lastScore = zd?.lastScore;
-        const total = zd?.total || 8;
-        const lastPlayed = zd?.lastPlayed?.seconds
-          ? new Date(zd.lastPlayed.seconds*1000).toLocaleDateString()
-          : zd?.lastPlayed ? new Date(zd.lastPlayed).toLocaleDateString() : null;
+        const zd=s.zones?.[`zone${z.num}`];
+        const stars=zd?.stars||0; const att=zd?.attempts||0;
+        const ls=zd?.lastScore; const tot=zd?.total||8;
+        const lp=zd?.lastPlayed?.seconds?new Date(zd.lastPlayed.seconds*1000).toLocaleDateString():null;
         return `<div class="zone-prog-row">
           <div class="zpz-label">${z.icon} ${z.name}</div>
-          <div class="zpz-stars">${stars>0?'⭐'.repeat(stars)+'☆'.repeat(3-stars):'<span style="color:var(--sub)">Not started</span>'}</div>
-          <div class="zpz-detail">${lastScore!=null?`${lastScore}/${total}`:'—'} ${attempts>0?`· ${attempts} attempt${attempts>1?'s':''}`:''}${lastPlayed?` · ${lastPlayed}`:''}</div>
+          <div class="zpz-stars">${stars>0?'⭐'.repeat(stars)+'☆'.repeat(3-stars):'<span style="color:var(--sub);font-size:12px">Not started</span>'}</div>
+          <div class="zpz-detail">${ls!=null?ls+'/'+tot:'—'}${att>0?' · '+att+' attempt'+(att>1?'s':''):''}${lp?' · '+lp:''}</div>
         </div>`;
       }).join('')}
-    </div>
-    <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">`
+    </div><hr style="border:none;border-top:1px solid var(--border);margin:14px 0">`
   ).join('');
 }
 
-// ── ERROR LOG ─────────────────────────────────────────────────────────────────
 function renderErrors(){
   const el = document.getElementById('error-list');
-  if(!_allStudents.length){ el.innerHTML='<div style="color:var(--sub);font-size:14px">No students yet.</div>'; return; }
-  const hasErrors = _allStudents.some(s=>Object.values(s.zones||{}).some(z=>(z.errors||[]).length>0));
-  if(!hasErrors){ el.innerHTML='<div style="color:var(--green);font-size:14px">🎉 No errors recorded yet.</div>'; return; }
-  el.innerHTML = _allStudents.map(s=>{
+  if(!allStudents.length){ el.innerHTML='<div style="color:var(--sub)">No students yet.</div>'; return; }
+  const hasErrors = allStudents.some(s=>Object.values(s.zones||{}).some(z=>(z.errors||[]).length>0));
+  if(!hasErrors){ el.innerHTML='<div style="color:var(--green)">🎉 No errors recorded yet.</div>'; return; }
+  el.innerHTML = allStudents.map(s=>{
     const zoneErrors = ZONE_META.map(z=>{
-      const zd = s.zones?.[`zone${z.num}`];
-      const errs = zd?.errors || [];
+      const errs=(s.zones?.[`zone${z.num}`]?.errors)||[];
       if(!errs.length) return '';
-      return `<div class="err-zone">${z.icon} ${z.name}</div>
-        ${errs.map(e=>`<div class="err-item"><b>${e.q||'?'}</b> → answered: ${e.wrong||'?'} → correct: <span>${e.correct||'?'}</span></div>`).join('')}`;
+      return `<div class="err-zone">${z.icon} ${z.name}</div>${errs.map(e=>`<div class="err-item"><b>${e.q||'?'}</b> → <span>${e.correct||'?'}</span></div>`).join('')}`;
     }).join('');
     if(!zoneErrors.trim()) return '';
-    return `<div class="err-student">
-      <div class="prog-name">${s.name}</div>
-      ${zoneErrors}
-    </div><hr style="border:none;border-top:1px solid var(--border);margin:14px 0">`;
+    return `<div class="err-student"><div class="prog-name">${s.name}</div>${zoneErrors}</div><hr style="border:none;border-top:1px solid var(--border);margin:12px 0">`;
   }).join('');
 }
 
-// ── PRINT REPORT ──────────────────────────────────────────────────────────────
 window.printReport = function(){
-  // Switch to progress tab before printing
-  showTab('progress');
-  setTimeout(()=>window.print(), 300);
+  // Show all tab contents for print
+  document.querySelectorAll('.tab-content').forEach(t=>t.style.display='block');
+  window.print();
+  setTimeout(()=>{
+    document.querySelectorAll('.tab-content').forEach((t,i)=>{t.style.display=i===0?'block':'none';});
+    document.querySelector('.tab-content.active').style.display='block';
+  },1000);
 };
 
-// ── HEAD TO HEAD ──────────────────────────────────────────────────────────────
-window.joinRoom = function(){
-  const code = document.getElementById('join-code').value.trim();
-  if(code.length!==4){ showToast('Enter a 4-digit code'); return; }
-  window.open(`versus.html?room=${code}&host=0`,'_blank');
-};
-
+// ── TOAST ─────────────────────────────────────────────────────────────────────
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
-
-// expose loadStudents for roster refresh
-window._teacherLoadStudents = async ()=>{
-  _allStudents = await getStudents();
-  renderRoster(); renderProgress(); renderErrors();
-};
 </script>
+</body>
+</html>
