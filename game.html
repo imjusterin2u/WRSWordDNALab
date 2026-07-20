@@ -1073,7 +1073,12 @@ function fireConfetti(){
   }catch(e){
     console.warn('Firebase unavailable — progress will not save:', e.message);
   }
-  showZoneMap();
+  try{
+    showZoneMap();
+  }catch(e){
+    document.getElementById('scroll').innerHTML='<div style="padding:24px;color:#ff5252;font-family:monospace;font-size:13px"><b>ERROR in showZoneMap:</b><br>'+e.message+'<br><br>'+e.stack+'</div>';
+    console.error('showZoneMap error:', e);
+  }
 })();
 </script>
 </body>
