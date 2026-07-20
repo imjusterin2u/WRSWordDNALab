@@ -251,10 +251,25 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 </div>
 
 <script type="module">
-import { getStudent, saveZoneProgress, saveScoop, updateCurrentZone } from './firebase.js';
+// Firebase functions — loaded async after render
+let saveZoneProgress = async()=>{};
+let saveScoop        = async()=>{};
+let updateCurrentZone= async()=>{};
 
 let STUDENT = JSON.parse(sessionStorage.getItem('wdl_student') || 'null');
-if(!STUDENT){ window.location.href='index.html'; }
+if(!STUDENT){
+  // No student in session — show friendly redirect instead of blank page
+  document.getElementById('scroll').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center;padding:24px">
+      <div style="font-size:48px;margin-bottom:12px;filter:drop-shadow(0 0 16px var(--green))">🔬</div>
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:12px">WORD DNA LAB</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px">No agent selected</div>
+      <div style="font-size:14px;color:var(--sub);margin-bottom:24px">Please select a student from the home screen first.</div>
+      <a href="index.html" style="background:linear-gradient(135deg,var(--green),var(--cyan));color:#061412;padding:14px 28px;border-radius:var(--r);font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;text-decoration:none">← Back to home</a>
+    </div>`;
+  document.getElementById('tb-zone-name').textContent = 'No agent selected';
+  throw new Error('No student session');
+}
 
 const MODE     = sessionStorage.getItem('wdl_mode') || 'solo';   // solo|helix|p2p
 const DIFF     = sessionStorage.getItem('wdl_diff') || 'med';    // easy|med|hard
@@ -1048,7 +1063,18 @@ function fireConfetti(){
   draw();
 }
 
-showZoneMap();
+// Async init — load Firebase then render
+(async()=>{
+  try{
+    const fb = await import('./firebase.js');
+    saveZoneProgress  = fb.saveZoneProgress;
+    saveScoop         = fb.saveScoop;
+    updateCurrentZone = fb.updateCurrentZone;
+  }catch(e){
+    console.warn('Firebase unavailable — progress will not save:', e.message);
+  }
+  showZoneMap();
+})();
 </script>
 </body>
 </html>
