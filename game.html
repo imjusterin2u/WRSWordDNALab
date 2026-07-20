@@ -255,6 +255,12 @@ import { getStudent, saveZoneProgress, saveScoop, updateCurrentZone } from './fi
 
 let STUDENT = JSON.parse(sessionStorage.getItem('wdl_student') || 'null');
 if(!STUDENT){ window.location.href='index.html'; }
+
+const MODE     = sessionStorage.getItem('wdl_mode') || 'solo';   // solo|helix|p2p
+const DIFF     = sessionStorage.getItem('wdl_diff') || 'med';    // easy|med|hard
+const AGENTS   = JSON.parse(sessionStorage.getItem('wdl_agents') || '["Agent 1","Agent 2"]');
+const HELIX_ACC = {easy:.5, med:.7, hard:.9};
+
 document.getElementById('tb-student').textContent = STUDENT.name;
 
 const ZONE_META=[
@@ -292,24 +298,25 @@ const WORDS = {
   cold:   [{t:'c',s:'c'},{t:'w',s:'old'}],
   most:   [{t:'c',s:'m'},{t:'w',s:'ost'}],
   child:  [{t:'c',s:'ch'},{t:'w',s:'ild'}],
-  // Zone 2 — blend words (segments define the tiles shown)
+  // Zone 2 — blend words
+  // Single blend — weld at end shown as green tile, not a marking step
   trunk2: [{t:'c',s:'t'},{t:'c',s:'r'},{t:'w',s:'unk'}],
   bring:  [{t:'c',s:'b'},{t:'c',s:'r'},{t:'w',s:'ing'}],
-  stand:  [{t:'c',s:'s'},{t:'c',s:'t'},{t:'w',s:'and'}],
+  stand:  [{t:'c',s:'s'},{t:'c',s:'t'},{t:'w',s:'an'},{t:'c',s:'d'}],
+  blend:  [{t:'c',s:'b'},{t:'c',s:'l'},{t:'v',s:'e'},{t:'c',s:'n'},{t:'c',s:'d'}],
+  frost:  [{t:'c',s:'f'},{t:'c',s:'r'},{t:'w',s:'ost'}],
+  brand:  [{t:'c',s:'b'},{t:'c',s:'r'},{t:'w',s:'an'},{t:'c',s:'d'}],
+  // Two blends — both are real consonant blends, both get marked
   clump:  [{t:'c',s:'c'},{t:'c',s:'l'},{t:'v',s:'u'},{t:'c',s:'m'},{t:'c',s:'p'}],
   draft:  [{t:'c',s:'d'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'f'},{t:'c',s:'t'}],
   crisp:  [{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'s'},{t:'c',s:'p'}],
-  blend:  [{t:'c',s:'b'},{t:'c',s:'l'},{t:'v',s:'e'},{t:'w',s:'nd'}],
-  frost:  [{t:'c',s:'f'},{t:'c',s:'r'},{t:'w',s:'ost'}],
-  brand:  [{t:'c',s:'b'},{t:'c',s:'r'},{t:'w',s:'and'}],
-  spent:  [{t:'c',s:'s'},{t:'c',s:'p'},{t:'v',s:'e'},{t:'w',s:'nt'}],
   // Zone 3
   strap:  [{t:'c',s:'s'},{t:'c',s:'t'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'p'}],
   scrap:  [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'p'}],
   spring: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'r'},{t:'w',s:'ing'}],
   splash: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'l'},{t:'v',s:'a'},{t:'c',s:'sh'}],
   scrub:  [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'u'},{t:'c',s:'b'}],
-  sprint: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'r'},{t:'w',s:'int'}],
+  sprint: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'n'},{t:'c',s:'t'}],
   split:  [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'l'},{t:'v',s:'i'},{t:'c',s:'t'}],
   script: [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'p'},{t:'c',s:'t'}],
 };
@@ -340,45 +347,46 @@ const Z1_ITEMS = [
 // blends: array of blend objects {blend, indices, label}
 // indices = which tile indices belong to this blend
 const Z2_ITEMS = [
+  // ONE blend to mark — weld at end is shown as green tile, not a step
   {wordKey:'trunk2', display:'trunk',
    blends:[
-     {blend:'tr', indices:[0,1], rule:'<b>TR</b> is a two-letter blend at the start. Each letter makes its own sound: /t/ /r/.'},
-     {blend:'nk', indices:[2],   rule:'<b>-unk-</b> at the end is a welded sound — it gets one green tile and one tap. The letters u-n-k stay glued together.', isWeld:true},
+     {blend:'tr', indices:[0,1], rule:'<b>TR</b> is a two-letter blend. Each letter makes its own sound: /t/ /r/. The <b>-unk-</b> at the end is a welded sound — already shown as a green tile.'},
    ]},
   {wordKey:'bring',  display:'bring',
    blends:[
-     {blend:'br', indices:[0,1], rule:'<b>BR</b> is a two-letter blend. /b/ /r/ — two separate sounds at the start.'},
-     {blend:'ing',indices:[2],   rule:'<b>-ing-</b> at the end is a welded sound — one green tile, one tap.', isWeld:true},
+     {blend:'br', indices:[0,1], rule:'<b>BR</b> is a two-letter blend. /b/ /r/ — two separate sounds. The <b>-ing</b> at the end is a welded sound — already shown as a green tile.'},
    ]},
   {wordKey:'stand',  display:'stand',
    blends:[
-     {blend:'st', indices:[0,1], rule:'<b>ST</b> is a two-letter blend at the start. /s/ /t/ — two separate taps.'},
-     {blend:'and',indices:[2],   rule:'<b>-and-</b> at the end is a welded sound — one green tile, one tap.', isWeld:true},
+     {blend:'st', indices:[0,1], rule:'<b>ST</b> is a two-letter blend. /s/ /t/ — two separate taps. The <b>-and</b> at the end is a welded sound — already shown as a green tile.'},
    ]},
+  {wordKey:'blend',  display:'blend',
+   blends:[
+     {blend:'bl', indices:[0,1], rule:'<b>BL</b> is a two-letter blend. /b/ /l/ — two sounds, not one. The <b>-nd</b> at the end is part of the welded pattern.'},
+   ]},
+  {wordKey:'frost',  display:'frost',
+   blends:[
+     {blend:'fr', indices:[0,1], rule:'<b>FR</b> is a two-letter blend. /f/ /r/ — think: from, frost, frog. The <b>-ost</b> is a closed syllable exception — already shown as a green tile.'},
+   ]},
+  {wordKey:'brand',  display:'brand',
+   blends:[
+     {blend:'br', indices:[0,1], rule:'<b>BR</b> is a two-letter blend. /b/ /r/ — think: bring, brand, branch. The <b>-and</b> at the end is a welded sound — green tile, one tap.'},
+   ]},
+  // TWO blends to mark — both are real consonant blends
   {wordKey:'clump',  display:'clump',
    blends:[
      {blend:'cl', indices:[0,1], rule:'<b>CL</b> is a two-letter blend at the start. /k/ /l/ — two clear sounds.'},
-     {blend:'mp', indices:[3,4], rule:'<b>MP</b> is a two-letter blend at the end. /m/ /p/ — both make sounds.'},
+     {blend:'mp', indices:[3,4], rule:'<b>MP</b> is a two-letter blend at the end. /m/ /p/ — both make their own sounds.'},
    ]},
   {wordKey:'draft',  display:'draft',
    blends:[
-     {blend:'dr', indices:[0,1], rule:'<b>DR</b> is a two-letter blend. /d/ /r/ — tap each one separately.'},
+     {blend:'dr', indices:[0,1], rule:'<b>DR</b> is a two-letter blend at the start. /d/ /r/ — tap each one separately.'},
      {blend:'ft', indices:[3,4], rule:'<b>FT</b> is a two-letter blend at the end. /f/ /t/ — two separate sounds.'},
    ]},
   {wordKey:'crisp',  display:'crisp',
    blends:[
-     {blend:'cr', indices:[0,1], rule:'<b>CR</b> is a two-letter blend. /k/ /r/ — both make sounds.'},
+     {blend:'cr', indices:[0,1], rule:'<b>CR</b> is a two-letter blend at the start. /k/ /r/ — both make sounds.'},
      {blend:'sp', indices:[3,4], rule:'<b>SP</b> is a two-letter blend at the end. /s/ /p/ — two separate sounds.'},
-   ]},
-  {wordKey:'blend',  display:'blend',
-   blends:[
-     {blend:'bl', indices:[0,1], rule:'<b>BL</b> is a two-letter blend. /b/ /l/ — two sounds, not one.'},
-     {blend:'nd', indices:[3],   rule:'<b>-nd-</b> here is part of the welded pattern — one green tile.', isWeld:true},
-   ]},
-  {wordKey:'frost',  display:'frost',
-   blends:[
-     {blend:'fr', indices:[0,1], rule:'<b>FR</b> is a two-letter blend. /f/ /r/ — think: from, frost, frog.'},
-     {blend:'ost',indices:[2],   rule:'<b>-ost-</b> at the end is a closed syllable exception — one green tile, one tap.', isWeld:true},
    ]},
 ];
 
@@ -480,6 +488,11 @@ let G={
   zone:STUDENT.currentZone||1, q:0, total:8,
   score:0, errors:[], streak:0, bestStreak:0,
   passageIdx:0, substep:STUDENT.substep||'2.4', zones:STUDENT.zones||{},
+  // competitive state
+  helixScore:0,        // Dr. Helix running score
+  p2pTurn:0,           // 0=Agent1, 1=Agent2
+  p2pScores:[0,0],     // pass and play scores
+  waitingCover:false,  // cover screen showing
   // Zone 2 blend tracking
   z2blendStep:0,
 };
@@ -496,6 +509,16 @@ function updateTopBar(){
     const cls=zm.num<G.zone?'done':zm.num===G.zone?'active':'';
     return `<div class="seq-dot ${cls}" title="${zm.name}"></div>`;
   }).join('');
+  // Update student chip based on mode
+  const chip=document.getElementById('tb-student');
+  if(MODE==='p2p'){
+    chip.textContent=AGENTS[G.p2pTurn]+' 🔬';
+    chip.style.background=G.p2pTurn===0?'var(--green)':'var(--cyan)';
+  } else if(MODE==='helix'){
+    chip.textContent=STUDENT.name+' vs Dr. Helix';
+  } else {
+    chip.textContent=STUDENT.name;
+  }
 }
 
 // ── ZONE MAP ──────────────────────────────────────────────────────────────────
@@ -526,7 +549,7 @@ function showZoneMap(){
 }
 
 window.startZone=function(num){
-  G.zone=num;G.q=0;G.score=0;G.errors=[];G.streak=0;G.z2blendStep=0;
+  G.zone=num;G.q=0;G.score=0;G.errors=[];G.streak=0;G.z2blendStep=0;G.helixScore=0;G.p2pScores=[0,0];G.p2pTurn=0;
   updateTopBar();showStory(num);
 };
 window.runZone=function(num){
@@ -563,7 +586,8 @@ function z1next(){
 window.chkWeld=function(chosen,correct,rule,wordKey){
   if(chosen===correct){
     markBtn(chosen,correct);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
-    setTimeout(()=>{G.q++;z1next();},800);
+    handleCompetitive(true);
+    setTimeout(()=>showCoverScreen(()=>{G.q++;z1next();}),800);
   }else{
     markBtn(chosen,correct);G.streak=0;
     const display=`<div class="tile tw" style="margin:0 auto">${correct}</div>`;
@@ -592,7 +616,7 @@ function renderZ2Question(){
   let hintHtml='';
   if(G.z2blendStep>0){
     const prev=item.blends.slice(0,G.z2blendStep).map(b=>`<b>${b.blend.toUpperCase()}</b>`).join(' and ');
-    hintHtml=`<div class="hint-banner">✓ Found ${prev} — but there's another blend to mark!</div>`;
+    hintHtml=`<div class="hint-banner">✓ ${prev} found! This word has a second consonant blend — find it at the end.</div>`;
   }
 
   render(`
@@ -611,18 +635,45 @@ function renderZ2Question(){
       if(el){el.classList.add('locked');el.onclick=null;}
     });
   });
+  // dim tiles that are not relevant to the current blend step
+  const currentBlend=item.blends[G.z2blendStep];
+  const segs=WORDS[item.wordKey];
+  segs.forEach((seg,i)=>{
+    const el=document.getElementById('sl'+i);
+    if(!el||el.classList.contains('locked'))return;
+    // if looking for consonant blend, dim weld tiles
+    // if looking for weld, dim consonant/vowel tiles
+    const shouldDim=currentBlend.isWeld?(seg.t==='c'||seg.t==='v'):seg.t==='w';
+    if(shouldDim){el.style.opacity='0.35';el.style.cursor='not-allowed';}
+    else{el.style.opacity='1';el.style.cursor='pointer';}
+  });
 }
 
 window.tapL=function(i){
   const el=document.getElementById('sl'+i);
   if(!el||el.classList.contains('locked'))return;
+  const item=Z2_ITEMS[G.q%Z2_ITEMS.length];
+  const currentBlend=item.blends[G.z2blendStep];
+  const segs=WORDS[item.wordKey];
+  const tileType=segs[i]?.t;
+  if(!currentBlend.isWeld && tileType==='w'){
+    const fb=document.getElementById('bfb');
+    if(fb)fb.textContent='That is a welded sound — find the consonant blend letters';
+    el.classList.add('wrong-flash');setTimeout(()=>el.classList.remove('wrong-flash'),400);
+    return;
+  }
+  if(currentBlend.isWeld && (tileType==='c'||tileType==='v')){
+    const fb=document.getElementById('bfb');
+    if(fb)fb.textContent='Find the welded sound — tap the green tile';
+    el.classList.add('wrong-flash');setTimeout(()=>el.classList.remove('wrong-flash'),400);
+    return;
+  }
   if(!window._tap)window._tap=new Set();
   if(window._tap.has(i)){window._tap.delete(i);el.classList.remove('swept');}
   else{window._tap.add(i);el.classList.add('swept');}
-  const item=Z2_ITEMS[G.q%Z2_ITEMS.length];
-  const segs=WORDS[item.wordKey];
   const chosen=[...window._tap].sort((a,b)=>a-b).map(j=>segs[j]?.s||'').join('');
-  document.getElementById('bfb').textContent='Selected: '+chosen;
+  const fb=document.getElementById('bfb');
+  if(fb)fb.textContent='Selected: '+chosen;
 };
 
 window.subBlend2=function(){
@@ -647,12 +698,14 @@ window.subBlend2=function(){
     if(G.z2blendStep<item.blends.length){
       // more blends to find
       G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+      handleCompetitive(true);
       setTimeout(()=>renderZ2Question(),900);
     } else {
       // all blends found
       G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+      handleCompetitive(true);
       document.getElementById('bfb').textContent=`✓ All blends marked in ${item.display}!`;
-      setTimeout(()=>{G.q++;G.z2blendStep=0;z2next();},900);
+      setTimeout(()=>showCoverScreen(()=>{G.q++;G.z2blendStep=0;z2next();}),900);
     }
   }else{
     // wrong
@@ -712,8 +765,9 @@ window.subBlend3=function(correct,rule,wordKey){
   if(chosen.toLowerCase()===correct&&sw[0]===0&&sw.length===3){
     [0,1,2].forEach(i=>{const el=document.getElementById('sl'+i);if(el){el.classList.remove('swept');el.classList.add('locked');}});
     G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    handleCompetitive(true);
     const fb=document.getElementById('bfb');if(fb)fb.textContent='✓ '+correct.toUpperCase()+' is the blend!';
-    setTimeout(()=>{G.q++;z3next();},900);
+    setTimeout(()=>showCoverScreen(()=>{G.q++;z3next();}),900);
   }else{
     G.streak=0;
     window._sw3.forEach(i=>{const el=document.getElementById('sl'+i);if(el){el.classList.remove('swept');el.classList.add('wrong-flash');setTimeout(()=>el.classList.remove('wrong-flash'),400);}});
@@ -743,7 +797,8 @@ function z4next(){
 window.chkBase=function(chosen,correct,rule,base){
   if(chosen===correct){
     markBtn(chosen,correct);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
-    setTimeout(()=>{G.q++;z4next();},800);
+    handleCompetitive(true);
+    setTimeout(()=>showCoverScreen(()=>{G.q++;z4next();}),800);
   }else{
     markBtn(chosen,correct);G.streak=0;
     showErr(rule,`${base} = "${correct}"`,()=>{G.q++;G.errors.push({q:base,wrong:chosen,correct});z4next();});
@@ -770,10 +825,11 @@ function z5next(){
 }
 window.scoop=function(i){const el=document.getElementById('sw'+i);if(!el)return;if(window._sc.has(i)){window._sc.delete(i);el.classList.remove('scooped');}else{window._sc.add(i);el.classList.add('scooped');}};
 window.sentOk=async function(ok){
-  if(ok){G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;}
-  else{G.streak=0;G.errors.push({q:SENTS[G.q%SENTS.length].text,wrong:'needs practice',correct:'correct read'});}
+  if(ok){G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;handleCompetitive(true);}
+  else{G.streak=0;G.errors.push({q:SENTS[G.q%SENTS.length].text,wrong:'needs practice',correct:'correct read'});handleCompetitive(false);}
   try{await saveScoop(STUDENT.id,5,G.q,ok);}catch(e){}
-  G.q++;z5next();
+  G.q++;
+  showCoverScreen(()=>z5next());
 };
 
 // ── ZONE 6 — PASSAGE ──────────────────────────────────────────────────────────
@@ -802,7 +858,8 @@ function z6next(){
 window.chkPass=function(chosen,correct,rule,correctText){
   if(chosen===correct){
     markBtn(chosen,correct,true);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
-    setTimeout(()=>{G.q++;z6next();},800);
+    handleCompetitive(true);
+    setTimeout(()=>showCoverScreen(()=>{G.q++;z6next();}),800);
   }else{
     markBtn(chosen,correct,true);G.streak=0;
     showErr(rule,correctText,()=>{G.q++;G.errors.push({q:'Passage Q'+(G.q+1),wrong:chosen,correct:correctText});z6next();});
@@ -823,7 +880,8 @@ function z7next(){
 window.chkVault=function(chosen,correct,rule,correctText){
   if(chosen===correct){
     markBtn(chosen,correct,true);G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
-    setTimeout(()=>{G.q++;z7next();},800);
+    handleCompetitive(true);
+    setTimeout(()=>showCoverScreen(()=>{G.q++;z7next();}),800);
   }else{
     markBtn(chosen,correct,true);G.streak=0;
     showErr(rule,correctText,()=>{G.q++;G.errors.push({q:'',wrong:chosen,correct:correctText});z7next();});
@@ -832,8 +890,16 @@ window.chkVault=function(chosen,correct,rule,correctText){
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function scoreBar(){
+  let leftBadge='';
+  if(MODE==='helix'){
+    leftBadge=`<span class="score-badge">${STUDENT.name}: ${G.score} &nbsp;|&nbsp; <span style="color:var(--red)">Dr. Helix: ${G.helixScore}</span></span>`;
+  } else if(MODE==='p2p'){
+    leftBadge=`<span class="score-badge">${AGENTS[0]}: ${G.p2pScores[0]} &nbsp;|&nbsp; ${AGENTS[1]}: ${G.p2pScores[1]}</span>`;
+  } else {
+    leftBadge=`<span class="score-badge">Score: ${G.score} / ${G.q}</span>`;
+  }
   return `<div class="score-line">
-    <span class="score-badge">Score: ${G.score} / ${G.q}</span>
+    ${leftBadge}
     ${G.streak>1?`<span class="streak">🔥 ${G.streak} in a row</span>`:''}
   </div>`;
 }
@@ -846,6 +912,55 @@ function markBtn(chosen,correct,byIndex=false){
     else if(isMine&&!isOk)b.classList.add('wrong');
   });
 }
+
+// ── COMPETITIVE LOGIC ────────────────────────────────────────────────────────
+
+// Called after student answers correctly — runs Dr. Helix or P2P logic
+function handleCompetitive(studentGotIt){
+  if(MODE==='helix'){
+    const acc=HELIX_ACC[DIFF]||.7;
+    const helixGotIt=Math.random()<acc;
+    if(helixGotIt) G.helixScore++;
+    // show helix response briefly in feedback
+    const fb=document.getElementById('g-fb');
+    if(fb&&fb.style.display!=='none'){
+      const helixMsg=helixGotIt
+        ? ' &nbsp;·&nbsp; <span style="color:var(--red)">Dr. Helix accessed it 😈</span>'
+        : ' &nbsp;·&nbsp; <span style="color:var(--green)">Dr. Helix blocked! 🛡️</span>';
+      fb.innerHTML+=helixMsg;
+    }
+  } else if(MODE==='p2p'){
+    if(studentGotIt) G.p2pScores[G.p2pTurn]++;
+  }
+}
+
+// Cover screen between P2P turns
+function showCoverScreen(nextFn){
+  if(MODE!=='p2p'){ nextFn(); return; }
+  const nextAgent=AGENTS[G.p2pTurn];
+  const scroll=document.getElementById('scroll');
+  scroll.innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:24px">
+      <div style="font-size:48px;margin-bottom:16px;filter:drop-shadow(0 0 20px var(--green))">🔬</div>
+      <div style="font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--green);letter-spacing:1px;margin-bottom:12px">SECURE HANDOFF</div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:8px">Pass the device to</div>
+      <div style="font-size:28px;font-weight:900;color:${G.p2pTurn===0?'var(--green)':'var(--cyan)'};margin-bottom:24px">${nextAgent}</div>
+      <div style="font-size:14px;color:var(--sub);margin-bottom:32px">Cover the screen until they have the device</div>
+      <button class="btn-launch" onclick="coverReady("",()=>{})" style="max-width:280px" id="cover-btn">
+        ✓ I have the device — show my question
+      </button>
+      <div style="font-size:12px;color:var(--sub);margin-top:12px">
+        ${AGENTS[0]}: ${G.p2pScores[0]} pts &nbsp;·&nbsp; ${AGENTS[1]}: ${G.p2pScores[1]} pts
+      </div>
+    </div>`;
+  G.p2pTurn = 1 - G.p2pTurn;  // flip turn for next question
+  updateTopBar();
+  window._coverNext=nextFn;
+}
+
+window.coverReady=function(){
+  if(window._coverNext){ window._coverNext(); window._coverNext=null; }
+};
 
 let _cb=null;
 function showErr(ruleHtml,correctDisplay,cb){
@@ -872,6 +987,21 @@ async function zoneComplete(){
     STUDENT.currentZone=Math.max(STUDENT.currentZone||1,G.zone+1);
     sessionStorage.setItem('wdl_student',JSON.stringify(STUDENT));
   }catch(e){console.error('Save error',e);}
+  // competitive outcome
+  let competResult='';
+  if(MODE==='helix'){
+    const studentWon=G.score>G.helixScore;
+    const tied=G.score===G.helixScore;
+    if(studentWon) competResult=`<div style="background:var(--green-lt);border:1px solid rgba(0,229,160,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px"><span style="font-size:20px">🛡️</span> <b style="color:var(--green)">Zone locked down!</b> You beat Dr. Helix ${G.score}–${G.helixScore}</div>`;
+    else if(tied) competResult=`<div style="background:var(--amber-lt);border:1px solid rgba(255,171,0,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px"><span style="font-size:20px">⚠️</span> <b style="color:var(--amber)">Tie — zone contested!</b> You and Dr. Helix both scored ${G.score}</div>`;
+    else competResult=`<div style="background:var(--red-lt);border:1px solid rgba(255,82,82,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px"><span style="font-size:20px">🔴</span> <b style="color:var(--red)">Dr. Helix breached this zone!</b> He scored ${G.helixScore} to your ${G.score} — replay to lock him out!</div>`;
+  } else if(MODE==='p2p'){
+    const a1=AGENTS[0],a2=AGENTS[1],s1=G.p2pScores[0],s2=G.p2pScores[1];
+    const winner=s1>s2?a1:s2>s1?a2:null;
+    competResult=winner
+      ? `<div style="background:var(--green-lt);border:1px solid rgba(0,229,160,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px">🏆 <b style="color:var(--green)">${winner} secured this zone!</b> ${a1}: ${s1} · ${a2}: ${s2}</div>`
+      : `<div style="background:var(--amber-lt);border:1px solid rgba(255,171,0,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px">🤝 <b style="color:var(--amber)">Tie! Both agents scored equally.</b> ${s1} each</div>`;
+  }
   const msgs={3:'Perfect! Sample fully restored to the lab. 🧬',2:'Good work! Sample secured with minor contamination.',1:'Sample recovered! A few readings still need reinforcement.'};
   const vialPct=stars===3?100:stars===2?66:33;
   let errSec='';
@@ -881,6 +1011,7 @@ async function zoneComplete(){
     <div class="vial-container"><div><div class="vial-cap"></div><div class="vial"><div class="vial-fill" style="height:${vialPct}%"></div></div></div></div>
     <div class="result-title" style="margin-top:12px">Zone ${G.zone} Complete!</div>
     <div class="result-sub">${ZONE_META[G.zone-1].name}</div>
+    ${competResult}
     <div class="stars-display">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
     <div class="result-grid">
       <div class="rstat"><div class="rstat-n">${G.score}/${G.total}</div><div class="rstat-l">Score</div></div>
