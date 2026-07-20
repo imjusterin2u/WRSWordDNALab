@@ -651,8 +651,7 @@ function renderZ2Question(){
     });
   });
   // dim tiles that are not relevant to the current blend step
-  const currentBlend=item.blends[G.z2blendStep];
-  const segs=WORDS[item.wordKey];
+  // (currentBlend and segs already declared above)
   segs.forEach((seg,i)=>{
     const el=document.getElementById('sl'+i);
     if(!el||el.classList.contains('locked'))return;
