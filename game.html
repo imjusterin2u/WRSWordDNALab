@@ -2,53 +2,884 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Word DNA Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <style>
-body{font-family:sans-serif;background:#061412;color:#00e5a0;padding:20px}
-.btn{background:#00e5a0;color:#061412;border:none;padding:12px 24px;border-radius:8px;font-size:16px;cursor:pointer;font-weight:700;margin:8px 0;width:100%}
-.card{background:#0a1e1a;border:1px solid rgba(0,229,160,.2);border-radius:12px;padding:16px;margin-bottom:12px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --black:#061412;--dark:#0a1e1a;--dark2:#0d2b22;--dark3:#112e24;--dark4:#163830;
+  --green:#00e5a0;--green-lt:rgba(0,229,160,.12);--green-glow:rgba(0,229,160,.25);
+  --cyan:#00bcd4;--lime:#76ff03;--lime-lt:rgba(118,255,3,.12);
+  --red:#ff5252;--red-lt:rgba(255,82,82,.12);
+  --amber:#ffab00;--amber-lt:rgba(255,171,0,.12);
+  --text:#e0f2ee;--sub:rgba(224,242,238,.45);--border:rgba(0,229,160,.12);
+  --r:14px;--rs:10px;
+  --wc-bg:#f5e070;--wc-txt:#2c2000;--wc-border:#c8b020;
+  --wv-bg:#f4b8b8;--wv-txt:#2c0a0a;--wv-border:#d08080;
+  --ww-bg:#b8d9b0;--ww-txt:#0a2c08;--ww-border:#70b068;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);display:flex;flex-direction:column}
+.hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 16 L56 50 L28 66 L0 50 L0 16 Z' fill='none' stroke='rgba(0,229,160,0.05)' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 100px}
+.scan-line{position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);z-index:1;animation:scan 8s linear infinite;opacity:.2}
+@keyframes scan{from{top:0}to{top:100vh}}
+#app{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.top-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(6,20,18,.92);border-bottom:1px solid var(--border);flex-shrink:0;backdrop-filter:blur(8px)}
+.zone-label{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;opacity:.8}
+.zone-name{font-size:15px;font-weight:800;flex:1}
+.student-chip{font-size:11px;font-weight:700;color:#061412;background:var(--green);padding:4px 10px;border-radius:20px;white-space:nowrap}
+.seq-wrap{padding:6px 16px 8px;background:rgba(6,20,18,.92);flex-shrink:0;border-bottom:1px solid var(--border)}
+.seq-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--green);opacity:.6;text-transform:uppercase;margin-bottom:4px}
+.seq-bg{background:rgba(0,229,160,.08);border-radius:2px;height:6px;overflow:hidden}
+.seq-fill{height:6px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .4s}
+.seq-dots{display:flex;gap:4px;margin-top:4px}
+.seq-dot{width:6px;height:6px;border-radius:50%;background:rgba(0,229,160,.12);transition:all .3s}
+.seq-dot.done{background:var(--green);box-shadow:0 0 6px var(--green)}
+.seq-dot.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:dp 1s ease-in-out infinite}
+@keyframes dp{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+.scroll{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+.zone-map{display:flex;flex-direction:column;gap:8px}
+.zone-card{display:flex;align-items:center;gap:14px;background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.zone-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);opacity:0;transition:opacity .2s}
+.zone-card:not(.locked):hover{border-color:rgba(0,229,160,.35);background:var(--dark2)}
+.zone-card:not(.locked):hover::before,.zone-card.active::before,.zone-card.done::before{opacity:1}
+.zone-card.active{border-color:rgba(0,229,160,.4);box-shadow:0 0 20px rgba(0,229,160,.1)}
+.zone-card.locked{opacity:.35;cursor:not-allowed}
+.zone-card.done{border-color:rgba(0,229,160,.2)}
+.zone-icon{font-size:26px;flex-shrink:0}
+.zone-info{flex:1}
+.zone-num{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--green);opacity:.7;text-transform:uppercase}
+.zone-title{font-size:15px;font-weight:800;margin:2px 0}
+.zone-desc{font-size:11px;color:var(--sub)}
+.story-panel{background:var(--dark);border:1px solid rgba(0,229,160,.2);border-radius:var(--r);padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+.story-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.6}
+.story-icon{font-size:44px;text-align:center;margin-bottom:10px;filter:drop-shadow(0 0 16px var(--green))}
+.story-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--green);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.story-text{font-size:14px;line-height:1.7;color:var(--sub);text-align:center}
+.story-text b{color:var(--text)}
+.tile-display{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:24px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);min-height:100px;align-items:center;animation:tileIn .35s ease}
+@keyframes tileIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+.tile{display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:66px;padding:0 12px;border-radius:10px;font-size:26px;font-weight:900;border:2px solid transparent;box-shadow:0 2px 6px rgba(0,0,0,.3);user-select:none}
+.tc{background:var(--wc-bg);color:var(--wc-txt);border-color:var(--wc-border)}
+.tv{background:var(--wv-bg);color:var(--wv-txt);border-color:var(--wv-border)}
+.tw{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:68px;font-size:22px}
+.tile-base{background:linear-gradient(135deg,var(--dark3),var(--dark4));color:var(--green);border-color:rgba(0,229,160,.3);font-size:18px;min-width:72px;letter-spacing:1px}
+.swipe-word{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:24px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);user-select:none;-webkit-user-select:none;touch-action:none}
+.sl{min-width:58px;height:66px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:26px;font-weight:900;border:2px solid transparent;transition:all .15s;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer}
+.sl.sl-c{background:var(--wc-bg);color:var(--wc-txt);border-color:var(--wc-border)}
+.sl.sl-v{background:var(--wv-bg);color:var(--wv-txt);border-color:var(--wv-border)}
+.sl.sl-w{background:var(--ww-bg);color:var(--ww-txt);border-color:var(--ww-border);min-width:72px;font-size:22px}
+.sl.swept{box-shadow:0 0 0 3px var(--amber),0 2px 6px rgba(0,0,0,.3);transform:scale(1.1)}
+.sl.sl-c.locked,.sl.sl-v.locked{box-shadow:0 0 0 3px var(--amber),0 0 14px rgba(255,171,0,.4)}
+.sl.sl-w.locked{box-shadow:0 0 0 3px var(--green),0 0 14px var(--green-glow)}
+.sl.dimmed{opacity:.3;cursor:not-allowed}
+.sl.wrong-flash{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hint-banner{background:var(--amber-lt);border:1px solid rgba(255,171,0,.3);border-radius:var(--rs);padding:10px 14px;text-align:center;font-size:13px;font-weight:700;color:var(--amber);margin:8px 0}
+.choices{display:flex;flex-direction:column;gap:7px}
+.choice{padding:14px 18px;border-radius:var(--rs);background:var(--dark2);border:1.5px solid var(--border);font-size:15px;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s;text-align:left;font-family:'Nunito',sans-serif;position:relative;overflow:hidden;width:100%}
+.choice::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--green);opacity:.1;transition:width .2s}
+.choice:hover:not(:disabled){border-color:rgba(0,229,160,.4);background:var(--dark3)}
+.choice:hover:not(:disabled)::before{width:4px}
+.choice:disabled{cursor:default}
+.choice.correct{background:var(--green-lt);border-color:var(--green);color:var(--green)}
+.choice.wrong{background:var(--red-lt);border-color:var(--red);color:var(--red)}
+.fb{text-align:center;padding:13px 18px;border-radius:var(--rs);margin:10px 0;font-weight:800;font-size:15px;border:1px solid transparent}
+.fb.ok{background:var(--green-lt);color:var(--green);border-color:rgba(0,229,160,.25)}
+.fb.no{background:var(--red-lt);color:var(--red);border-color:rgba(255,82,82,.25)}
+.scoop-sentence{padding:20px 16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);font-size:19px;font-weight:700;line-height:2}
+.scoop-words{display:flex;flex-wrap:wrap;gap:4px 10px}
+.scoop-word{padding:3px 2px;border-radius:4px;transition:color .15s;cursor:pointer;position:relative}
+.scoop-word.scooped{color:var(--green)}
+.scoop-word.scooped::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--green);border-radius:2px}
+.passage-box{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:20px;color:var(--text);font-size:15px;line-height:1.8;max-height:400px;overflow-y:auto}
+.passage-box p{margin-bottom:14px;color:rgba(224,242,238,.75)}
+.passage-title-d{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;text-align:center;color:var(--green);margin-bottom:4px}
+.passage-sub{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--sub);text-align:center;margin-bottom:16px}
+.score-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;min-height:36px}
+.score-badge{font-size:14px;font-weight:800;color:var(--sub)}
+.streak{display:inline-flex;align-items:center;gap:4px;background:var(--lime-lt);border:1px solid rgba(118,255,3,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--lime)}
+.btn{font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;border:none;border-radius:var(--rs);padding:10px 18px;font-size:14px;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{transform:translateY(-2px)}
+.btn-green{background:var(--green);color:#061412}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.25)}
+.btn-full{width:100%;padding:14px}
+.btn-launch{width:100%;padding:16px;font-size:16px;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061412;border-radius:var(--r);font-family:'Nunito',sans-serif;font-weight:900;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.btn-launch:hover{transform:translateY(-2px)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.overlay.open{display:flex}
+.popup{background:var(--dark);border:1px solid rgba(255,82,82,.4);border-radius:var(--r);padding:24px;max-width:440px;width:100%;position:relative;overflow:hidden}
+.popup::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:.8}
+.popup-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--red);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.popup-rule{font-size:14px;line-height:1.65;color:var(--sub);text-align:center;margin-bottom:14px}
+.popup-rule b{color:var(--text)}
+.popup-correct{background:var(--green-lt);border:1px solid rgba(0,229,160,.3);border-radius:var(--rs);padding:12px;text-align:center;font-size:16px;font-weight:800;color:var(--green);margin-bottom:16px}
+.results{text-align:center;padding:16px 0}
+.result-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--green);margin-bottom:4px}
+.result-sub{font-size:13px;color:var(--sub);margin-bottom:18px}
+.stars-display{font-size:40px;letter-spacing:6px;margin-bottom:18px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.rstat{background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center}
+.rstat-n{font-size:24px;font-weight:900;color:var(--green)}
+.rstat-l{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.error-list{background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;text-align:left;margin-bottom:14px}
+.error-item{padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
+.error-item:last-child{border-bottom:none}
+.error-item b{color:var(--red)}
+.error-item span{color:var(--green)}
+.vial-container{display:flex;justify-content:center;margin:16px 0}
+.vial-cap{width:46px;height:10px;background:var(--green);border-radius:4px 4px 0 0;margin:0 auto}
+.vial{width:40px;height:80px;border-radius:0 0 20px 20px;border:2px solid var(--green);position:relative;overflow:hidden;background:var(--dark2)}
+.vial-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,var(--cyan),var(--green));transition:height .8s ease}
+.sec{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);opacity:.7;margin-bottom:6px}
+.card{background:var(--dark);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:300}
 </style>
 </head>
 <body>
-
-<h2 style="margin-bottom:16px">🔬 Word DNA Lab</h2>
-<div id="status" class="card">Loading...</div>
-<div id="content"></div>
-
+<canvas id="confetti"></canvas>
+<div class="hex-bg"></div>
+<div class="scan-line"></div>
+<div id="app">
+  <div class="top-bar">
+    <div style="flex:1">
+      <div class="zone-label" id="tb-zone-label">Loading...</div>
+      <div class="zone-name" id="tb-zone-name">Word DNA Lab</div>
+    </div>
+    <div class="student-chip" id="tb-student">...</div>
+  </div>
+  <div class="seq-wrap">
+    <div class="seq-label">DNA Sequencer</div>
+    <div class="seq-bg"><div class="seq-fill" id="seq-fill" style="width:0%"></div></div>
+    <div class="seq-dots" id="seq-dots"></div>
+  </div>
+  <div class="scroll" id="scroll"></div>
+</div>
+<div class="overlay" id="error-popup">
+  <div class="popup">
+    <div style="font-size:32px;text-align:center;margin-bottom:8px">⚠️</div>
+    <div class="popup-title">LAB ALERT</div>
+    <div class="popup-rule" id="popup-rule"></div>
+    <div class="popup-correct" id="popup-correct"></div>
+    <button class="btn btn-green btn-full" onclick="dismissPopup()">Got it — try again ✓</button>
+  </div>
+</div>
 <script>
-// No modules, no imports — plain vanilla JS
-(function(){
-  var status = document.getElementById('status');
-  var content = document.getElementById('content');
+// ── FIREBASE ──────────────────────────────────────────────────────────────────
+var db = null;
+try {
+  firebase.initializeApp({
+    apiKey:"AIzaSyAsMC0OVOWSdho7Dvr1HIt2920vt3Vc5Tk",
+    authDomain:"worddnalab.firebaseapp.com",
+    projectId:"worddnalab",
+    storageBucket:"worddnalab.firebasestorage.app",
+    messagingSenderId:"959229904034",
+    appId:"1:959229904034:web:3e9a8ecf7deaff75afc3fb"
+  });
+  db = firebase.firestore();
+} catch(e){ console.warn('Firebase init failed:', e.message); }
 
-  // Read sessionStorage
-  var studentRaw = sessionStorage.getItem('wdl_student');
-  var mode = sessionStorage.getItem('wdl_mode') || 'solo';
+// ── SESSION ───────────────────────────────────────────────────────────────────
+var STUDENT=null, MODE='solo', DIFF='med', AGENTS=['Agent 1','Agent 2'];
+try{ STUDENT=JSON.parse(sessionStorage.getItem('wdl_student')||'null'); }catch(e){}
+try{ MODE=sessionStorage.getItem('wdl_mode')||'solo'; }catch(e){}
+try{ DIFF=sessionStorage.getItem('wdl_diff')||'med'; }catch(e){}
+try{ AGENTS=JSON.parse(sessionStorage.getItem('wdl_agents')||'["Agent 1","Agent 2"]'); }catch(e){}
 
-  if(!studentRaw){
-    status.innerHTML = '⚠️ No student selected. <a href="index.html" style="color:#00bcd4">← Go back</a>';
-    return;
+var scrollEl = document.getElementById('scroll');
+function render(h){ scrollEl.innerHTML=h; scrollEl.scrollTop=0; }
+
+if(!STUDENT){
+  render('<div style="padding:32px 16px;text-align:center"><div style="font-size:48px;margin-bottom:16px">🔬</div>' +
+    '<div style="font-size:16px;font-weight:700;margin-bottom:8px">No agent selected</div>' +
+    '<div style="font-size:14px;color:var(--sub);margin-bottom:24px">Please select a student from the home screen.</div>' +
+    '<a href="index.html" style="background:var(--green);color:#061412;padding:14px 28px;border-radius:var(--r);font-family:Nunito,sans-serif;font-weight:900;font-size:16px;text-decoration:none">Back to home</a></div>');
+  document.getElementById('tb-student').textContent='?';
+  document.getElementById('tb-zone-label').textContent='No student';
+  document.getElementById('tb-zone-name').textContent='Word DNA Lab';
+} else {
+  document.getElementById('tb-student').textContent = STUDENT.name;
+  startApp();
+}
+
+function startApp(){
+
+// ── ZONE META ─────────────────────────────────────────────────────────────────
+var ZM=[
+  {num:1,icon:'🔓',name:'Lab Unlock',    desc:'Welded sounds and closed syllable exceptions'},
+  {num:2,icon:'🔬',name:'The Centrifuge', desc:'Two-letter blends'},
+  {num:3,icon:'⚗️', name:'The Sequencer', desc:'Three-letter blends'},
+  {num:4,icon:'🧫',name:'Sample Storage', desc:'Latin bases'},
+  {num:5,icon:'📋',name:'Evidence Board', desc:'Sentence reading and scooping'},
+  {num:6,icon:'📖',name:'Archive Room',   desc:'Passage reading and comprehension'},
+  {num:7,icon:'🏆',name:'The Vault',      desc:'Boss round — all skills'},
+];
+var STORY_T={1:'SECURITY BREACH DETECTED',2:'CENTRIFUGE OFFLINE',3:'SEQUENCER CORRUPTED',
+  4:'SAMPLES MISSING',5:'EVIDENCE SCATTERED',6:'ARCHIVE IN CHAOS',7:'THE VAULT'};
+var STORY_B={
+  1:'Someone broke into the <b>Word DNA Lab</b> last night and scrambled everything! Welded sound samples are mixed up. <b>Restore the Lab Unlock room</b> to begin repairs.',
+  2:'The blend centrifuge was sabotaged. Two-letter blend samples are scattered. <b>Mark every blend</b> to restore power.',
+  3:'The three-letter blend sequencer was corrupted. <b>Sweep to restore the sequence.</b>',
+  4:'Latin base samples — the DNA of words — were stolen. <b>Identify each base</b> to restore them.',
+  5:'The evidence board was destroyed. <b>Read each sentence</b> and scoop the phrases to rebuild.',
+  6:'Archive passages were shredded. <b>Read each passage</b> and answer comprehension questions.',
+  7:'All samples restored — but Dr. Helix locked the vault. Only a <b>Lab Master</b> can unlock it.'
+};
+
+// ── WORD TILES ────────────────────────────────────────────────────────────────
+var WD={
+  sing:  [{t:'c',s:'s'},{t:'w',s:'ing'}],
+  blank: [{t:'c',s:'b'},{t:'c',s:'l'},{t:'w',s:'ank'}],
+  trunk: [{t:'c',s:'t'},{t:'c',s:'r'},{t:'w',s:'unk'}],
+  strong:[{t:'c',s:'s'},{t:'c',s:'t'},{t:'c',s:'r'},{t:'w',s:'ong'}],
+  think: [{t:'c',s:'th'},{t:'w',s:'ink'}],
+  clang: [{t:'c',s:'c'},{t:'c',s:'l'},{t:'w',s:'ang'}],
+  blind: [{t:'c',s:'b'},{t:'c',s:'l'},{t:'w',s:'ind'}],
+  cold:  [{t:'c',s:'c'},{t:'w',s:'old'}],
+  most:  [{t:'c',s:'m'},{t:'w',s:'ost'}],
+  child: [{t:'c',s:'ch'},{t:'w',s:'ild'}],
+  trunk2:[{t:'c',s:'t'},{t:'c',s:'r'},{t:'w',s:'unk'}],
+  bring: [{t:'c',s:'b'},{t:'c',s:'r'},{t:'w',s:'ing'}],
+  stand: [{t:'c',s:'s'},{t:'c',s:'t'},{t:'w',s:'an'},{t:'c',s:'d'}],
+  blend: [{t:'c',s:'b'},{t:'c',s:'l'},{t:'v',s:'e'},{t:'c',s:'n'},{t:'c',s:'d'}],
+  frost: [{t:'c',s:'f'},{t:'c',s:'r'},{t:'w',s:'ost'}],
+  brand: [{t:'c',s:'b'},{t:'c',s:'r'},{t:'w',s:'an'},{t:'c',s:'d'}],
+  clump: [{t:'c',s:'c'},{t:'c',s:'l'},{t:'v',s:'u'},{t:'c',s:'m'},{t:'c',s:'p'}],
+  draft: [{t:'c',s:'d'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'f'},{t:'c',s:'t'}],
+  crisp: [{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'s'},{t:'c',s:'p'}],
+  strap: [{t:'c',s:'s'},{t:'c',s:'t'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'p'}],
+  scrap: [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'a'},{t:'c',s:'p'}],
+  spring:[{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'r'},{t:'w',s:'ing'}],
+  splash:[{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'l'},{t:'v',s:'a'},{t:'c',s:'sh'}],
+  scrub: [{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'u'},{t:'c',s:'b'}],
+  sprint:[{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'n'},{t:'c',s:'t'}],
+  split: [{t:'c',s:'s'},{t:'c',s:'p'},{t:'c',s:'l'},{t:'v',s:'i'},{t:'c',s:'t'}],
+  script:[{t:'c',s:'s'},{t:'c',s:'c'},{t:'c',s:'r'},{t:'v',s:'i'},{t:'c',s:'p'},{t:'c',s:'t'}],
+};
+
+// ── ZONE DATA ─────────────────────────────────────────────────────────────────
+var Z1=[
+  {wk:'sing',  weld:'ing',type:'weld',      rule:'The welded sound <b>-ing-</b> gets one tap. i-n-g stay glued together.',ch:['ing','ang','unk','ink']},
+  {wk:'blank', weld:'ank',type:'weld',      rule:'The welded sound <b>-ank-</b> gets one tap. Think: blank, rank, tank.',ch:['ank','ink','ong','ung']},
+  {wk:'trunk', weld:'unk',type:'weld',      rule:'The welded sound <b>-unk-</b> gets one tap. Think: skunk, trunk, chunk.',ch:['unk','ink','ank','ang']},
+  {wk:'think', weld:'ink',type:'weld',      rule:'The welded sound <b>-ink-</b> gets one tap. Think: pink, drink, rink.',ch:['ink','ing','ank','ong']},
+  {wk:'clang', weld:'ang',type:'weld',      rule:'The welded sound <b>-ang-</b> gets one tap. Think: rang, bang, clang.',ch:['ang','ing','ong','unk']},
+  {wk:'strong',weld:'ong',type:'weld',      rule:'The welded sound <b>-ong-</b> gets one tap. Think: song, long, strong.',ch:['ong','ung','ang','ank']},
+  {wk:'blind', weld:'ind',type:'exception', rule:'<b>-ind-</b> is a closed syllable exception. The i says its long sound. Think: find, kind, mind.',ch:['ind','old','ost','ild']},
+  {wk:'cold',  weld:'old',type:'exception', rule:'<b>-old-</b> is a closed syllable exception. The o says its long sound. Think: bold, told, gold.',ch:['old','ind','olt','ost']},
+  {wk:'most',  weld:'ost',type:'exception', rule:'<b>-ost-</b> is a closed syllable exception. Think: most, post, host.',ch:['ost','old','olt','ind']},
+  {wk:'child', weld:'ild',type:'exception', rule:'<b>-ild-</b> is a closed syllable exception. The i says its long sound. Think: wild, mild, child.',ch:['ild','ind','old','ost']},
+];
+
+var Z2=[
+  {wk:'trunk2',d:'trunk', blends:[{b:'tr',idx:[0,1],r:'<b>TR</b> is a two-letter blend. /t/ /r/ each make their own sound. The <b>-unk</b> is a welded sound.'}]},
+  {wk:'bring', d:'bring', blends:[{b:'br',idx:[0,1],r:'<b>BR</b> is a two-letter blend. /b/ /r/ — two separate sounds. The <b>-ing</b> is a welded sound.'}]},
+  {wk:'stand', d:'stand', blends:[{b:'st',idx:[0,1],r:'<b>ST</b> is a two-letter blend. /s/ /t/ — two separate taps. The <b>-an-</b> is a welded sound.'}]},
+  {wk:'frost', d:'frost', blends:[{b:'fr',idx:[0,1],r:'<b>FR</b> is a two-letter blend. /f/ /r/ — think: from, frost. The <b>-ost</b> is a closed syllable exception.'}]},
+  {wk:'brand', d:'brand', blends:[{b:'br',idx:[0,1],r:'<b>BR</b> is a two-letter blend. /b/ /r/ — think: bring, branch. The <b>-an-</b> is a welded sound.'}]},
+  {wk:'blend', d:'blend', blends:[{b:'bl',idx:[0,1],r:'<b>BL</b> is a two-letter blend. /b/ /l/ — two sounds, not one.'}]},
+  {wk:'clump', d:'clump', blends:[{b:'cl',idx:[0,1],r:'<b>CL</b> is a two-letter blend at the start. /k/ /l/ — two clear sounds.'},{b:'mp',idx:[3,4],r:'<b>MP</b> is a two-letter blend at the end. /m/ /p/ — both make their own sounds.'}]},
+  {wk:'draft', d:'draft', blends:[{b:'dr',idx:[0,1],r:'<b>DR</b> is a two-letter blend at the start. /d/ /r/ — tap each separately.'},{b:'ft',idx:[3,4],r:'<b>FT</b> is a two-letter blend at the end. /f/ /t/ — two separate sounds.'}]},
+  {wk:'crisp', d:'crisp', blends:[{b:'cr',idx:[0,1],r:'<b>CR</b> is a two-letter blend at the start. /k/ /r/ — both make sounds.'},{b:'sp',idx:[3,4],r:'<b>SP</b> is a two-letter blend at the end. /s/ /p/ — two separate sounds.'}]},
+];
+
+var Z3=[
+  {wk:'strap', b:'str',idx:[0,1,2],r:'<b>STR</b> is a three-letter blend. Every letter makes its own sound: /s/ /t/ /r/.'},
+  {wk:'scrap', b:'scr',idx:[0,1,2],r:'<b>SCR</b> is a three-letter blend. /s/ /k/ /r/ — three separate sounds.'},
+  {wk:'spring',b:'spr',idx:[0,1,2],r:'<b>SPR</b> is a three-letter blend. /s/ /p/ /r/ — sweep all three!'},
+  {wk:'splash',b:'spl',idx:[0,1,2],r:'<b>SPL</b> is a three-letter blend. /s/ /p/ /l/ — three sounds at the start.'},
+  {wk:'scrub', b:'scr',idx:[0,1,2],r:'<b>SCR</b> again. /s/ /k/ /r/ — think: scrub, scrap, scram.'},
+  {wk:'sprint',b:'spr',idx:[0,1,2],r:'<b>SPR</b> — /s/ /p/ /r/. Think: sprint, spring, sprung.'},
+  {wk:'split', b:'spl',idx:[0,1,2],r:'<b>SPL</b> — /s/ /p/ /l/. Think: split, splash, splat.'},
+  {wk:'script',b:'scr',idx:[0,1,2],r:'<b>SCR</b> — /s/ /k/ /r/. Think: script, scrap, scrub.'},
+];
+
+var BASES=[
+  {b:'-fess-',m:'acknowledge',   ex:'confess, profess',   r:'-fess- means ACKNOWLEDGE. Confess = to admit something.'},
+  {b:'-gress-',m:'step / degree',ex:'progress, Congress', r:'-gress- means STEP. Progress = to step forward.'},
+  {b:'-mand-',m:'order',         ex:'command, demand',    r:'-mand- means ORDER. Command = to give an order.'},
+  {b:'-mit-',m:'send',           ex:'submit, transmit',   r:'-mit- means SEND. Submit = to send in. Transmit = to send across.'},
+  {b:'-pel-',m:'drive / push',   ex:'expel, propel',      r:'-pel- means DRIVE or PUSH. Expel = to push out.'},
+  {b:'-pend-',m:'hang',          ex:'suspend, depend',    r:'-pend- means HANG. Suspend = to hang up.'},
+  {b:'-press-',m:'press / push', ex:'compress, express',  r:'-press- means PRESS. Compress = to press together.'},
+  {b:'-rupt-',m:'break',         ex:'disrupt, interrupt', r:'-rupt- means BREAK. Interrupt = to break into.'},
+  {b:'-sent-',m:'feel / perceive',ex:'consent, absent',   r:'-sent- means FEEL. Consent = to feel in agreement.'},
+  {b:'-sist-',m:'place / stand', ex:'insist, resist',     r:'-sist- means STAND. Resist = to stand against.'},
+  {b:'-stant-',m:'standing',     ex:'constant, instant',  r:'-stant- means STANDING. Constant = always standing there.'},
+  {b:'-tend-',m:'stretch / reach',ex:'extend, attend',    r:'-tend- means STRETCH. Extend = to stretch out.'},
+  {b:'-tent-',m:'stretch / reach',ex:'intent, extent',    r:'-tent- means STRETCH. Intent = stretched toward a goal.'},
+  {b:'-vent-',m:'come',          ex:'invent, prevent',    r:'-vent- means COME. Invent = to come up with.'},
+  {b:'-dict-',m:'say / tell',    ex:'predict, dictate',   r:'-dict- means SAY. Predict = to tell before it happens.'},
+  {b:'-duct-',m:'lead',          ex:'conduct, product',   r:'-duct- means LEAD. Conduct = to lead together.'},
+  {b:'-fect-',m:'make / do',     ex:'infect, perfect',    r:'-fect- means MAKE. Perfect = completely made.'},
+  {b:'-flect-',m:'bend / curve', ex:'reflect, deflect',   r:'-flect- means BEND. Reflect = to bend back.'},
+  {b:'-ject-',m:'throw',         ex:'eject, reject',      r:'-ject- means THROW. Eject = to throw out.'},
+  {b:'-lect-',m:'gather / choose',ex:'select, collect',   r:'-lect- means GATHER. Select = to choose from.'},
+  {b:'-spect-',m:'look / see',   ex:'inspect, respect',   r:'-spect- means LOOK. Inspect = to look carefully.'},
+  {b:'-struct-',m:'build',       ex:'construct, instruct',r:'-struct- means BUILD. Construct = to build together.'},
+  {b:'-tract-',m:'draw / pull',  ex:'contract, attract',  r:'-tract- means DRAW or PULL. Attract = to pull toward.'},
+  {b:'-vict-',m:'conquer',       ex:'evict, convict',     r:'-vict- means CONQUER. Evict = to conquer out of a home.'},
+];
+
+var SENTS=[
+  {text:'The bat clung to the only branch.',        blend:'BR'},
+  {text:'Can you put the plant stand on the deck?', blend:'ST'},
+  {text:'The strong wind brings dust to the front.',blend:'STR'},
+  {text:'Do not scrub if there is no mud.',         blend:'SCR'},
+  {text:'Fran had to scrub each pot!',              blend:'SCR'},
+  {text:'Each spring I get some plants.',           blend:'SPR'},
+  {text:'The kids will split up all the work.',     blend:'SPL'},
+  {text:'Brad had to stand in the brisk cold wind.',blend:'BR / ST'},
+];
+
+var PASSAGES=[
+  {title:'At the Pond',substep:'2.4 AB',
+   text:'Frank made a call to Ben and told him about the plan he had to swim at Flax Pond. Ben said he did want to come but asked if he could bring his dog, Skip. Frank said that it was always okay for Skip to come with them.\n\nFrank met Ben at the pond for lunch and a swim. They had hot wings, chips, and some drinks. Then they sat on a small hill to rest. Skip went for a run in the wet grass. Ben had to stand up and dash off to chase Skip. He got a cramp in his leg and fell.\n\nHe hit the front of his chin on a big clump of branches. Ben had to put a pad on the cut for a bit.\n\nThen it was time for a swim. Skip went into the pond with Ben and Frank. Frank had a ball to toss to Skip many times. Skip had fun as he swam with the ball.\n\nThen Ben\'s mom sent him a text. He told Frank, \"I must go now, but we should come back to spend a day soon.\"',
+   questions:[
+     {q:'Where did Frank and Ben plan to swim?',opts:['Flax Pond','Blue Lake','Flat Pond','The River'],ans:0,r:'The story says Frank told Ben about swimming at Flax Pond.'},
+     {q:'Why did Ben fall?',opts:['Skip pulled him','He got a cramp and slipped','He tripped on a log','He was pushed'],ans:1,r:'Ben got a cramp in his leg while chasing Skip on wet grass.'},
+     {q:'What did Frank toss to Skip?',opts:['A stick','A treat','A ball','A toy'],ans:2,r:'Frank had a ball to toss to Skip many times.'},
+     {q:'Why did Ben leave?',opts:['He was hurt','His mom texted him','It got dark','Skip ran off'],ans:1,r:"Ben's mom sent him a text telling him it was time to go."},
+     {q:'What blend starts BRANCH?',opts:['br','bl','pr','tr'],ans:0,r:'BRANCH starts with the blend BR — /b/ /r/ are two separate sounds.'},
+     {q:'What does -mit- mean in SUBMIT?',opts:['push','send','hang','break'],ans:1,r:'-mit- means SEND. Submit = to send in.'},
+     {q:'What welded sound ends CLUMP?',opts:['ump','unk','ing','ang'],ans:0,r:'CLUMP ends with the welded sound -ump. u-m-p stay glued together.'},
+     {q:'What blend starts STAND?',opts:['st','br','cl','tr'],ans:0,r:'STAND starts with the blend ST — /s/ /t/ are two separate sounds.'},
+   ]
+  },
+  {title:"Brad's Bad Day",substep:'2.4 B',
+   text:"Brad fell in the slush by his front step and his bag was all wet. He kept his chin up on the way to the bus stop.\n\nBrad had to rush to get the bus and he cut his leg on a branch. When the bus went past his stop, Brad said, \"What is going on?\" He called a cab and stood in the brisk cold wind. At last, Brad got to his job at the shop where he sold prints.\n\nAt the shop, Brad did not sell any prints. The day did drag.\n\nAt last, Brad's shift came to an end. But his bad luck did not end. As the bus was about to come to the last stop, it got a flat when it ran into a trench of mud! The next day had to be better.",
+   questions:[
+     {q:"How did Brad's day start?",opts:['He missed the bus','He fell in the slush','He lost his bag','He was late'],ans:1,r:'The story opens with Brad falling in the slush.'},
+     {q:'How did Brad hurt his leg?',opts:['He fell on ice','He cut it on a branch','He twisted it','He tripped'],ans:1,r:'Brad cut his leg on a branch rushing to the bus.'},
+     {q:"What was Brad's job?",opts:['He sold prints','He drove a cab','He fixed buses','He taught'],ans:0,r:'Brad got to his job at the shop where he sold prints.'},
+     {q:'What happened to the bus at the end?',opts:['It went past his stop','It got a flat in mud','It broke down','It ran out of gas'],ans:1,r:'The bus got a flat when it ran into a trench of mud.'},
+     {q:'What blend starts BRANCH?',opts:['br','bl','gr','tr'],ans:0,r:'BRANCH starts with BR — /b/ /r/ are both heard as separate sounds.'},
+     {q:'What blend starts BRISK?',opts:['br','bl','gr','cr'],ans:0,r:'BRISK starts with BR — think: bring, brad, branch, brisk.'},
+     {q:'What welded sound is in STAND?',opts:['and (an+d)','ant','ank','ing'],ans:0,r:'STAND has the welded sound -an- with the d after it.'},
+     {q:'What does -rupt- mean in DISRUPT?',opts:['push','send','break','pull'],ans:2,r:'-rupt- means BREAK. Disrupt = to break apart.'},
+   ]
   }
+];
 
-  var student;
-  try { student = JSON.parse(studentRaw); }
-  catch(e){ status.innerHTML = 'Error reading student data: ' + e.message; return; }
+var VAULT_Q=[
+  {t:'base', q:'What does -rupt- mean?',       opts:['break','send','hang','push'],    ans:0,r:'-rupt- means BREAK. Disrupt, interrupt, rupture.'},
+  {t:'base', q:'What does -struct- mean?',     opts:['cut','build','pull','throw'],    ans:1,r:'-struct- means BUILD. Construct, instruct, structure.'},
+  {t:'base', q:'What does -tract- mean?',      opts:['send','look','draw/pull','come'],ans:2,r:'-tract- means DRAW or PULL. Attract, contract, subtract.'},
+  {t:'blend',q:'What blend starts SPRING?',    opts:['str','scr','spr','spl'],         ans:2,r:'SPRING starts with SPR — /s/ /p/ /r/ — three-letter blend.'},
+  {t:'blend',q:'What blend starts SCRAP?',     opts:['str','scr','spr','spl'],         ans:1,r:'SCRAP starts with SCR — /s/ /k/ /r/ — three-letter blend.'},
+  {t:'blend',q:'What blend starts STRAP?',     opts:['str','scr','spr','spl'],         ans:0,r:'STRAP starts with STR — /s/ /t/ /r/ — three-letter blend.'},
+  {t:'weld', q:'What welded sound ends TRUNK?',opts:['unk','ink','ang','ong'],          ans:0,r:'-unk- is a welded sound. Trunk, skunk, chunk, dunk.'},
+  {t:'weld', q:'What welded sound ends CLANG?',opts:['ing','ang','ank','ong'],          ans:1,r:'-ang- is a welded sound. Clang, bang, rang, sang.'},
+];
 
-  status.innerHTML = '✓ Student loaded: <b>' + student.name + '</b> · Mode: ' + mode;
+// ── GAME STATE ────────────────────────────────────────────────────────────────
+var G={
+  zone:STUDENT.currentZone||1, q:0, total:8,
+  score:0, errors:[], streak:0, bestStreak:0,
+  zones:STUDENT.zones||{}, z2step:0, passageIdx:0,
+  helixScore:0, p2pScores:[0,0], p2pTurn:0,
+  sub:STUDENT.substep||'2.4'
+};
+var HACC={easy:.5,med:.7,hard:.9};
+var _popCb=null, _tap={}, _curItem=null, _curSegs=null;
 
-  content.innerHTML = '<div class="card">' +
-    '<div style="margin-bottom:12px;font-size:14px;opacity:.7">Zone ' + (student.currentZone||1) + ' of 7</div>' +
-    '<h3 style="margin-bottom:16px">🔓 Lab Unlock</h3>' +
-    '<p style="margin-bottom:16px;font-size:14px;opacity:.7">Zone map loading — tap a zone to begin</p>' +
-    '<button class="btn" onclick="startZone(1)">▶ Start Zone 1 — Lab Unlock</button>' +
-    '<button class="btn" style="background:transparent;border:1px solid rgba(0,229,160,.3);color:#00e5a0;margin-top:4px" onclick="window.location.href=\'index.html\'">← Back</button>' +
-    '</div>';
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function tiles(segs){
+  var h='';
+  for(var i=0;i<segs.length;i++) h+='<div class="tile t'+segs[i].t+'">'+segs[i].s+'</div>';
+  return h;
+}
+function swipeTiles(segs){
+  var h='';
+  for(var i=0;i<segs.length;i++)
+    h+='<div class="sl sl-'+segs[i].t+'" id="sl'+i+'" data-i="'+i+'" data-t="'+segs[i].t+'" onclick="tapL('+i+')">'+segs[i].s+'</div>';
+  return h;
+}
+function scoreBar(){
+  var l=MODE==='helix'
+    ?'<span class="score-badge">'+STUDENT.name+': '+G.score+' &nbsp;|&nbsp; <span style="color:var(--red)">Dr. Helix: '+G.helixScore+'</span></span>'
+    :MODE==='p2p'
+      ?'<span class="score-badge">'+AGENTS[0]+': '+G.p2pScores[0]+' &nbsp;|&nbsp; '+AGENTS[1]+': '+G.p2pScores[1]+'</span>'
+      :'<span class="score-badge">Score: '+G.score+' / '+G.q+'</span>';
+  var s=G.streak>1?'<span class="streak">🔥 '+G.streak+' in a row</span>':'';
+  return '<div class="score-line">'+l+s+'</div>';
+}
+function markBtns(chosen,correct,byIdx){
+  var bs=document.querySelectorAll('.choice');
+  for(var i=0;i<bs.length;i++){
+    bs[i].disabled=true;
+    var ok=byIdx?i===correct:bs[i].textContent.trim()===correct;
+    var mine=byIdx?i===chosen:bs[i].textContent.trim()===chosen;
+    if(ok) bs[i].classList.add('correct');
+    else if(mine) bs[i].classList.add('wrong');
+  }
+}
+function showErr(rule,display,cb){
+  document.getElementById('popup-rule').innerHTML=rule;
+  var pc=document.getElementById('popup-correct');
+  if(display&&display.charAt(0)==='<') pc.innerHTML=display;
+  else pc.textContent='✓ '+(display||'');
+  document.getElementById('error-popup').classList.add('open');
+  _popCb=cb;
+}
+function dismissPopup(){
+  document.getElementById('error-popup').classList.remove('open');
+  if(_popCb){_popCb();_popCb=null;}
+}
+window.dismissPopup=dismissPopup;
 
-  window.startZone = function(n){
-    content.innerHTML = '<div class="card"><h3>Zone ' + n + ' started!</h3><p style="margin-top:8px;font-size:14px;opacity:.7">Game engine loading...</p></div>';
-  };
-})();
+function handleComp(ok){
+  if(MODE==='helix'){
+    var hok=Math.random()<(HACC[DIFF]||.7);
+    if(hok) G.helixScore++;
+    var fb=document.getElementById('g-fb');
+    if(fb) fb.innerHTML+=hok
+      ?' &nbsp;· <span style="color:var(--red)">Dr. Helix got it 😈</span>'
+      :' &nbsp;· <span style="color:var(--green)">Dr. Helix blocked! 🛡️</span>';
+  } else if(MODE==='p2p'&&ok) G.p2pScores[G.p2pTurn]++;
+}
+function cover(fn){
+  if(MODE!=='p2p'){fn();return;}
+  G.p2pTurn=1-G.p2pTurn;
+  render('<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:24px">'
+    +'<div style="font-size:48px;margin-bottom:16px;filter:drop-shadow(0 0 20px var(--green))">🔬</div>'
+    +'<div style="font-family:Orbitron,monospace;font-size:13px;color:var(--green);letter-spacing:1px;margin-bottom:12px">SECURE HANDOFF</div>'
+    +'<div style="font-size:20px;font-weight:800;margin-bottom:8px">Pass the device to</div>'
+    +'<div style="font-size:28px;font-weight:900;color:var(--green);margin-bottom:24px">'+AGENTS[G.p2pTurn]+'</div>'
+    +'<button class="btn-launch" style="max-width:280px" id="cover-btn">I have the device ✓</button>'
+    +'</div>');
+  document.getElementById('cover-btn').onclick=fn;
+}
+
+function updateTop(){
+  var z=ZM[G.zone-1];
+  document.getElementById('tb-zone-label').textContent='Zone '+G.zone+' of 7';
+  document.getElementById('tb-zone-name').textContent=z.icon+' '+z.name;
+  document.getElementById('seq-fill').style.width=((G.zone-1)/7*100)+'%';
+  var d='';
+  for(var i=0;i<7;i++){
+    var c=ZM[i].num<G.zone?'done':ZM[i].num===G.zone?'active':'';
+    d+='<div class="seq-dot '+c+'"></div>';
+  }
+  document.getElementById('seq-dots').innerHTML=d;
+}
+
+// ── SAVE PROGRESS ─────────────────────────────────────────────────────────────
+function saveZone(stars){
+  if(!db||!STUDENT.id||STUDENT.id==='guest') return;
+  var u={};
+  var k='zones.zone'+G.zone;
+  u[k+'.stars']=stars; u[k+'.lastScore']=G.score;
+  u[k+'.total']=G.total; u[k+'.errors']=G.errors;
+  u[k+'.lastPlayed']=firebase.firestore.FieldValue.serverTimestamp();
+  u['currentZone']=Math.max(G.zone+1,STUDENT.currentZone||1);
+  db.collection('students').doc(STUDENT.id).update(u).catch(function(e){console.warn('Save:',e.message);});
+  G.zones['zone'+G.zone]={stars:stars,lastScore:G.score,total:G.total};
+  STUDENT.currentZone=u['currentZone'];
+  try{sessionStorage.setItem('wdl_student',JSON.stringify(STUDENT));}catch(e){}
+}
+
+// ── ZONE MAP ──────────────────────────────────────────────────────────────────
+function showMap(){
+  document.getElementById('tb-zone-label').textContent='Operation Word DNA';
+  document.getElementById('tb-zone-name').textContent='🔬 Mission Map';
+  document.getElementById('seq-fill').style.width=((G.zone-1)/7*100)+'%';
+  var d='';
+  for(var i=0;i<7;i++){
+    var c=ZM[i].num<G.zone?'done':ZM[i].num===G.zone?'active':'';
+    d+='<div class="seq-dot '+c+'"></div>';
+  }
+  document.getElementById('seq-dots').innerHTML=d;
+  var h='<div style="text-align:center;padding:8px 0 16px">'
+    +'<div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 0 16px var(--green))">🔬</div>'
+    +'<div style="font-family:Orbitron,monospace;font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:4px">MISSION ACTIVE</div>'
+    +'<div style="font-size:14px;font-weight:700;color:var(--sub)">Welcome back, <b style="color:var(--text)">'+STUDENT.name+'</b></div>'
+    +'</div><div class="zone-map">';
+  for(var i=0;i<ZM.length;i++){
+    var z=ZM[i],zd=G.zones['zone'+z.num]||{},stars=zd.stars||0;
+    var done=z.num<G.zone,act=z.num===G.zone,lck=z.num>G.zone;
+    var cls=lck?'locked':done?'done':act?'active':'';
+    var right=lck?'<span style="font-size:18px;opacity:.4">🔒</span>'
+      :done?'<div style="font-size:14px">'+'⭐'.repeat(stars)+'☆'.repeat(3-stars)+'</div>'
+      :'<span style="font-size:12px;font-weight:800;color:var(--green)">ENTER →</span>';
+    var oc=(act||done)?'onclick="gz('+z.num+')"':'';
+    h+='<div class="zone-card '+cls+'" '+oc+'>'
+      +'<div class="zone-icon">'+z.icon+'</div>'
+      +'<div class="zone-info"><div class="zone-num">Zone '+z.num+'</div><div class="zone-title">'+z.name+'</div><div class="zone-desc">'+z.desc+'</div></div>'
+      +right+'</div>';
+  }
+  render(h+'</div>');
+}
+window.gz=function(n){
+  G.zone=n;G.q=0;G.score=0;G.errors=[];G.streak=0;
+  G.z2step=0;G.helixScore=0;G.p2pScores=[0,0];G.p2pTurn=0;
+  updateTop();
+  var z=ZM[n-1];
+  render('<div class="story-panel">'
+    +'<div class="story-icon">'+z.icon+'</div>'
+    +'<div class="story-title">'+STORY_T[n]+'</div>'
+    +'<div class="story-text">'+STORY_B[n]+'</div>'
+    +'</div>'
+    +'<div style="font-size:12px;color:var(--sub);text-align:center;margin:0 0 12px">8 questions · 1–3 stars · errors correctable for 1 point</div>'
+    +'<button class="btn-launch" onclick="rz('+n+')">🔬 Begin Zone '+n+' — '+z.name+'</button>');
+};
+window.rz=function(n){
+  if(n===1) z1();
+  else if(n===2) z2();
+  else if(n===3) z3();
+  else if(n===4) z4();
+  else if(n===5) z5();
+  else if(n===6) z6();
+  else z7();
+};
+
+// ── ZONE COMPLETE ─────────────────────────────────────────────────────────────
+function zDone(){
+  var pct=Math.round(G.score/G.total*100);
+  var stars=pct>=90?3:pct>=70?2:1;
+  if(stars===3) confetti();
+  saveZone(stars);
+  var cmp='';
+  if(MODE==='helix'){
+    cmp=G.score>G.helixScore
+      ?'<div style="background:var(--green-lt);border:1px solid rgba(0,229,160,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px">🛡️ <b style="color:var(--green)">Zone locked down!</b> You: '+G.score+' · Dr. Helix: '+G.helixScore+'</div>'
+      :G.score===G.helixScore
+        ?'<div style="background:var(--amber-lt);border:1px solid rgba(255,171,0,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px">⚠️ <b style="color:var(--amber)">Tie!</b></div>'
+        :'<div style="background:var(--red-lt);border:1px solid rgba(255,82,82,.3);border-radius:var(--rs);padding:12px;text-align:center;margin-bottom:12px">🔴 <b style="color:var(--red)">Dr. Helix breached this zone!</b> Helix: '+G.helixScore+' · You: '+G.score+'</div>';
+  }
+  var msgs={3:'Perfect! Sample fully restored. 🧬',2:'Good work! Sample secured.',1:'Sample recovered! Some readings need reinforcement.'};
+  var vp=stars===3?100:stars===2?66:33;
+  var eh='';
+  if(G.errors.length){
+    eh='<div class="error-list"><div class="sec" style="margin-bottom:6px">Review these</div>';
+    for(var i=0;i<G.errors.length;i++) eh+='<div class="error-item"><b>'+G.errors[i].q+'</b> → <span>'+G.errors[i].correct+'</span></div>';
+    eh+='</div>';
+  }
+  var nb=G.zone===7
+    ?'<button class="btn-launch" onclick="labOk()">🏆 Restore the Lab!</button>'
+    :'<button class="btn-launch" onclick="gz('+(G.zone+1)+')">Next: '+ZM[G.zone].icon+' '+ZM[G.zone].name+' →</button>';
+  render('<div class="results">'
+    +'<div class="vial-container"><div><div class="vial-cap"></div><div class="vial"><div class="vial-fill" style="height:'+vp+'%"></div></div></div></div>'
+    +'<div class="result-title" style="margin-top:12px">Zone '+G.zone+' Complete!</div>'
+    +'<div class="result-sub">'+ZM[G.zone-1].name+'</div>'
+    +'<div class="stars-display">'+'⭐'.repeat(stars)+'☆'.repeat(3-stars)+'</div>'
+    +cmp
+    +'<div class="result-grid">'
+      +'<div class="rstat"><div class="rstat-n">'+G.score+'/'+G.total+'</div><div class="rstat-l">Score</div></div>'
+      +'<div class="rstat"><div class="rstat-n">'+pct+'%</div><div class="rstat-l">Accuracy</div></div>'
+      +'<div class="rstat"><div class="rstat-n">'+G.bestStreak+'</div><div class="rstat-l">Streak</div></div>'
+      +'<div class="rstat"><div class="rstat-n">'+G.errors.length+'</div><div class="rstat-l">Errors</div></div>'
+    +'</div>'
+    +'<div style="font-size:13px;color:var(--sub);margin-bottom:14px">'+msgs[stars]+'</div>'
+    +eh+nb
+    +'<button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="showMap()">← Mission map</button>'
+    +(stars<3?'<button class="btn btn-ghost btn-full" style="margin-top:4px" onclick="gz('+G.zone+')">↺ Replay zone</button>':'')
+    +'</div>');
+}
+window.labOk=function(){
+  confetti();setTimeout(confetti,700);
+  render('<div class="results">'
+    +'<div style="font-size:70px;margin-bottom:12px;filter:drop-shadow(0 0 30px var(--green))">🔬</div>'
+    +'<div class="result-title" style="font-size:22px;color:var(--lime)">LAB FULLY RESTORED!</div>'
+    +'<div style="font-size:15px;color:var(--sub);margin:14px 0 20px;line-height:1.7">Outstanding work, <b style="color:var(--text)">'+STUDENT.name+'</b>!<br>Every sample is back in its vial. 🧬</div>'
+    +'<button class="btn-launch" onclick="showMap()">Play again</button>'
+    +'<button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="window.location.href=\'index.html\'">← Student select</button>'
+    +'</div>');
+};
+
+// ── ZONE 1 — WELDS ────────────────────────────────────────────────────────────
+function z1(){
+  if(G.q>=G.total){zDone();return;}
+  var item=Z1[G.q%Z1.length],segs=WD[item.wk];
+  var lbl=item.type==='exception'?'CLOSED SYLLABLE EXCEPTION':'WELDED SOUND';
+  var q=item.type==='exception'?'What closed syllable exception do you see?':'What is the welded sound?';
+  var ch='';
+  for(var i=0;i<item.ch.length;i++) ch+='<button class="choice" onclick="cw('+i+')">'+item.ch[i]+'</button>';
+  render('<div class="sec" style="text-align:center">'+lbl+' — '+(G.q+1)+' of '+G.total+'</div>'
+    +'<div class="tile-display">'+tiles(segs)+'</div>'
+    +'<div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:12px">'+q+'</div>'
+    +'<div class="choices">'+ch+'</div>'
+    +'<div id="g-fb" style="display:none" class="fb"></div>'+scoreBar());
+  _curItem=item;
+}
+window.cw=function(i){
+  var item=_curItem,chosen=item.ch[i];
+  if(chosen===item.weld){
+    markBtns(chosen,item.weld,false);
+    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    var fb=document.getElementById('g-fb');
+    fb.style.display='block';fb.className='fb ok';fb.textContent='Correct! ✓';
+    handleComp(true);
+    setTimeout(function(){G.q++;cover(z1);},800);
+  } else {
+    markBtns(chosen,item.weld,false);G.streak=0;
+    showErr(item.rule,'<div class="tile tw" style="margin:0 auto">'+item.weld+'</div>',function(){
+      G.errors.push({q:item.wk,wrong:chosen,correct:item.weld});
+      G.q++;cover(z1);
+    });
+  }
+};
+
+// ── ZONE 2 — 2-LETTER BLENDS ──────────────────────────────────────────────────
+function z2(){if(G.q>=G.total){zDone();return;}G.z2step=0;rz2();}
+function rz2(){
+  var item=Z2[G.q%Z2.length],segs=WD[item.wk],cb=item.blends[G.z2step],tot=item.blends.length;
+  var sl=tot>1?' (blend '+(G.z2step+1)+' of '+tot+')':'';
+  var hint='';
+  if(G.z2step>0){
+    var prev=[];for(var i=0;i<G.z2step;i++) prev.push('<b>'+item.blends[i].b.toUpperCase()+'</b>');
+    hint='<div class="hint-banner">✓ '+prev.join(' and ')+' found! This word has a second consonant blend — find it at the end.</div>';
+  }
+  render('<div class="sec" style="text-align:center">2-LETTER BLEND — '+(G.q+1)+' of '+G.total+sl+'</div>'
+    +hint
+    +'<div style="font-size:13px;color:var(--sub);text-align:center;margin:6px 0 10px">Tap the letters that form the blend'+sl+'</div>'
+    +'<div class="swipe-word" id="sw">'+swipeTiles(segs)+'</div>'
+    +'<div id="bfb" style="text-align:center;font-size:13px;color:var(--sub);margin:8px 0">Tap each letter in the blend</div>'
+    +'<button class="btn btn-green btn-full" style="margin-top:6px" onclick="sb2()">Check ✓</button>'
+    +'<div id="g-fb" style="display:none" class="fb"></div>'+scoreBar());
+  _tap={};_curItem=item;_curSegs=segs;
+  for(var s=0;s<G.z2step;s++){
+    var pb=item.blends[s];
+    for(var pi=0;pi<pb.idx.length;pi++){var el=document.getElementById('sl'+pb.idx[pi]);if(el){el.classList.add('locked');el.onclick=null;}}
+  }
+  for(var si=0;si<segs.length;si++){
+    var el2=document.getElementById('sl'+si);
+    if(!el2||el2.classList.contains('locked')) continue;
+    var dim=cb.isWeld?(segs[si].t==='c'||segs[si].t==='v'):segs[si].t==='w';
+    if(dim){el2.classList.add('dimmed');el2.onclick=null;}
+  }
+}
+window.tapL=function(i){
+  var item=_curItem,segs=_curSegs;
+  if(!item||!segs) return;
+  var el=document.getElementById('sl'+i);
+  if(!el||el.classList.contains('locked')||el.classList.contains('dimmed')) return;
+  if(_tap[i]){delete _tap[i];el.classList.remove('swept');}
+  else{_tap[i]=true;el.classList.add('swept');}
+  var keys=Object.keys(_tap).map(Number).sort(function(a,b){return a-b;});
+  var chosen=keys.map(function(j){return segs[j]?segs[j].s:'';}).join('');
+  var bfb=document.getElementById('bfb');if(bfb) bfb.textContent='Selected: '+chosen;
+};
+window.sb2=function(){
+  var item=_curItem,segs=_curSegs;if(!item||!segs) return;
+  var cb=item.blends[G.z2step];
+  var keys=Object.keys(_tap).map(Number).sort(function(a,b){return a-b;});
+  var chosen=keys.map(function(j){return segs[j]?segs[j].s:'';}).join('');
+  var ok=JSON.stringify(keys)===JSON.stringify(cb.idx)||chosen.toLowerCase()===cb.b;
+  if(ok){
+    for(var i=0;i<keys.length;i++){var el=document.getElementById('sl'+keys[i]);if(el){el.classList.remove('swept');el.classList.add('locked');el.onclick=null;}}
+    var bfb=document.getElementById('bfb');if(bfb) bfb.textContent='✓ '+cb.b.toUpperCase()+' found!';
+    G.z2step++;G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    handleComp(true);
+    if(G.z2step<item.blends.length) setTimeout(rz2,900);
+    else{if(bfb)bfb.textContent='✓ All blends marked in '+item.d+'!';setTimeout(function(){G.q++;G.z2step=0;cover(z2);},900);}
+  } else {
+    G.streak=0;_tap={};
+    var sw=document.querySelectorAll('.sl.swept');
+    for(var si=0;si<sw.length;si++){sw[si].classList.remove('swept');sw[si].classList.add('wrong-flash');(function(e){setTimeout(function(){e.classList.remove('wrong-flash');},400);})(sw[si]);}
+    var dt=cb.isWeld?'<div class="tile tw" style="margin:0 auto">'+cb.b+'</div>'
+      :'<div style="display:flex;gap:6px;justify-content:center">'+cb.b.split('').map(function(l){return '<div class="tile tc">'+l+'</div>';}).join('')+'</div>';
+    showErr(cb.r,dt,function(){G.errors.push({q:item.d,wrong:chosen,correct:cb.b});G.z2step++;if(G.z2step<item.blends.length)rz2();else{G.q++;G.z2step=0;z2();}});
+  }
+};
+
+// ── ZONE 3 — 3-LETTER BLENDS ──────────────────────────────────────────────────
+function z3(){if(G.q>=G.total){zDone();return;}rz3();}
+function rz3(){
+  var item=Z3[G.q%Z3.length],segs=WD[item.wk];
+  render('<div class="sec" style="text-align:center">3-LETTER BLEND — '+(G.q+1)+' of '+G.total+'</div>'
+    +'<div style="font-size:13px;color:var(--sub);text-align:center;margin:6px 0 10px">Swipe or tap across the three-letter blend</div>'
+    +'<div class="swipe-word" id="sw" style="touch-action:none">'+swipeTiles(segs)+'</div>'
+    +'<div id="bfb" style="text-align:center;font-size:13px;color:var(--sub);margin:8px 0">Sweep across the blend letters</div>'
+    +'<button class="btn btn-green btn-full" style="margin-top:6px" onclick="sb3()">Check ✓</button>'
+    +'<div id="g-fb" style="display:none" class="fb"></div>'+scoreBar());
+  _tap={};_curItem=item;_curSegs=segs;setupSwipe3();
+}
+function setupSwipe3(){
+  var c=document.getElementById('sw');if(!c) return;
+  var on=false;
+  function mark(i){
+    if(_tap[i]) return;
+    _tap[i]=true;var el=document.getElementById('sl'+i);if(el) el.classList.add('swept');
+    var segs=_curSegs;
+    var keys=Object.keys(_tap).map(Number).sort(function(a,b){return a-b;});
+    var chosen=keys.map(function(j){return segs&&segs[j]?segs[j].s:'';}).join('');
+    var bfb=document.getElementById('bfb');if(bfb) bfb.textContent='Sweeping: '+chosen;
+  }
+  c.addEventListener('touchstart',function(e){on=true;e.preventDefault();var t=e.touches[0];var el=document.elementFromPoint(t.clientX,t.clientY);if(el&&el.dataset.i!=null)mark(parseInt(el.dataset.i));},{passive:false});
+  c.addEventListener('touchmove',function(e){if(!on)return;e.preventDefault();var t=e.touches[0];var el=document.elementFromPoint(t.clientX,t.clientY);if(el&&el.dataset.i!=null)mark(parseInt(el.dataset.i));},{passive:false});
+  c.addEventListener('touchend',function(){on=false;});
+  var els=c.querySelectorAll('.sl');
+  for(var i=0;i<els.length;i++){(function(el){el.addEventListener('click',function(){mark(parseInt(el.dataset.i));});})(els[i]);}
+}
+window.sb3=function(){
+  var item=_curItem,segs=_curSegs;if(!item||!segs) return;
+  var keys=Object.keys(_tap).map(Number).sort(function(a,b){return a-b;});
+  var chosen=keys.map(function(j){return segs[j]?segs[j].s:'';}).join('');
+  var ok=chosen.toLowerCase()===item.b&&keys[0]===0&&keys.length===3;
+  if(ok){
+    for(var i=0;i<3;i++){var el=document.getElementById('sl'+i);if(el){el.classList.remove('swept');el.classList.add('locked');}}
+    var bfb=document.getElementById('bfb');if(bfb) bfb.textContent='✓ '+item.b.toUpperCase()+' is the blend!';
+    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    handleComp(true);
+    setTimeout(function(){G.q++;cover(z3);},900);
+  } else {
+    G.streak=0;_tap={};
+    var sw=document.querySelectorAll('.sl.swept');
+    for(var si=0;si<sw.length;si++){sw[si].classList.remove('swept');sw[si].classList.add('wrong-flash');(function(e){setTimeout(function(){e.classList.remove('wrong-flash');},400);})(sw[si]);}
+    var dt='<div style="display:flex;gap:6px;justify-content:center">'+item.b.split('').map(function(l){return '<div class="tile tc">'+l+'</div>';}).join('')+'</div>';
+    showErr(item.r,dt,function(){G.errors.push({q:item.wk,wrong:chosen,correct:item.b});G.q++;z3();});
+  }
+};
+
+// ── ZONE 4 — LATIN BASES ──────────────────────────────────────────────────────
+function z4(){
+  if(G.q>=G.total){zDone();return;}
+  var pool=G.sub==='2.5'?BASES.slice(14):G.sub==='both'?BASES:BASES.slice(0,14);
+  var item=pool[G.q%pool.length];
+  var wrongs=pool.filter(function(x){return x.b!==item.b;}).sort(function(){return Math.random()-.5;}).slice(0,3);
+  var choices=[item].concat(wrongs).sort(function(){return Math.random()-.5;});
+  var qtype=G.q%2===0?'meaning':'base';
+  if(qtype==='meaning') choices.forEach(function(c){c._l=c.m;});
+  else choices.forEach(function(c){c._l=c.b;});
+  var ch='';
+  for(var i=0;i<choices.length;i++) ch+='<button class="choice" onclick="cb4('+i+')">'+choices[i]._l+'</button>';
+  render('<div class="sec" style="text-align:center">LATIN BASE — '+(G.q+1)+' of '+G.total+'</div>'
+    +'<div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:6px">'+(qtype==='meaning'?'What does this base mean?':'Which base has this meaning?')+'</div>'
+    +'<div class="tile-display">'+(qtype==='meaning'?'<div class="tile tile-base">'+item.b+'</div>':'<div style="font-size:20px;font-weight:800;color:var(--amber)">"'+item.m+'"</div>')+'</div>'
+    +'<div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:10px">Examples: <b style="color:var(--text)">'+item.ex+'</b></div>'
+    +'<div class="choices">'+ch+'</div>'
+    +'<div id="g-fb" style="display:none" class="fb"></div>'+scoreBar());
+  _curItem={item:item,choices:choices,qtype:qtype};
+}
+window.cb4=function(i){
+  var cur=_curItem,item=cur.item,choices=cur.choices,qtype=cur.qtype;
+  var chosen=choices[i]._l;
+  var correct=qtype==='meaning'?item.m:item.b;
+  if(chosen===correct){
+    markBtns(chosen,correct,false);
+    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    var fb=document.getElementById('g-fb');fb.style.display='block';fb.className='fb ok';fb.textContent='Correct! ✓';
+    handleComp(true);setTimeout(function(){G.q++;cover(z4);},800);
+  } else {
+    markBtns(chosen,correct,false);G.streak=0;
+    showErr(item.r,item.b+' = "'+item.m+'"',function(){G.errors.push({q:item.b,wrong:chosen,correct:correct});G.q++;cover(z4);});
+  }
+};
+
+// ── ZONE 5 — SENTENCES ────────────────────────────────────────────────────────
+function z5(){
+  if(G.q>=G.total){zDone();return;}
+  var item=SENTS[G.q%SENTS.length];
+  var words=item.text.split(' ');
+  var wh='';
+  for(var i=0;i<words.length;i++) wh+='<span class="scoop-word" id="sw'+i+'" onclick="scoop('+i+')">'+words[i]+'</span> ';
+  render('<div class="sec" style="text-align:center">SENTENCE READING — '+(G.q+1)+' of '+G.total+'</div>'
+    +'<div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:10px">Read aloud · Tap words to scoop phrases</div>'
+    +'<div class="scoop-sentence"><div class="scoop-words" id="scoop-words">'+wh+'</div></div>'
+    +'<div style="font-size:11px;color:var(--sub);text-align:center;margin:8px 0">Look for the blend: <b style="color:var(--green)">'+item.blend+'</b></div>'
+    +'<div style="display:flex;gap:10px;margin-top:14px">'
+      +'<button class="btn btn-green" style="flex:1;padding:15px;font-size:15px" onclick="sOk(true)">✓ Read correctly</button>'
+      +'<button class="btn btn-ghost" style="flex:1;padding:15px;font-size:15px" onclick="sOk(false)">✗ Needs practice</button>'
+    +'</div>'+scoreBar());
+  _scooped={};
+}
+var _scooped={};
+window.scoop=function(i){
+  var el=document.getElementById('sw'+i);if(!el)return;
+  if(_scooped[i]){delete _scooped[i];el.classList.remove('scooped');}
+  else{_scooped[i]=true;el.classList.add('scooped');}
+};
+window.sOk=function(ok){
+  if(ok){G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;}
+  else{G.streak=0;G.errors.push({q:SENTS[G.q%SENTS.length].text,wrong:'needs practice',correct:'read correctly'});}
+  handleComp(ok);G.q++;cover(z5);
+};
+
+// ── ZONE 6 — PASSAGES ────────────────────────────────────────────────────────
+function z6(){
+  G.passageIdx=G.sub==='2.5'?1:0;
+  var p=PASSAGES[G.passageIdx];
+  var paras=p.text.split('\n\n').map(function(t){return '<p>'+t+'</p>';}).join('');
+  render('<div class="sec" style="text-align:center">ARCHIVE ROOM — Read the passage</div>'
+    +'<div class="passage-box"><div class="passage-title-d">'+p.title+'</div>'
+    +'<div class="passage-sub">'+p.substep+'</div>'+paras+'</div>'
+    +'<button class="btn-launch" onclick="z6q(0)" style="margin-top:12px">Answer questions →</button>');
+}
+function z6q(qi){
+  var p=PASSAGES[G.passageIdx];
+  if(qi>=p.questions.length){zDone();return;}
+  G.q=qi;var item=p.questions[qi];
+  var ch='';
+  for(var i=0;i<item.opts.length;i++) ch+='<button class="choice" onclick="cz6('+i+')">'+item.opts[i]+'</button>';
+  render('<div class="sec" style="text-align:center">COMPREHENSION — '+(qi+1)+' of '+p.questions.length+'</div>'
+    +'<div class="card" style="font-size:15px;font-weight:700;margin-bottom:10px">'+item.q+'</div>'
+    +'<div class="choices">'+ch+'</div>'
+    +'<div id="g-fb" style="display:none" class="fb"></div>'+scoreBar());
+  _curItem={item:item,qi:qi};
+}
+window.cz6=function(i){
+  var cur=_curItem,item=cur.item,qi=cur.qi;
+  if(i===item.ans){
+    markBtns(i,item.ans,true);
+    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    var fb=document.getElementById('g-fb');fb.style.display='block';fb.className='fb ok';fb.textContent='Correct! ✓';
+    handleComp(true);setTimeout(function(){z6q(qi+1);},800);
+  } else {
+    markBtns(i,item.ans,true);G.streak=0;
+    showErr(item.r,item.opts[item.ans],function(){G.errors.push({q:'Q'+(qi+1),wrong:i,correct:item.opts[item.ans]});z6q(qi+1);});
+  }
+};
+
+// ── ZONE 7 — VAULT ───────────────────────────────────────────────────────────
+function z7(){
+  if(G.q>=G.total){zDone();return;}
+  var item=VAULT_Q[G.q%VAULT_Q.length];
+  var tl=item.t==='base'?'LATIN BASE':item.t==='blend'?'BLEND':'WELDED SOUND';
+  var ch='';
+  for(var i=0;i<item.opts.length;i++) ch+='<button class="choice" onclick="cz7('+i+')">'+item.opts[i]+'</button>';
+  render('<div class="sec" style="text-align:center">THE VAULT — '+tl+' — '+(G.q+1)+' of '+G.total+'</div>'
+    +'<div class="tile-display"><div style="font-size:17px;font-weight:800;text-align:center;padding:8px">'+item.q+'</div></div>'
+    +'<div class="choices">'+ch+'</div>'
+    +'<div id="g-fb" style="display:none" class="fb"></div>'+scoreBar());
+  _curItem=item;
+}
+window.cz7=function(i){
+  var item=_curItem;
+  if(i===item.ans){
+    markBtns(i,item.ans,true);
+    G.score++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    var fb=document.getElementById('g-fb');fb.style.display='block';fb.className='fb ok';fb.textContent='Correct! ✓';
+    handleComp(true);setTimeout(function(){G.q++;cover(z7);},800);
+  } else {
+    markBtns(i,item.ans,true);G.streak=0;
+    showErr(item.r,item.opts[item.ans],function(){G.errors.push({q:item.q,wrong:i,correct:item.opts[item.ans]});G.q++;z7();});
+  }
+};
+
+// ── CONFETTI ─────────────────────────────────────────────────────────────────
+function confetti(){
+  var cv=document.getElementById('confetti'),ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  var p=[],cols=['#00e5a0','#76ff03','#00bcd4','#ffab00','#fff'];
+  for(var i=0;i<90;i++) p.push({x:Math.random()*cv.width,y:-10,r:Math.random()*7+3,c:cols[Math.floor(Math.random()*cols.length)],vx:(Math.random()-.5)*5,vy:Math.random()*4+2,rot:Math.random()*360,vr:(Math.random()-.5)*12});
+  var t=0;
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(var i=0;i<p.length;i++){var q=p[i];ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.rot*Math.PI/180);ctx.fillStyle=q.c;ctx.fillRect(-q.r,-q.r/2,q.r*2,q.r);ctx.restore();q.x+=q.vx;q.y+=q.vy;q.rot+=q.vr;q.vy+=.06;}
+    t++;if(t<140)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+// ── START ─────────────────────────────────────────────────────────────────────
+window.showMap=showMap;
+showMap();
+
+} // end startApp
 </script>
 </body>
 </html>
