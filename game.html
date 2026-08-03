@@ -99,6 +99,9 @@ body{font-family:'Nunito',sans-serif;background:var(--black);color:var(--text);d
 .passage-box p{margin-bottom:14px;color:rgba(224,242,238,.75)}
 .passage-title-d{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;text-align:center;color:var(--green);margin-bottom:4px}
 .passage-sub{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--sub);text-align:center;margin-bottom:16px}
+.ann-word{cursor:pointer;border-radius:3px;padding:1px 1px;transition:all .15s;-webkit-user-select:none;user-select:none;display:inline}
+.ann-word:hover{background:rgba(0,229,160,.15)}
+.ann-word.ann-hl{background:rgba(245,200,66,.35);color:var(--text);border-bottom:2px solid var(--amber);font-weight:800}
 .score-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;min-height:36px}
 .score-badge{font-size:14px;font-weight:800;color:var(--sub)}
 .streak{display:inline-flex;align-items:center;gap:4px;background:var(--lime-lt);border:1px solid rgba(118,255,3,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--lime)}
@@ -646,12 +649,7 @@ function rz2(){
     var pb=item.blends[s];
     for(var pi=0;pi<pb.idx.length;pi++){var el=document.getElementById('sl'+pb.idx[pi]);if(el){el.classList.add('locked');el.onclick=null;}}
   }
-  for(var si=0;si<segs.length;si++){
-    var el2=document.getElementById('sl'+si);
-    if(!el2||el2.classList.contains('locked')) continue;
-    var dim=cb.isWeld?(segs[si].t==='c'||segs[si].t==='v'):segs[si].t==='w';
-    if(dim){el2.classList.add('dimmed');el2.onclick=null;}
-  }
+  // No dimming — student should identify the blend without visual cues
 }
 window.tapL=function(i){
   var item=_curItem,segs=_curSegs;
@@ -804,13 +802,24 @@ window.sOk=function(ok){
 function z6(){
   G.passageIdx=G.sub==='2.5'?1:0;
   var p=PASSAGES[G.passageIdx];
-  var paras=p.text.split('\n\n').map(function(t){return '<p>'+t+'</p>';}).join('');
+  var paras=p.text.split('\n\n').map(function(para){
+    var words=para.split(' ').map(function(w){
+      return '<span class="ann-word" onclick="annWord(this)">'+w+'</span>';
+    }).join(' ');
+    return '<p>'+words+'</p>';
+  }).join('');
   render('<div class="sec" style="text-align:center">ARCHIVE ROOM — Read the passage</div>'
-    +'<div class="passage-box"><div class="passage-title-d">'+p.title+'</div>'
+    +'<div style="font-size:11px;color:var(--sub);text-align:center;margin-bottom:6px">Tap or use pencil to highlight words</div>'
+    +'<div class="passage-box" id="pbox"><div class="passage-title-d">'+p.title+'</div>'
     +'<div class="passage-sub">'+p.substep+'</div>'+paras+'</div>'
-    +'<button class="btn-launch" onclick="z6q(0)" style="margin-top:12px">Answer questions →</button>');
+    +'<button class="btn-launch" id="ans-btn" style="margin-top:12px">Answer questions \u2192</button>');
+  document.getElementById('ans-btn').onclick=function(){ window.z6q(0); };
 }
-function z6q(qi){
+window.annWord=function(el){
+  if(el.classList.contains('ann-hl')) el.classList.remove('ann-hl');
+  else el.classList.add('ann-hl');
+};
+window.z6q=function(qi){
   var p=PASSAGES[G.passageIdx];
   if(qi>=p.questions.length){zDone();return;}
   G.q=qi;var item=p.questions[qi];
@@ -821,7 +830,7 @@ function z6q(qi){
     +'<div class="choices">'+ch+'</div>'
     +'<div id="g-fb" style="display:none" class="fb"></div>'+scoreBar());
   _curItem={item:item,qi:qi};
-}
+};
 window.cz6=function(i){
   var cur=_curItem,item=cur.item,qi=cur.qi;
   if(i===item.ans){
