@@ -189,6 +189,15 @@ input[type=text]:focus{outline:none;border-color:var(--green)}
       </div>
       <div class="mode-check" id="chk-p2p"></div>
     </div>
+
+    <div class="mode-card" id="mode-h2h" onclick="selectMode('h2h')">
+      <div class="mode-icon">⚔️</div>
+      <div class="mode-info">
+        <div class="mode-name">Head to Head</div>
+        <div class="mode-desc">Two devices — real-time toss-up questions via room code</div>
+      </div>
+      <div class="mode-check" id="chk-h2h"></div>
+    </div>
   </div>
 
   <button class="btn-launch" id="start-btn" disabled onclick="launchGame()">🚀 Enter the Lab</button>
@@ -210,7 +219,7 @@ input[type=text]:focus{outline:none;border-color:var(--green)}
   </div>
 
   <button class="btn btn-ghost" style="width:100%;margin-top:4px;font-size:13px;padding:10px" onclick="openPIN()">🔬 Teacher Tools</button>
-  <button class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:13px;padding:10px" onclick="window.open('versus.html','_blank')">⚔️ Head to Head (2 devices)</button>
+  <!-- H2H added as a mode card above -->
 </div>
 
 <div class="toast" id="toast"></div>
@@ -385,7 +394,7 @@ document.getElementById('new-name').addEventListener('keydown', e=>{ if(e.key===
 // ── MODE SELECT ───────────────────────────────────────────────────────────────
 window.selectMode = function(mode){
   selectedMode = mode;
-  ['solo','helix','p2p'].forEach(m=>{
+  ['solo','helix','p2p','h2h'].forEach(m=>{
     document.getElementById('mode-'+m).classList.remove('selected');
     document.getElementById('chk-'+m).textContent='';
     document.getElementById('chk-'+m).style.color='transparent';
@@ -413,6 +422,11 @@ window.selectSS = function(el){
 // ── LAUNCH ────────────────────────────────────────────────────────────────────
 window.launchGame = function(){
   const student = selectedStudent || {id:'guest',name:'Guest',substep:selectedSS,currentZone:1,zones:{}};
+  // Head to Head goes to versus.html directly
+  if(selectedMode==='h2h'){
+    window.location.href='versus.html?host=1';
+    return;
+  }
   if(selectedMode==='p2p'){
     const a1 = document.getElementById('agent1').value.trim() || 'Agent 1';
     const a2 = document.getElementById('agent2').value.trim() || 'Agent 2';
