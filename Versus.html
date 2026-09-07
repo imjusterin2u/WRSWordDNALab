@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Word DNA Lab — Head to Head</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --black:#061412;--dark:#0a1e1a;--dark2:#0d2b22;--dark3:#112e24;
+  --green:#00e5a0;--green-lt:rgba(0,229,160,.12);--green-glow:rgba(0,229,160,.25);
+  --cyan:#00bcd4;--cyan-lt:rgba(0,188,212,.12);
+  --lime:#76ff03;--lime-lt:rgba(118,255,3,.12);
+  --red:#ff5252;--red-lt:rgba(255,82,82,.12);
+  --amber:#ffab00;--amber-lt:rgba(255,171,0,.12);
+  --text:#e0f2ee;--sub:rgba(224,242,238,.45);--border:rgba(0,229,160,.12);
+  --r:14px;--rs:10px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:"Nunito",sans-serif;background:var(--black);color:var(--text);display:flex;flex-direction:column}
+.hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2756%27 height=%27100%27%3E%3Cpath d=%27M28 0 L56 16 L56 50 L28 66 L0 50 L0 16 Z%27 fill=%27none%27 stroke=%27rgba(0,229,160,0.05)%27 stroke-width=%271%27/%3E%3C/svg%3E");background-size:56px 100px}
+.scan-line{position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);z-index:1;animation:scan 8s linear infinite;opacity:.2}
+@keyframes scan{from{top:0}to{top:100vh}}
+#app{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.top-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(6,20,18,.92);border-bottom:1px solid var(--border);flex-shrink:0}
+.top-label{font-family:"Orbitron",monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;opacity:.8}
+.top-name{font-size:15px;font-weight:800;flex:1}
+.score-header{display:flex;align-items:center;background:rgba(6,20,18,.92);border-bottom:1px solid var(--border);flex-shrink:0;display:none}
+.player-score{flex:1;padding:10px 16px;text-align:center}
+.player-score.p1{border-right:1px solid var(--border)}
+.ps-name{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.ps-score{font-size:28px;font-weight:900;color:var(--green)}
+.ps-score.c2{color:var(--cyan)}
+.vs-div{padding:0 12px;font-family:"Orbitron",monospace;font-size:12px;font-weight:700;color:var(--sub)}
+.seq-wrap{padding:5px 16px 7px;background:rgba(6,20,18,.92);flex-shrink:0;border-bottom:1px solid var(--border);display:none}
+.seq-bg{background:rgba(0,229,160,.08);border-radius:2px;height:5px;overflow:hidden}
+.seq-fill{height:5px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .4s}
+.scroll{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+.card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.35}
+.sec{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);opacity:.7;margin-bottom:6px}
+label{font-size:11px;font-weight:700;color:var(--sub);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+select,input[type=text]{background:var(--dark);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:15px;font-family:"Nunito",sans-serif;font-weight:600;color:var(--text);width:100%;margin-bottom:8px;transition:border-color .2s}
+select:focus,input[type=text]:focus{outline:none;border-color:var(--green)}
+.zone-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.zone-btn{background:var(--dark);border:1.5px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center;cursor:pointer;transition:all .2s;font-family:"Nunito",sans-serif}
+.zone-btn:hover{border-color:rgba(0,229,160,.4);background:var(--dark2)}
+.zone-btn.sel{border-color:var(--green);background:var(--green-lt)}
+.zone-icon-s{font-size:20px;margin-bottom:4px}
+.zone-name-s{font-size:12px;font-weight:800;color:var(--text)}
+.btn{font-family:"Nunito",sans-serif;font-weight:800;cursor:pointer;border:none;border-radius:var(--rs);padding:10px 18px;font-size:14px;transition:transform .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{transform:translateY(-2px)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.25)}
+.btn-launch{width:100%;padding:16px;font-size:16px;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061412;border-radius:var(--r);font-family:"Nunito",sans-serif;font-weight:900;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.btn-launch:hover{transform:translateY(-2px)}
+.btn-full{width:100%;padding:14px}
+.room-code{font-family:"Orbitron",monospace;font-size:52px;font-weight:900;color:var(--green);letter-spacing:10px;text-align:center;margin:16px 0;text-shadow:0 0 30px rgba(0,229,160,.4)}
+.wait-dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--border);margin-right:8px;transition:all .3s}
+.wait-dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.choice{padding:16px 18px;border-radius:var(--rs);background:var(--dark2);border:2px solid var(--border);font-size:16px;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s;text-align:left;font-family:"Nunito",sans-serif;width:100%}
+.choice:hover:not(:disabled){border-color:rgba(0,229,160,.4);background:var(--dark3)}
+.choice:disabled{cursor:default}
+.choice.correct{background:var(--green-lt);border-color:var(--green);color:var(--green)}
+.choice.wrong{background:var(--red-lt);border-color:var(--red);color:var(--red)}
+.choice.opp-correct{background:var(--cyan-lt);border-color:var(--cyan);color:var(--cyan)}
+.buzz{text-align:center;padding:14px;border-radius:var(--rs);margin:10px 0;font-weight:800;font-size:15px;border:1px solid transparent}
+.buzz.ok{background:var(--green-lt);color:var(--green);border-color:rgba(0,229,160,.3)}
+.buzz.no{background:var(--red-lt);color:var(--red);border-color:rgba(255,82,82,.3)}
+.buzz.wait{background:var(--amber-lt);color:var(--amber);border-color:rgba(255,171,0,.3)}
+.buzz.opp{background:var(--cyan-lt);color:var(--cyan);border-color:rgba(0,188,212,.3)}
+.results{text-align:center;padding:16px 0}
+.result-title{font-family:"Orbitron",monospace;font-size:18px;font-weight:900;color:var(--green);margin-bottom:4px}
+.result-sub{font-size:13px;color:var(--sub);margin-bottom:18px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.rstat{background:var(--dark2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center}
+.rstat-n{font-size:28px;font-weight:900;color:var(--green)}
+.rstat-n.c2{color:var(--cyan)}
+.rstat-l{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;margin-top:2px}
+.code-input{background:var(--dark);border:2px solid var(--border);border-radius:var(--rs);padding:14px 16px;font-size:32px;font-family:"Orbitron",monospace;font-weight:700;color:var(--green);width:100%;text-align:center;letter-spacing:8px;transition:border-color .2s}
+.code-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-lt)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:300}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="hex-bg"></div>
+<div class="scan-line"></div>
+<div id="app">
+  <div class="top-bar">
+    <div style="flex:1">
+      <div class="top-label" id="tb-label">HEAD TO HEAD</div>
+      <div class="top-name" id="tb-name">Word DNA Lab</div>
+    </div>
+    <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px" onclick="window.location.href='index.html'">Exit</button>
+  </div>
+  <div class="score-header" id="score-header">
+    <div class="player-score p1">
+      <div class="ps-name" id="p1-name">Player 1</div>
+      <div class="ps-score" id="p1-score">0</div>
+    </div>
+    <div class="vs-div">VS</div>
+    <div class="player-score">
+      <div class="ps-name" id="p2-name">Player 2</div>
+      <div class="ps-score c2" id="p2-score">0</div>
+    </div>
+  </div>
+  <div class="seq-wrap" id="seq-wrap">
+    <div class="seq-bg"><div class="seq-fill" id="seq-fill" style="width:0%"></div></div>
+  </div>
+  <div class="scroll" id="scroll"></div>
+</div>
+<script>
+// ── FIREBASE ──────────────────────────────────────────────────────────────────
+var db = null, rdb = null;
+try {
+  firebase.initializeApp({
+    apiKey:"AIzaSyAsMC0OVOWSdho7Dvr1HIt2920vt3Vc5Tk",
+    authDomain:"worddnalab.firebaseapp.com",
+    projectId:"worddnalab",
+    storageBucket:"worddnalab.firebasestorage.app",
+    messagingSenderId:"959229904034",
+    appId:"1:959229904034:web:3e9a8ecf7deaff75afc3fb",
+    databaseURL:"https://worddnalab-default-rtdb.firebaseio.com"
+  });
+  db  = firebase.firestore();
+  rdb = firebase.database();
+} catch(e){ console.warn('Firebase init failed:', e.message); }
+
+// ── URL PARAMS ────────────────────────────────────────────────────────────────
+var params  = new URLSearchParams(window.location.search);
+var IS_HOST = params.get('host') === '1';
+var ROOM    = params.get('room') || null;
+
+// ── QUESTION BANK ─────────────────────────────────────────────────────────────
+var QBank = {
+  1:[
+    {q:'What welded sound ends TRUNK?',  opts:['unk','ink','ang','ong'],  ans:0},
+    {q:'What welded sound ends BRING?',  opts:['ing','ang','unk','ink'],  ans:0},
+    {q:'What welded sound ends BLANK?',  opts:['ank','ink','ong','ung'],  ans:0},
+    {q:'What welded sound ends STRONG?', opts:['ong','ung','ang','ank'],  ans:0},
+    {q:'What welded sound ends THINK?',  opts:['ink','ing','ank','ong'],  ans:0},
+    {q:'What welded sound ends CLANG?',  opts:['ang','ing','ong','unk'],  ans:0},
+    {q:'BLIND — what closed syllable exception?', opts:['ind','old','ost','ild'], ans:0},
+    {q:'COLD — what closed syllable exception?',  opts:['old','ind','olt','ost'], ans:0},
+  ],
+  2:[
+    {q:'What blend starts TRUNK?',  opts:['tr','cl','br','fr'], ans:0},
+    {q:'What blend starts BRING?',  opts:['br','tr','cl','fr'], ans:0},
+    {q:'What blend starts STAND?',  opts:['st','cl','br','dr'], ans:0},
+    {q:'What blend starts CLUMP?',  opts:['cl','bl','fl','sl'], ans:0},
+    {q:'What blend starts DRAFT?',  opts:['dr','br','tr','gr'], ans:0},
+    {q:'What blend starts CRISP?',  opts:['cr','cl','tr','br'], ans:0},
+    {q:'What blend starts BLEND?',  opts:['bl','cl','fl','pl'], ans:0},
+    {q:'What blend starts FROST?',  opts:['fr','tr','cr','gr'], ans:0},
+  ],
+  3:[
+    {q:'What 3-letter blend starts STRAP?',  opts:['str','scr','spr','spl'], ans:0},
+    {q:'What 3-letter blend starts SCRAP?',  opts:['scr','str','spr','spl'], ans:0},
+    {q:'What 3-letter blend starts SPRING?', opts:['spr','str','scr','spl'], ans:0},
+    {q:'What 3-letter blend starts SPLASH?', opts:['spl','spr','str','scr'], ans:0},
+    {q:'What 3-letter blend starts STRONG?', opts:['str','scr','spr','spl'], ans:0},
+    {q:'What 3-letter blend starts SCRUB?',  opts:['scr','str','spl','spr'], ans:0},
+    {q:'What 3-letter blend starts SPRINT?', opts:['spr','spl','str','scr'], ans:0},
+    {q:'What 3-letter blend starts SPLIT?',  opts:['spl','spr','str','scr'], ans:0},
+  ],
+  4:[
+    {q:'What does -rupt- mean?',   opts:['break','send','hang','push'],     ans:0},
+    {q:'What does -mit- mean?',    opts:['send','push','hang','break'],      ans:0},
+    {q:'What does -ject- mean?',   opts:['throw','build','pull','look'],     ans:0},
+    {q:'What does -struct- mean?', opts:['build','cut','throw','feel'],      ans:0},
+    {q:'What does -tract- mean?',  opts:['draw/pull','send','come','hang'],  ans:0},
+    {q:'What does -spect- mean?',  opts:['look/see','build','throw','cut'],  ans:0},
+    {q:'What does -vent- mean?',   opts:['come','hang','push','break'],      ans:0},
+    {q:'What does -dict- mean?',   opts:['say/tell','lead','build','pull'],  ans:0},
+  ],
+  5:[
+    {q:'Which word has a blend: "The bat clung to the branch"?',      opts:['branch','bat','the','to'],      ans:0},
+    {q:'Which word has a 3-letter blend: "He will sprint to class"?', opts:['sprint','will','class','he'],   ans:0},
+    {q:'Which word has a weld: "The trunk fell in the pond"?',         opts:['trunk','fell','pond','the'],    ans:0},
+    {q:'Which word has a blend: "She scrubbed the pot clean"?',        opts:['scrubbed','she','pot','clean'], ans:0},
+    {q:'What blend starts SPRING?',     opts:['spr','str','scr','spl'],      ans:0},
+    {q:'What welded sound ends STRONG?',opts:['ong','ung','ang','ing'],       ans:0},
+    {q:'What does -press- mean?',       opts:['press/push','break','come','hang'], ans:0},
+    {q:'What does -pend- mean?',        opts:['hang','send','break','push'],  ans:0},
+  ],
+  6:[
+    {q:'In "At the Pond" — where did Frank and Ben swim?', opts:['Flax Pond','Blue Lake','Flat Pond','The River'], ans:0},
+    {q:'In "At the Pond" — why did Ben fall?',             opts:['He got a cramp','Skip pulled him','He tripped','He was pushed'], ans:0},
+    {q:'In "Brad's Bad Day" — how did Brad start his day?',opts:['He fell in slush','He missed the bus','He lost his bag','He was late'], ans:0},
+    {q:'In "Brad's Bad Day" — what was Brad's job?',     opts:['He sold prints','He drove a cab','He fixed buses','He taught'], ans:0},
+    {q:'What blend starts BRANCH?',  opts:['br','bl','tr','pr'],  ans:0},
+    {q:'What does -mit- mean?',      opts:['send','break','hang','push'], ans:0},
+    {q:'What welded sound ends TRUNK?', opts:['unk','ink','ang','ong'],   ans:0},
+    {q:'What does -struct- mean?',   opts:['build','cut','throw','feel'], ans:0},
+  ],
+  7:[
+    {q:'What does -rupt- mean?',         opts:['break','send','hang','push'],    ans:0},
+    {q:'What 3-letter blend starts SCRAP?', opts:['scr','str','spr','spl'],      ans:0},
+    {q:'What welded sound ends BRING?',  opts:['ing','ang','unk','ong'],          ans:0},
+    {q:'What does -tract- mean?',        opts:['draw/pull','send','come','hang'], ans:0},
+    {q:'What 3-letter blend starts SPRING?', opts:['spr','str','scr','spl'],     ans:0},
+    {q:'What does -spect- mean?',        opts:['look/see','build','throw','cut'], ans:0},
+    {q:'What welded sound ends CLANG?',  opts:['ang','ing','ank','ong'],          ans:0},
+    {q:'What does -struct- mean?',       opts:['build','cut','throw','feel'],     ans:0},
+  ],
+};
+
+var ZONE_META=[
+  {num:1,icon:'🔓',name:'Lab Unlock'},
+  {num:2,icon:'🔬',name:'The Centrifuge'},
+  {num:3,icon:'⚗️', name:'The Sequencer'},
+  {num:4,icon:'🧫',name:'Sample Storage'},
+  {num:5,icon:'📋',name:'Evidence Board'},
+  {num:6,icon:'📖',name:'Archive Room'},
+  {num:7,icon:'🏆',name:'The Vault'},
+];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+var scrollEl = document.getElementById('scroll');
+function render(h){ scrollEl.innerHTML=h; scrollEl.scrollTop=0; }
+
+function shuffleOpts(opts, ans){
+  var indexed=opts.map(function(o,i){return {o:o,correct:i===ans};});
+  for(var i=indexed.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=indexed[i];indexed[i]=indexed[j];indexed[j]=tmp;}
+  var newAns=0;
+  for(var i=0;i<indexed.length;i++) if(indexed[i].correct){newAns=i;break;}
+  return {opts:indexed.map(function(x){return x.o;}),ans:newAns};
+}
+
+function genCode(){
+  return String(Math.floor(1000+Math.random()*9000));
+}
+
+function updateScoreHeader(p1score, p2score, p1name, p2name, zone, q){
+  document.getElementById('score-header').style.display='flex';
+  document.getElementById('seq-wrap').style.display='block';
+  if(p1name) document.getElementById('p1-name').textContent=p1name;
+  if(p2name) document.getElementById('p2-name').textContent=p2name;
+  document.getElementById('p1-score').textContent=p1score||0;
+  document.getElementById('p2-score').textContent=p2score||0;
+  document.getElementById('tb-label').textContent='Zone '+(zone||1)+' of 7';
+  document.getElementById('tb-name').textContent=ZONE_META[(zone||1)-1].icon+' '+ZONE_META[(zone||1)-1].name;
+  document.getElementById('seq-fill').style.width=((q||0)/8*100)+'%';
+}
+
+function confetti(){
+  var cv=document.getElementById('confetti'),ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  var p=[],cols=['#00e5a0','#76ff03','#00bcd4','#ffab00','#fff'];
+  for(var i=0;i<90;i++) p.push({x:Math.random()*cv.width,y:-10,r:Math.random()*7+3,c:cols[Math.floor(Math.random()*cols.length)],vx:(Math.random()-.5)*5,vy:Math.random()*4+2,rot:Math.random()*360,vr:(Math.random()-.5)*12});
+  var t=0;
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(var i=0;i<p.length;i++){var q=p[i];ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.rot*Math.PI/180);ctx.fillStyle=q.c;ctx.fillRect(-q.r,-q.r/2,q.r*2,q.r);ctx.restore();q.x+=q.vx;q.y+=q.vy;q.rot+=q.vr;q.vy+=.06;}
+    t++;if(t<140)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+// ── GAME STATE ────────────────────────────────────────────────────────────────
+var S = {
+  code:null, zone:1, myName:'', oppName:'',
+  myNum:1, // 1 or 2
+  myScore:0, oppScore:0,
+  q:0, total:8,
+  questions:[], answered:false, unsubscribe:null,
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+if(ROOM){
+  // Joining an existing room as Player 2
+  S.code = ROOM;
+  S.myNum = IS_HOST ? 1 : 2;
+  showJoinScreen();
+} else {
+  // Host setup
+  showSetup();
+}
+
+// ── SETUP (HOST) ──────────────────────────────────────────────────────────────
+function showSetup(){
+  var zbtns='';
+  for(var i=0;i<ZONE_META.length;i++){
+    var z=ZONE_META[i];
+    zbtns+='<div class="zone-btn'+(i===0?' sel':'')+'" id="zb'+z.num+'" onclick="selZone('+z.num+')">'
+      +'<div class="zone-icon-s">'+z.icon+'</div>'
+      +'<div class="zone-name-s">'+z.name+'</div></div>';
+  }
+  render('<div style="padding:4px 0 16px">'
+    +'<div style="font-size:32px;text-align:center;margin-bottom:8px;filter:drop-shadow(0 0 16px var(--green))">⚔️</div>'
+    +'<div style="font-family:Orbitron,monospace;font-size:11px;color:var(--green);text-align:center;letter-spacing:2px;margin-bottom:16px">HEAD TO HEAD — SETUP</div>'
+    +'<div class="card"><div class="sec">Your name (this device)</div>'
+    +'<input type="text" id="p1name" placeholder="Your name" value="'+(sessionStorage.getItem('wdl_h2h_name')||'')+'"></div>'
+    +'<div class="card"><div class="sec">Opponent name (second device)</div>'
+    +'<input type="text" id="p2name" placeholder="Opponent name"></div>'
+    +'<div class="card"><div class="sec">Choose zone</div>'
+    +'<div class="zone-grid">'+zbtns+'</div></div>'
+    +'<button class="btn-launch" onclick="createRoom()">⚔️ Create Room</button>'
+    +'</div>');
+  window._selZone=1;
+}
+
+window.selZone=function(n){
+  window._selZone=n;
+  for(var i=1;i<=7;i++){var el=document.getElementById('zb'+i);if(el)el.classList.remove('sel');}
+  var el=document.getElementById('zb'+n);if(el) el.classList.add('sel');
+};
+
+window.createRoom=function(){
+  var p1=document.getElementById('p1name').value.trim()||'Player 1';
+  var p2=document.getElementById('p2name').value.trim()||'Player 2';
+  var zone=window._selZone||1;
+  var code=genCode();
+  S.code=code; S.zone=zone; S.myName=p1; S.oppName=p2; S.myNum=1;
+  S.questions=buildQuestions(zone);
+  if(p1) try{sessionStorage.setItem('wdl_h2h_name',p1);}catch(e){}
+  // Write room to Realtime Database
+  if(!rdb){alert('Database not available. Check connection.');return;}
+  var roomRef=rdb.ref('rooms/'+code);
+  roomRef.set({
+    status:'waiting', zone:zone,
+    p1:{name:p1,score:0,answer:null,correct:null,at:null},
+    p2:{name:p2,score:0,answer:null,correct:null,at:null},
+    q:0, total:8,
+    questions:S.questions.map(function(q){return {q:q.q,opts:q.opts,ans:q.ans};}),
+  }).then(function(){
+    showWaiting(code,p1,p2,zone);
+    listenRoom(code);
+  }).catch(function(e){alert('Could not create room: '+e.message);});
+};
+
+function buildQuestions(zone){
+  var bank=QBank[zone]||QBank[7];
+  // Shuffle question order and randomize each question's options
+  var shuffled=bank.slice().sort(function(){return Math.random()-.5;});
+  return shuffled.map(function(item){
+    var s=shuffleOpts(item.opts,item.ans);
+    return {q:item.q,opts:s.opts,ans:s.ans};
+  });
+}
+
+// ── WAITING SCREEN (HOST) ─────────────────────────────────────────────────────
+function showWaiting(code,p1,p2,zone){
+  var joinUrl=window.location.origin+window.location.pathname+'?room='+code+'&host=0';
+  render('<div style="text-align:center;padding:20px 0">'
+    +'<div style="font-family:Orbitron,monospace;font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:8px">ROOM CREATED</div>'
+    +'<div style="font-size:14px;color:var(--sub);margin-bottom:4px">Share this code with your opponent:</div>'
+    +'<div class="room-code">'+code+'</div>'
+    +'<div style="font-size:13px;color:var(--sub);margin-bottom:20px">Or share the link:<br>'
+    +'<span style="color:var(--green);font-size:11px;word-break:break-all">'+joinUrl+'</span></div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;align-items:center">'
+    +'<div><span class="wait-dot on"></span><b>'+p1+'</b> — connected</div>'
+    +'<div><span class="wait-dot" id="opp-dot"></span><span id="opp-wait">'+p2+'</span> — waiting...</div>'
+    +'</div>'
+    +'<div style="font-size:12px;color:var(--sub);margin-top:16px">Zone: '+ZONE_META[zone-1].icon+' '+ZONE_META[zone-1].name+'</div>'
+    +'</div>');
+}
+
+// ── JOIN SCREEN (GUEST) ───────────────────────────────────────────────────────
+function showJoinScreen(){
+  if(!rdb){render('<div style="padding:32px;text-align:center;color:var(--red)">Database unavailable.</div>');return;}
+  // Check room exists
+  rdb.ref('rooms/'+S.code).once('value').then(function(snap){
+    if(!snap.exists()||!snap.val()){
+      render('<div style="padding:32px;text-align:center">'
+        +'<div style="font-size:40px;margin-bottom:12px">❌</div>'
+        +'<div style="font-size:16px;font-weight:700;margin-bottom:8px">Room not found</div>'
+        +'<div style="font-size:14px;color:var(--sub);margin-bottom:20px">Room '+S.code+' does not exist or has expired.</div>'
+        +'<button class="btn-launch" onclick="window.location.href='versus.html'">Try again</button>'
+        +'</div>');
+      return;
+    }
+    var data=snap.val();
+    S.zone=data.zone||1;
+    S.oppName=data.p1?data.p1.name:'Player 1';
+    var savedName=sessionStorage.getItem('wdl_h2h_name')||'';
+    render('<div style="padding:20px 0;text-align:center">'
+      +'<div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 0 16px var(--green))">⚔️</div>'
+      +'<div style="font-family:Orbitron,monospace;font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:16px">JOINING ROOM '+S.code+'</div>'
+      +'<div style="text-align:left;max-width:320px;margin:0 auto">'
+      +'<div class="card"><label>Your name</label>'
+      +'<input type="text" id="join-name" value="'+(data.p2?data.p2.name:savedName)+'" placeholder="Your name">'
+      +'</div></div>'
+      +'<button class="btn-launch" style="max-width:320px;margin:0 auto" onclick="confirmJoin()">Join Room</button>'
+      +'</div>');
+  }).catch(function(e){
+    render('<div style="padding:32px;text-align:center;color:var(--red)">Error: '+e.message+'</div>');
+  });
+}
+
+window.confirmJoin=function(){
+  var name=document.getElementById('join-name').value.trim()||'Player 2';
+  S.myName=name; S.myNum=2;
+  try{sessionStorage.setItem('wdl_h2h_name',name);}catch(e){}
+  rdb.ref('rooms/'+S.code+'/p2/name').set(name);
+  rdb.ref('rooms/'+S.code+'/p2/ready').set(true);
+  render('<div style="padding:40px 16px;text-align:center">'
+    +'<div style="font-size:48px;margin-bottom:12px;filter:drop-shadow(0 0 20px var(--green))">🔬</div>'
+    +'<div style="font-family:Orbitron,monospace;font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:8px">CONNECTED</div>'
+    +'<div style="font-size:14px;color:var(--sub)">Waiting for host to start...</div>'
+    +'</div>');
+  listenRoom(S.code);
+};
+
+// ── LISTEN TO ROOM ────────────────────────────────────────────────────────────
+function listenRoom(code){
+  if(S.unsubscribe) S.unsubscribe();
+  var ref=rdb.ref('rooms/'+code);
+  var handler=ref.on('value',function(snap){
+    var data=snap.val();
+    if(!data) return;
+    // Store full questions on first load
+    if(data.questions&&!S.questions.length){
+      S.questions=data.questions;
+    }
+    // Update names
+    if(data.p1&&data.p1.name) S.myNum===1?(S.myName=data.p1.name):(S.oppName=data.p1.name);
+    if(data.p2&&data.p2.name) S.myNum===2?(S.myName=data.p2.name):(S.oppName=data.p2.name);
+    var myKey='p'+S.myNum;
+    var oppKey=S.myNum===1?'p2':'p1';
+    var myD=data[myKey]||{};
+    var oppD=data[oppKey]||{};
+    S.myScore=myD.score||0;
+    S.oppScore=oppD.score||0;
+    // Opponent joined — host can start
+    if(IS_HOST&&data.status==='waiting'&&data.p2&&data.p2.ready){
+      var dot=document.getElementById('opp-dot');
+      var wait=document.getElementById('opp-wait');
+      if(dot) dot.classList.add('on');
+      if(wait) wait.textContent=(data.p2.name||S.oppName)+' — connected!';
+      // Start game after brief delay
+      setTimeout(function(){
+        rdb.ref('rooms/'+code).update({status:'active',q:0});
+      },1500);
+      return;
+    }
+    if(data.status==='active'){
+      renderQuestion(data);
+    } else if(data.status==='complete'){
+      showResults(data);
+    }
+  });
+  S.unsubscribe=function(){ ref.off('value',handler); };
+}
+
+// ── RENDER QUESTION ───────────────────────────────────────────────────────────
+function renderQuestion(data){
+  var qi=data.q||0;
+  if(qi>=S.total){ return; }
+  S.q=qi; S.answered=false;
+  var myKey='p'+S.myNum;
+  var oppKey=S.myNum===1?'p2':'p1';
+  var myD=data[myKey]||{};
+  var oppD=data[oppKey]||{};
+  var myName=S.myNum===1?(data.p1&&data.p1.name||S.myName):(data.p2&&data.p2.name||S.myName);
+  var oppName=S.myNum===1?(data.p2&&data.p2.name||S.oppName):(data.p1&&data.p1.name||S.oppName);
+  updateScoreHeader(S.myScore,S.oppScore,myName,oppName,data.zone||S.zone,qi);
+  // If both answered, show result
+  if(myD.answer!=null&&oppD.answer!=null){
+    showQuestionResult(data,myD,oppD);
+    return;
+  }
+  // If I already answered
+  if(myD.answer!=null){ S.answered=true; }
+  var questions=S.questions.length?S.questions:(QBank[data.zone||1]||QBank[7]);
+  var item=questions[qi%questions.length];
+  if(!item) return;
+  var ch='';
+  for(var i=0;i<item.opts.length;i++) ch+='<button class="choice" id="ch'+i+'" onclick="buzz('+i+')" '+(S.answered?'disabled':'')+'>'+item.opts[i]+'</button>';
+  render('<div class="sec" style="text-align:center">TOSS-UP — Question '+(qi+1)+' of '+S.total+'</div>'
+    +'<div style="font-size:16px;font-weight:800;text-align:center;padding:16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);margin-bottom:12px">'+item.q+'</div>'
+    +'<div class="choices">'+ch+'</div>'
+    +'<div id="bz-fb" style="display:none" class="buzz"></div>'
+    +'<div style="font-size:12px;color:var(--sub);text-align:center;margin-top:10px" id="opp-status">'
+    +(oppD.answer!=null?oppName+' has answered — buzz in!':'')
+    +'</div>');
+  if(S.answered){
+    var fb=document.getElementById('bz-fb');
+    if(fb){fb.style.display='block';fb.className='buzz wait';fb.textContent='Waiting for '+oppName+'...';}
+  }
+}
+
+// ── BUZZ IN ───────────────────────────────────────────────────────────────────
+window.buzz=function(i){
+  if(S.answered) return;
+  S.answered=true;
+  var questions=S.questions.length?S.questions:(QBank[S.zone]||QBank[7]);
+  var item=questions[S.q%questions.length];
+  var isCorrect=i===item.ans;
+  // Disable all buttons
+  var bs=document.querySelectorAll('.choice');
+  for(var j=0;j<bs.length;j++) bs[j].disabled=true;
+  var btn=document.getElementById('ch'+i);
+  if(btn) btn.classList.add(isCorrect?'correct':'wrong');
+  var fb=document.getElementById('bz-fb');
+  if(fb){
+    fb.style.display='block';
+    fb.className='buzz '+(isCorrect?'ok':'no');
+    fb.textContent=isCorrect?'Correct! Waiting for opponent...':'Wrong — waiting for opponent...';
+  }
+  // Submit to Firebase
+  if(rdb){
+    var pKey='p'+S.myNum;
+    var upd={};
+    upd['rooms/'+S.code+'/'+pKey+'/answer']=i;
+    upd['rooms/'+S.code+'/'+pKey+'/correct']=isCorrect;
+    upd['rooms/'+S.code+'/'+pKey+'/at']=Date.now();
+    rdb.ref().update(upd);
+  }
+};
+
+// ── QUESTION RESULT ───────────────────────────────────────────────────────────
+function showQuestionResult(data,myD,oppD){
+  var qi=data.q||0;
+  var questions=S.questions.length?S.questions:(QBank[data.zone||1]||QBank[7]);
+  var item=questions[qi%questions.length];
+  var myKey='p'+S.myNum;
+  var oppKey=S.myNum===1?'p2':'p1';
+  var myName=S.myNum===1?(data.p1&&data.p1.name||S.myName):(data.p2&&data.p2.name||S.myName);
+  var oppName=S.myNum===1?(data.p2&&data.p2.name||S.oppName):(data.p1&&data.p1.name||S.oppName);
+  // Who gets the point?
+  var myOk=myD.correct, oppOk=oppD.correct;
+  var myFirst=(myD.at||Infinity)<(oppD.at||Infinity);
+  var winner=myOk&&oppOk?(myFirst?'me':'opp'):myOk?'me':oppOk?'opp':null;
+  // Award point — only host writes to avoid race condition
+  if(IS_HOST&&winner){
+    var scoringKey=winner==='me'?('rooms/'+S.code+'/p1/score'):('rooms/'+S.code+'/p2/score');
+    var currentScore=winner==='me'?(data.p1&&data.p1.score||0):(data.p2&&data.p2.score||0);
+    rdb.ref(scoringKey).set(currentScore+1);
+  }
+  // Render result
+  var ch='';
+  for(var i=0;i<item.opts.length;i++){
+    var cls=i===item.ans?'correct':'';
+    ch+='<button class="choice '+cls+'" disabled>'+item.opts[i]+'</button>';
+  }
+  var fbMsg='',fbCls='';
+  if(winner==='me'){fbMsg='🏆 You got the point!';fbCls='buzz ok';if(winner==='me')confetti();}
+  else if(winner==='opp'){fbMsg=oppName+' got the point.';fbCls='buzz opp';}
+  else{fbMsg='Neither player answered correctly — no point awarded.';fbCls='buzz wait';}
+  render('<div class="sec" style="text-align:center">TOSS-UP — Question '+(qi+1)+' of '+S.total+'</div>'
+    +'<div style="font-size:16px;font-weight:800;text-align:center;padding:16px;background:var(--dark2);border-radius:var(--r);border:1px solid var(--border);margin-bottom:12px">'+item.q+'</div>'
+    +'<div class="choices">'+ch+'</div>'
+    +'<div class="'+fbCls+'" style="margin-top:10px">'+fbMsg+'</div>'
+    +(IS_HOST?'<button class="btn-launch" style="margin-top:12px" onclick="nextQ()">Next question →</button>'
+    :'<div style="font-size:13px;color:var(--sub);text-align:center;margin-top:12px">Waiting for host...</div>'));
+}
+
+// ── NEXT QUESTION ─────────────────────────────────────────────────────────────
+window.nextQ=function(){
+  if(!IS_HOST) return;
+  var nextQi=(S.q||0)+1;
+  if(nextQi>=S.total){
+    rdb.ref('rooms/'+S.code).update({
+      status:'complete',
+      'p1/answer':null,'p1/correct':null,'p1/at':null,
+      'p2/answer':null,'p2/correct':null,'p2/at':null,
+    });
+    return;
+  }
+  rdb.ref('rooms/'+S.code).update({
+    q:nextQi,
+    'p1/answer':null,'p1/correct':null,'p1/at':null,
+    'p2/answer':null,'p2/correct':null,'p2/at':null,
+  });
+};
+
+// ── JOIN BY CODE (no URL params) ──────────────────────────────────────────────
+window.joinByCode=function(){
+  var code=document.getElementById('join-code-input').value.trim();
+  if(code.length!==4){alert('Enter a 4-digit room code');return;}
+  window.location.href='versus.html?room='+code+'&host=0';
+};
+
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function showResults(data){
+  if(S.unsubscribe){S.unsubscribe();S.unsubscribe=null;}
+  document.getElementById('score-header').style.display='none';
+  var p1s=data.p1?data.p1.score||0:0;
+  var p2s=data.p2?data.p2.score||0:0;
+  var myScore=S.myNum===1?p1s:p2s;
+  var oppScore=S.myNum===1?p2s:p1s;
+  var myName=S.myNum===1?(data.p1&&data.p1.name||S.myName):(data.p2&&data.p2.name||S.myName);
+  var oppName=S.myNum===1?(data.p2&&data.p2.name||S.oppName):(data.p1&&data.p1.name||S.oppName);
+  var won=myScore>oppScore, tied=myScore===oppScore;
+  if(won) confetti();
+  render('<div class="results">'
+    +'<div style="font-size:60px;margin-bottom:10px;filter:drop-shadow(0 0 20px var(--green))">'+(won?'🏆':tied?'🤝':'🧬')+'</div>'
+    +'<div class="result-title">'+(won?'Zone secured!':tied?'Tie — zone contested!':'Zone lost!')+'</div>'
+    +'<div class="result-sub">'+myName+' vs '+oppName+' · Zone '+ZONE_META[(data.zone||1)-1].name+'</div>'
+    +'<div class="result-grid">'
+    +'<div class="rstat"><div class="rstat-n">'+myScore+'</div><div class="rstat-l">'+myName+'</div></div>'
+    +'<div class="rstat"><div class="rstat-n c2">'+oppScore+'</div><div class="rstat-l">'+oppName+'</div></div>'
+    +'</div>'
+    +(IS_HOST?'<button class="btn-launch" onclick="playAgain()">Play again</button>':'<div style="font-size:14px;color:var(--sub)">Waiting for host to replay...</div>')
+    +'<button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="window.location.href='index.html'">Home</button>'
+    +'</div>');
+  // Clean up room after 60s
+  if(IS_HOST) setTimeout(function(){if(rdb)rdb.ref('rooms/'+S.code).remove();},60000);
+}
+
+window.playAgain=function(){
+  if(!IS_HOST) return;
+  S.questions=buildQuestions(S.zone);
+  rdb.ref('rooms/'+S.code).update({
+    status:'active',q:0,
+    questions:S.questions.map(function(q){return {q:q.q,opts:q.opts,ans:q.ans};}),
+    'p1/score':0,'p1/answer':null,'p1/correct':null,'p1/at':null,
+    'p2/score':0,'p2/answer':null,'p2/correct':null,'p2/at':null,
+  });
+};
+
+// If no room code and not host — show join screen
+if(!ROOM&&!IS_HOST){
+  render('<div style="padding:20px 0;text-align:center">'
+    +'<div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 0 16px var(--green))">⚔️</div>'
+    +'<div style="font-family:Orbitron,monospace;font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:20px">JOIN A ROOM</div>'
+    +'<div style="max-width:280px;margin:0 auto">'
+    +'<input class="code-input" type="number" id="join-code-input" placeholder="0000" maxlength="4">'
+    +'<button class="btn-launch" style="margin-top:12px" onclick="joinByCode()">Join Room</button>'
+    +'<button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="window.location.href='versus.html?host=1'">Create a room instead</button>'
+    +'</div></div>');
+}
+</script>
+</body>
+</html>
