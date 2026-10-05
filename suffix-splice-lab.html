@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suffix Splice Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1f17; --panel:#123327; --panel2:#1a4434; --line:#2b5a46;
+  --ink:#f4fbf6; --muted:#b4d3c1; --accent:#0DB14B; --accent2:#B4D38C;
+  --tile:#f5df4d; --tileEdge:#b9a52b; --tileInk:#1b1b1b;
+  --good:#5ee08a; --bad:#ff8a7a; --circle:#d9480f; --under:#046A38;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(circle at 20% 0%,#16402f,var(--bg) 60%) fixed;color:var(--ink);
+  font-family:Lexend,system-ui,sans-serif;min-height:100vh;font-size:18px;line-height:1.4}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.logo{font-weight:800;font-size:20px;letter-spacing:.3px}
+.logo span{color:var(--accent)}
+.spacer{flex:1}
+.pill{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;white-space:nowrap}
+.iconbtn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:6px 12px;font-size:16px}
+
+main{max-width:980px;margin:0 auto;padding:16px}
+
+/* Dr. Helix */
+.helix{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:16px}
+.avatar{flex:none;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#046A38);display:grid;place-items:center;font-size:30px;box-shadow:0 0 0 3px rgba(13,177,75,.35)}
+.helix .who{font-weight:800;color:var(--accent2);font-size:15px}
+.helix .say{font-size:20px}
+.helix.pulse{animation:pulse .5s}
+@keyframes pulse{50%{transform:scale(1.015)}}
+
+/* cards / buttons */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px}
+.btn{border:none;border-radius:14px;padding:14px 22px;font-size:20px;font-weight:800;background:var(--accent);color:#04140c;box-shadow:0 4px 0 #067a33}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #067a33}
+.btn.ghost{background:var(--panel2);color:var(--ink);box-shadow:0 4px 0 #0c2a1f;border:1px solid var(--line)}
+.btn.bad{background:#ffb4a8;color:#3a0d06;box-shadow:0 4px 0 #b55a4d}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center}
+.center{text-align:center}
+h1{font-size:clamp(30px,6vw,46px);margin:.2em 0}
+h2{margin:.2em 0 .4em}
+.muted{color:var(--muted)}
+
+/* title */
+.titleCard{text-align:center;padding:28px 20px}
+.titleCard input{font:inherit;font-size:22px;padding:12px 16px;border-radius:12px;border:2px solid var(--line);background:#0e2a1f;color:var(--ink);width:min(320px,100%);text-align:center}
+.note{font-size:15px;color:var(--muted);max-width:560px;margin:14px auto 0}
+
+/* map */
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.zone{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:16px;text-align:left;color:var(--ink);display:flex;gap:14px;align-items:center;font-size:18px}
+.zone:hover{border-color:var(--accent)}
+.zone .ic{font-size:36px}
+.zone .nm{font-weight:800;font-size:20px}
+.zone .ds{color:var(--muted);font-size:15px}
+.zone .num{color:var(--accent2);font-size:13px;font-weight:800;letter-spacing:1px}
+.zone.done{border-color:var(--accent);background:linear-gradient(135deg,#14402e,#123327)}
+.zone .chk{margin-left:auto;font-size:26px}
+
+/* zone header */
+.zhead{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.zhead h2{margin:0;font-size:24px}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.dot.on{background:var(--accent)}
+.dot.cur{background:var(--tile)}
+
+/* tiles */
+.tile{display:inline-block;background:var(--tile);color:var(--tileInk);border-radius:12px;padding:.12em .45em;font-weight:800;
+  font-size:clamp(30px,6vw,52px);box-shadow:0 5px 0 var(--tileEdge);line-height:1.2}
+.basecard{display:inline-block;background:#fff;color:#1b1b1b;border-radius:12px;padding:.12em .5em;font-weight:800;
+  font-size:clamp(30px,6vw,52px);box-shadow:0 5px 0 #9aa8a0;line-height:1.2}
+.tile.sm,.basecard.sm{font-size:22px;padding:.1em .35em;box-shadow:0 3px 0 var(--tileEdge);border-radius:8px}
+.build{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:110px;margin:10px 0 6px}
+.flyin{animation:flyin .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes flyin{from{transform:translateX(120px) scale(.5);opacity:0}}
+.flyleft{animation:flyleft .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes flyleft{from{transform:translateX(-120px) scale(.5);opacity:0}}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.pop{animation:popin .35s}
+@keyframes popin{from{transform:scale(.6);opacity:0}}
+
+/* sort */
+.sortWrap{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:14px;align-items:stretch}
+.tube{background:#0e2a1f;border:3px solid var(--line);border-radius:22px 22px 40px 40px;padding:12px;display:flex;flex-direction:column;min-height:300px}
+.tubeLabel{text-align:center;font-weight:800;font-size:18px;margin-bottom:8px}
+.tubeLabel small{display:block;font-weight:400;color:var(--muted);font-size:14px}
+.tubeFill{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-content:flex-end;flex:1}
+.sortCenter{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.choice{font-size:22px;font-weight:800;border:none;border-radius:16px;padding:16px 18px;min-width:150px;color:#04140c}
+.choice.v{background:#ffb08f;box-shadow:0 5px 0 #b86b4c}
+.choice.c{background:#9fd8ff;box-shadow:0 5px 0 #4f8fb8}
+.choice:active{transform:translateY(3px)}
+@media (max-width:700px){
+  .sortWrap{grid-template-columns:1fr 1fr}
+  .sortCenter{grid-column:1 / -1;order:-1}
+  .tube{min-height:180px}
+}
+
+/* teacher controls */
+.prompt{font-size:22px;font-weight:600;text-align:center;margin:10px 0}
+.prompt b{color:var(--tile)}
+.teacher{margin-top:14px;padding:12px;border:2px dashed var(--line);border-radius:16px}
+.teacher .lbl{font-size:13px;letter-spacing:1px;color:var(--muted);text-align:center;margin-bottom:8px;font-weight:800}
+.chip{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 14px;font-size:15px}
+
+/* specimen slide (marking) */
+.slide{background:#fffdf5;color:#1b1b1b;border-radius:16px;padding:22px 14px;margin:8px auto;max-width:720px;text-align:center;box-shadow:0 6px 0 #c9c3a8}
+.letters{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:2px}
+.lt{font-size:clamp(34px,7vw,60px);font-weight:800;border:none;background:transparent;color:#1b1b1b;padding:4px 6px;border-radius:10px;min-width:.9em}
+.lt:hover{background:#efe8c8}
+.lt.picked{background:#ffe9a8}
+.marked{font-size:clamp(34px,7vw,60px);font-weight:800;display:inline-flex;align-items:baseline;gap:2px}
+.mk-base{text-decoration:underline;text-decoration-color:var(--under);text-decoration-thickness:5px;text-underline-offset:10px}
+.mk-aff{border:4px solid var(--circle);border-radius:999px;padding:0 .18em;margin:0 .05em}
+
+/* facts */
+.fact{font-size:22px;text-align:center;max-width:700px;margin:0 auto}
+.fact .big{font-size:clamp(28px,5vw,40px);font-weight:800;margin:10px 0}
+.opts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.opt{font-size:26px;font-weight:800;background:#fff;color:#1b1b1b;border:none;border-radius:14px;padding:12px 22px;box-shadow:0 5px 0 #9aa8a0;min-width:120px}
+.opt.right{background:var(--good)}
+.opt.wrong{background:#ffb4a8}
+
+/* defense */
+.arena{position:relative;height:min(58vh,460px);background:linear-gradient(#0e2a1f,#08170f);border:3px solid var(--line);border-radius:20px;overflow:hidden}
+.faller{position:absolute;left:50%;transform:translateX(-50%);top:0;background:#fff;color:#1b1b1b;font-weight:800;font-size:clamp(28px,5vw,42px);
+  padding:.1em .5em;border-radius:12px;box-shadow:0 0 0 4px rgba(245,223,77,.6),0 6px 20px rgba(0,0,0,.4);white-space:nowrap}
+.ground{position:absolute;left:0;right:0;bottom:0;height:10px;background:repeating-linear-gradient(90deg,var(--accent) 0 20px,#046A38 20px 40px)}
+.blast{position:absolute;left:50%;transform:translate(-50%,-50%);font-size:60px;animation:boom .6s forwards;pointer-events:none}
+@keyframes boom{to{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
+.flash{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);background:rgba(0,0,0,.6);border-radius:16px;padding:10px 18px;font-size:26px;font-weight:800;text-align:center}
+.shields{font-size:26px;letter-spacing:4px}
+.cannons{display:flex;gap:14px;justify-content:center;margin-top:14px}
+.cannons .choice{flex:1;max-width:320px;font-size:24px;padding:20px}
+.keys{font-size:13px;color:var(--muted);text-align:center;margin-top:6px}
+
+/* results */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.stat{background:var(--panel2);border-radius:14px;padding:12px 14px}
+.stat .v{font-size:28px;font-weight:800;color:var(--accent2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo">🧬 Suffix <span>Splice</span> Lab</div>
+  <div class="spacer"></div>
+  <div class="pill" id="who" title="Scientist">—</div>
+  <div class="pill" id="strands" title="Strands stabilized on the first try">🧬 0</div>
+  <button class="iconbtn" id="mapBtn" title="Lab map">🗺️ Map</button>
+  <button class="iconbtn" id="soundBtn" title="Sound on/off">🔊</button>
+</div>
+
+<main>
+  <div class="helix" id="helix">
+    <div class="avatar">🧬</div>
+    <div><div class="who">DR. HELIX</div><div class="say" id="helixText"></div></div>
+  </div>
+  <div id="view"></div>
+</main>
+
+<script>
+/* ================= DATA (WRS Substep 6.1) ================= */
+// Suffix type: v = vowel suffix, c = consonant suffix
+const SUF_TYPE = {ed:'v',es:'v',ing:'v',ive:'v',y:'v',able:'v',en:'v',er:'v',est:'v',ish:'v',or:'v',
+                  s:'c',ful:'c',less:'c',ly:'c',ment:'c',ness:'c',ty:'c'};
+const SORT_REVIEW = ['es','ed','ing','ive','s'];
+const SORT_NEW = ['able','en','er','est','ish','or','y','ful','less','ly','ment','ness','ty'];
+
+// Zone 3: base word + suffix (unchanging base words only)
+const SPLICE = [
+  ['bug','s'],['quick','er'],['quick','est'],['quick','ly'],
+  ['use','ful'],['rest','less'],['complete','ly'],['develop','ment'],
+  ['sad','ness'],['novel','ty'],['depend','able'],['fall','en'],
+  ['travel','er'],['child','ish'],['direct','or'],['rock','y']
+];
+// Zone 4: mark the specimen
+const MARK = [
+  ['brave','ly'],['help','less'],['kind','ness'],['old','er'],['luck','y'],['gold','en'],
+  ['invest','ment'],['aware','ness'],['self','ish'],['safe','ty'],['visit','or'],['small','est'],
+  ['wire','less'],['absolute','ly']
+];
+// Zone 5: prefix + base + suffix
+const MUTATE = [
+  ['un','wise','ly'],['dis','establish','ment'],['sub','contract','or'],['un','like','ly'],
+  ['un','just','ly'],['un','even','ly'],['dis','respect','ful'],['re','fund','able'],
+  ['dis','content','ment'],['un','predict','able']
+];
+// Zone 6: defense pool
+const DEFENSE_POOL = [
+  ...SPLICE.filter(w=>w[1]!=='s'), ...MARK,
+  ['lock','er'],['fact','or'],['end','less'],['equip','ment'],['ill','ness'],['dust','y'],
+  ['long','er'],['predict','able'],['silent','ly'],['edit','or'],['punish','ment'],['sudden','ly']
+];
+
+const FACTS = [
+  {title:'The -ful gene',
+   fact:`The suffix <span class="tile sm">-ful</span> has <b>ONE</b> l.<br>The word <b>full</b> has two.`,
+   qs:[{q:'Spell it: help + ful', o:['helpful','helpfull'], a:'helpful',
+        why:'Suffix -ful only has one l.'},
+       {q:'Spell it: use + ful', o:['usefull','useful'], a:'useful',
+        why:'Remember: -ful, one l.'}]},
+  {title:'The -able gene',
+   fact:`The word <b>able</b> says <b>/ā bl/</b>.<br>The suffix <span class="tile sm">-able</span> is not stressed. It says <b>/ə bl/</b>.`,
+   qs:[{q:'depend + able. The suffix sounds like…', o:['/ə bl/','/ā bl/'], a:'/ə bl/',
+        why:'As a suffix, -able is unstressed: /ə bl/.'}]},
+  {title:'The -y gene',
+   fact:`When <span class="tile sm">-y</span> is a suffix, it <b>always</b> says <b>/ē/</b>.<br>And -y is a <b>vowel</b> suffix.`,
+   qs:[{q:'rock + y = rocky. The y says…', o:['/ē/','/ī/','/y/'], a:'/ē/',
+        why:'Y as a suffix always says /ē/.'},
+       {q:'Is -y a vowel or consonant suffix?', o:['vowel','consonant'], a:'vowel',
+        why:'As a suffix, y acts as a vowel.'}]},
+  {title:'The bonus-s genes',
+   fact:`<span class="tile sm">-less</span> and <span class="tile sm">-ness</span> each get a <b>bonus s</b>.<br>Two s's at the end!`,
+   qs:[{q:'end + less', o:['endles','endless'], a:'endless', why:'-less has a bonus s.'},
+       {q:'sad + ness', o:['sadness','sadnes'], a:'sadness', why:'-ness has a bonus s.'}]}
+];
+
+const ZONES = [
+  {id:'sort',   icon:'🧪', name:'Gene Sort',          desc:'Vowel suffix or consonant suffix?'},
+  {id:'facts',  icon:'🔬', name:'Gene Facts',         desc:'Four tricky suffix rules'},
+  {id:'splice', icon:'🧬', name:'Splice It',          desc:'Read the base, then the whole word'},
+  {id:'mark',   icon:'✏️', name:'Mark the Specimen',  desc:'Underline the base, circle the suffix'},
+  {id:'mutate', icon:'⚗️', name:'Mutation Chamber',   desc:'Prefix + base + suffix'},
+  {id:'defense',icon:'🛡️', name:'Suffix Defense',     desc:'Blast each word into the right tube'}
+];
+
+/* ================= STATE ================= */
+const S = {name:'', strands:0, done:{}, stats:{}};
+ZONES.forEach(z=>S.stats[z.id]={first:0,total:0});
+let cleanup = null, keyHandler = null, sound = true;
+
+/* ================= HELPERS ================= */
+const $ = s=>document.querySelector(s);
+const view = $('#view');
+const shuffle = a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const typeName = t=>t==='v'?'vowel':'consonant';
+function helix(html){const h=$('#helix');$('#helixText').innerHTML=html;h.classList.remove('pulse');void h.offsetWidth;h.classList.add('pulse');}
+function record(zone, firstTry){S.stats[zone].total++; if(firstTry){S.stats[zone].first++; S.strands++; $('#strands').textContent='🧬 '+S.strands;}}
+function dots(n,i){let h='<div class="dots">';for(let k=0;k<n;k++)h+=`<div class="dot ${k<i?'on':k===i?'cur':''}"></div>`;return h+'</div>';}
+function zoneHeader(z,n,i){return `<div class="zhead"><span style="font-size:30px">${z.icon}</span><h2>${z.name}</h2>${dots(n,i)}</div>`;}
+function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');}
+function stop(){ if(cleanup){cleanup();cleanup=null;} keyHandler=null; }
+document.addEventListener('keydown',e=>{ if(keyHandler) keyHandler(e); });
+
+// tiny sound effects
+let actx=null;
+function beep(kind){
+  if(!sound) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const notes = {good:[660,880],bad:[220,160],splice:[440,660,990],win:[523,659,784,1047],blast:[300,120]}[kind]||[440];
+    notes.forEach((f,i)=>{
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type = kind==='bad'||kind==='blast' ? 'square':'triangle';
+      o.frequency.value=f; g.gain.value=.08;
+      o.connect(g); g.connect(actx.destination);
+      const t=actx.currentTime+i*.09; o.start(t);
+      g.gain.exponentialRampToValueAtTime(.0001,t+.18); o.stop(t+.2);
+    });
+  }catch(e){}
+}
+$('#soundBtn').onclick=()=>{sound=!sound;$('#soundBtn').textContent=sound?'🔊':'🔇';};
+$('#mapBtn').onclick=()=>{ if(S.name) showMap(); };
+
+function teacherRow(yesLabel){
+  return `<div class="teacher"><div class="lbl">TEACHER — LISTEN, THEN TAP</div>
+    <div class="row"><button class="btn" id="tYes">✓ ${yesLabel||'Read it right'}</button>
+    <button class="btn bad" id="tNo">↺ Try again</button></div></div>`;
+}
+function sentenceChip(word){
+  return `<div class="center" style="margin-top:10px"><button class="chip" id="sent">💬 Use “${word}” in a sentence — how did the suffix change it?</button></div>`;
+}
+
+/* ================= TITLE ================= */
+function showTitle(){
+  stop();
+  helix(`Welcome to my lab! My word specimens lost their <b>endings</b>. Those endings are called <b>suffixes</b>, and I need a scientist to splice them back on.`);
+  view.innerHTML = `<div class="card titleCard">
+    <div style="font-size:64px">🧪🧬🔬</div>
+    <h1>Suffix Splice Lab</h1>
+    <p class="muted" style="font-size:20px">Wilson Substep 6.1 · Vowel &amp; consonant suffixes</p>
+    <p><input id="nm" placeholder="Scientist name" maxlength="20" autocomplete="off"></p>
+    <button class="btn" id="go">Enter the Lab →</button>
+    <p class="note">Teacher-led: in the reading zones, the student reads aloud and you tap <b>✓</b> or <b>↺</b>. Nothing is saved. First-try answers earn 🧬 strands.</p>
+  </div>`;
+  const go=()=>{S.name=($('#nm').value.trim()||'Scientist'); $('#who').textContent='🥼 '+S.name; showMap();};
+  $('#go').onclick=go;
+  $('#nm').addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  $('#nm').focus();
+}
+
+/* ================= MAP ================= */
+function showMap(){
+  stop();
+  const n = Object.keys(S.done).length;
+  helix(n===0 ? `Pick a zone, ${S.name}. I'd start with <b>Gene Sort</b>. Every suffix is either a <b>vowel</b> suffix or a <b>consonant</b> suffix.`
+       : n<ZONES.length ? `Nice work, ${S.name}! ${n} of ${ZONES.length} zones stabilized. On to the next one!`
+       : `Every zone is stabilized! Tap <b>Lab Report</b> to see your results.`);
+  view.innerHTML = `<div class="map">${ZONES.map((z,i)=>`
+    <button class="zone ${S.done[z.id]?'done':''}" data-z="${z.id}">
+      <div class="ic">${z.icon}</div>
+      <div><div class="num">ZONE ${i+1}</div><div class="nm">${z.name}</div><div class="ds">${z.desc}</div></div>
+      <div class="chk">${S.done[z.id]?'✅':''}</div>
+    </button>`).join('')}</div>
+    <div class="center" style="margin-top:18px"><button class="btn ghost" id="report">📋 Lab Report</button></div>`;
+  view.querySelectorAll('.zone').forEach(b=>b.onclick=()=>runZone(b.dataset.z));
+  $('#report').onclick=showReport;
+}
+function runZone(id){
+  stop();
+  ({sort:zoneSort,facts:zoneFacts,splice:zoneSplice,mark:zoneMark,mutate:zoneMutate,defense:zoneDefense})[id]();
+}
+function finishZone(id,msg){
+  S.done[id]=true; beep('win');
+  const z=ZONES.find(z=>z.id===id), idx=ZONES.indexOf(z), next=ZONES[idx+1];
+  const st=S.stats[id];
+  helix(msg||`Zone stabilized!`);
+  view.innerHTML = `<div class="card center pop">
+    <div style="font-size:60px">${z.icon}✅</div>
+    <h2>${z.name} — stabilized!</h2>
+    ${st.total?`<p style="font-size:22px">First try: <b>${st.first} / ${st.total}</b></p>`:''}
+    <div class="row">${next?`<button class="btn" id="nx">Next: ${next.name} →</button>`:`<button class="btn" id="nx">📋 Lab Report</button>`}
+    <button class="btn ghost" id="mp">🗺️ Map</button></div></div>`;
+  $('#nx').onclick=()=> next?runZone(next.id):showReport();
+  $('#mp').onclick=showMap;
+}
+
+/* ================= ZONE 1: SORT ================= */
+function zoneSort(){
+  const z=ZONES[0];
+  const queue=[...SORT_REVIEW.map(s=>({s,phase:'review'})), ...shuffle(SORT_NEW).map(s=>({s,phase:'new'}))];
+  let i=0, first=true;
+  helix(`Two tubes. <b>Vowel suffixes</b> begin with a vowel. <b>Consonant suffixes</b> begin with a consonant. First, sort the suffixes you already know.`);
+  view.innerHTML = `${zoneHeader(z,queue.length,0)}
+   <div class="sortWrap">
+     <div class="tube" id="tv"><div class="tubeLabel">Vowel suffixes<small>begin with a vowel</small></div><div class="tubeFill" id="fv"></div></div>
+     <div class="sortCenter">
+       <div id="cur"></div>
+       <div class="row"><button class="choice v" data-t="v">◀ Vowel</button><button class="choice c" data-t="c">Consonant ▶</button></div>
+       <div class="keys">Keys: ← vowel · → consonant</div>
+     </div>
+     <div class="tube" id="tc"><div class="tubeLabel">Consonant suffixes<small>begin with a consonant</small></div><div class="tubeFill" id="fc"></div></div>
+   </div>`;
+  const draw=()=>{
+    const it=queue[i];
+    $('#cur').innerHTML=`<span class="tile pop">-${it.s}</span>`;
+    view.querySelector('.dots').outerHTML=dots(queue.length,i);
+    first=true;
+  };
+  const answer=t=>{
+    const it=queue[i], right=SUF_TYPE[it.s];
+    if(t===right){
+      beep('good'); record('sort',first);
+      $(right==='v'?'#fv':'#fc').insertAdjacentHTML('beforeend',`<span class="tile sm pop">-${it.s}</span>`);
+      i++;
+      if(i===SORT_REVIEW.length) helix(`Now the <b>13 new</b> Substep 6.1 suffixes are arriving! Look at the first letter after the dash.`);
+      else if(it.phase==='new' && right==='v' && it.s==='y') helix(`Yes! <b>-y</b> is a vowel suffix. As a suffix, y says /ē/.`);
+      if(i>=queue.length){ setTimeout(()=>finishZone('sort',`Every suffix is in its tube! Vowel suffixes start with a vowel, consonant suffixes start with a consonant.`),500); return; }
+      draw();
+    } else {
+      beep('bad'); first=false; shake($('#cur'));
+      if(it.s==='y') helix(`Tricky! As a suffix, <b>y</b> acts like a vowel. It says /ē/, so it goes in the <b>vowel</b> tube.`);
+      else helix(`Look at the first letter after the dash: <b>${it.s[0]}</b>. Is that a vowel or a consonant?`);
+    }
+  };
+  view.querySelectorAll('.choice').forEach(b=>b.onclick=()=>answer(b.dataset.t));
+  keyHandler=e=>{ if(e.key==='ArrowLeft')answer('v'); if(e.key==='ArrowRight')answer('c'); };
+  draw();
+}
+
+/* ================= ZONE 2: FACTS ================= */
+function zoneFacts(){
+  const z=ZONES[1];
+  let fi=0, qi=0, first=true;
+  const total=FACTS.length;
+  const showFact=()=>{
+    const f=FACTS[fi];
+    helix(`Gene fact #${fi+1}: ${f.title}. Read it with me.`);
+    view.innerHTML=`${zoneHeader(z,total,fi)}<div class="card fact pop">
+      <div class="big">${f.title}</div><p>${f.fact}</p>
+      <button class="btn" id="ok">Got it — test me</button></div>`;
+    $('#ok').onclick=()=>{qi=0;showQ();};
+  };
+  const showQ=()=>{
+    const f=FACTS[fi], q=f.qs[qi]; first=true;
+    view.innerHTML=`${zoneHeader(z,total,fi)}<div class="card fact pop">
+      <div class="muted">${f.title}</div><div class="big">${q.q}</div>
+      <div class="opts">${shuffle(q.o).map(o=>`<button class="opt" data-o="${o}">${o}</button>`).join('')}</div></div>`;
+    view.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(b.dataset.o===q.a){
+        b.classList.add('right'); beep('good'); record('facts',first);
+        helix(first?`Correct! ${q.why}`:`That's it. ${q.why}`);
+        setTimeout(()=>{ qi++; if(qi<f.qs.length) showQ(); else { fi++; fi<total?showFact():finishZone('facts',`You know the tricky genes: -ful has one l, -able says /ə bl/, -y says /ē/, and -less and -ness get a bonus s.`);} },1100);
+      } else { b.classList.add('wrong'); beep('bad'); first=false; shake(b); helix(`Not quite. ${q.why} Try again!`); }
+    });
+  };
+  showFact();
+}
+
+/* ================= ZONE 3: SPLICE ================= */
+function zoneSplice(){
+  const z=ZONES[2];
+  let i=0, step=0, first=true;
+  const draw=()=>{
+    const [base,suf]=SPLICE[i]; const word=base+suf;
+    view.innerHTML=`${zoneHeader(z,SPLICE.length,i)}<div class="card">
+      <div class="build" id="build"><span class="basecard pop">${base}</span></div>
+      <div class="prompt" id="pr"></div>
+      ${teacherRow()}
+      <div id="sentWrap"></div></div>`;
+    step=0; first=true;
+    setPrompt();
+    $('#tYes').onclick=yes; $('#tNo').onclick=no;
+  };
+  const setPrompt=()=>{
+    const [base,suf]=SPLICE[i];
+    if(step===0){
+      $('#pr').innerHTML=`Read the <b>base word</b>.`;
+      helix(i===0?`Here's how splicing works: read the <b>base word</b> first. Then I add the suffix and you read the whole word.`:`Read the base word.`);
+    } else {
+      $('#pr').innerHTML=`Read the base, then the whole word: <b>${base}… ${base+suf}</b>`;
+      helix(`Suffix <b>-${suf}</b> spliced on! It's a <b>${typeName(SUF_TYPE[suf])}</b> suffix. Read “${base}”, then “${base+suf}”.`);
+    }
+  };
+  const yes=()=>{
+    const [base,suf]=SPLICE[i];
+    if(step===0){
+      step=1; beep('splice');
+      $('#build').insertAdjacentHTML('beforeend',`<span class="tile flyin">-${suf}</span>`);
+      setPrompt();
+    } else {
+      beep('good'); record('splice',first);
+      $('#build').innerHTML=`<span class="basecard pop">${base}<span style="background:var(--tile);border-radius:8px;padding:0 .1em">${suf}</span></span>`;
+      $('#pr').innerHTML=`🧬 <b>${base+suf}</b> stabilized!`;
+      $('#sentWrap').innerHTML=sentenceChip(base+suf)+`<div class="center" style="margin-top:12px"><button class="btn" id="nx">Next specimen →</button></div>`;
+      $('#sent').onclick=()=>helix(`Use <b>${base+suf}</b> in a sentence. What does <b>-${suf}</b> add to the meaning of “${base}”?`);
+      $('#tYes').disabled=$('#tNo').disabled=true;
+      $('#nx').onclick=next; $('#nx').focus();
+    }
+  };
+  const no=()=>{
+    beep('bad'); first=false; shake($('#build'));
+    helix(step===0?`Look at each sound in the base word, then try again.`
+                  :`Cover the suffix with your finger. Read the base word, then slide your finger off and read the whole word.`);
+  };
+  const next=()=>{ i++; i<SPLICE.length?draw():finishZone('splice',`${SPLICE.length} specimens spliced! Base word first, then the whole word.`); };
+  keyHandler=e=>{ if(e.key==='Enter'){ const n=$('#nx'); if(n) next(); else if(!$('#tYes').disabled) yes(); } };
+  draw();
+}
+
+/* ================= marking helpers ================= */
+function lettersHTML(word){return `<div class="letters">${[...word].map((ch,k)=>`<button class="lt" data-k="${k}">${ch}</button>`).join('')}</div>`;}
+function markedHTML(pre,base,suf){
+  return `<span class="marked pop">${pre?`<span class="mk-aff">${pre}</span>`:''}<span class="mk-base">${base}</span><span class="mk-aff">${suf}</span></span>`;
+}
+
+/* ================= ZONE 4: MARK ================= */
+function zoneMark(){
+  const z=ZONES[3]; const items=shuffle(MARK);
+  let i=0, first=true;
+  const draw=()=>{
+    const [base,suf]=items[i]; first=true;
+    view.innerHTML=`${zoneHeader(z,items.length,i)}<div class="card">
+      <div class="prompt">Tap the letter where the <b>suffix</b> begins.</div>
+      <div class="slide" id="sl">${lettersHTML(base+suf)}</div>
+      <div id="after"></div></div>`;
+    helix(i===0?`Find the <b>base word</b> first. That's the real word without the ending. The suffix starts right after it.`:`Where does the suffix begin?`);
+    view.querySelectorAll('.lt').forEach(b=>b.onclick=()=>tap(+b.dataset.k,b));
+  };
+  const tap=(k,b)=>{
+    const [base,suf]=items[i];
+    if(k===base.length){
+      beep('good');
+      $('#sl').innerHTML=markedHTML('',base,suf);
+      helix(`Base word underlined, suffix circled! Now, is <b>-${suf}</b> a vowel or consonant suffix?`);
+      $('#after').innerHTML=`<div class="row" style="margin-top:14px"><button class="choice v" data-t="v">Vowel</button><button class="choice c" data-t="c">Consonant</button></div>`;
+      view.querySelectorAll('#after .choice').forEach(c=>c.onclick=()=>typeQ(c.dataset.t,c));
+    } else {
+      beep('bad'); first=false; shake(b);
+      helix(k<base.length?`That letter is still part of the base word. What real word do you see before the ending?`
+                          :`Close! The suffix starts a little earlier. Check the base word again.`);
+    }
+  };
+  const typeQ=(t,c)=>{
+    const [base,suf]=items[i];
+    if(t===SUF_TYPE[suf]){
+      beep('good'); record('mark',first);
+      helix(`Yes! <b>-${suf}</b> begins with ${typeName(t)==='vowel'?'a vowel':'a consonant'}.`);
+      setTimeout(()=>{ i++; i<items.length?draw():finishZone('mark',`Every specimen marked! Underline the base word, circle the suffix.`); },900);
+    } else { beep('bad'); first=false; shake(c); helix(`Look at the first letter of the suffix: <b>${suf[0]}</b>.`); }
+  };
+  keyHandler=e=>{ if(!$('#after')||!$('#after').innerHTML) return; if(e.key==='ArrowLeft')$('#after .v').click(); if(e.key==='ArrowRight')$('#after .c').click(); };
+  draw();
+}
+
+/* ================= ZONE 5: MUTATE ================= */
+function zoneMutate(){
+  const z=ZONES[4];
+  let i=0, step=0, first=true;
+  const draw=()=>{
+    const [pre,base,suf]=MUTATE[i]; step=0; first=true;
+    view.innerHTML=`${zoneHeader(z,MUTATE.length,i)}<div class="card">
+      <div class="build" id="build"><span class="basecard pop">${base}</span><span class="tile pop">-${suf}</span></div>
+      <div class="prompt" id="pr"></div>
+      <div id="ctrl">${teacherRow()}</div></div>`;
+    setPrompt(); wire();
+  };
+  const wire=()=>{ $('#tYes').onclick=yes; $('#tNo').onclick=no; };
+  const setPrompt=()=>{
+    const [pre,base,suf]=MUTATE[i];
+    if(step===0){
+      $('#pr').innerHTML=`Read it without the suffix, then with it: <b>${base}… ${base+suf}</b>`;
+      helix(i===0?`Mutation time! Some words get a <b>prefix</b> at the front <i>and</i> a suffix at the end. First, read the word you know.`:`Read the base word, then add the suffix.`);
+    } else {
+      $('#pr').innerHTML=`Read without the suffix, then the whole word: <b>${pre+base}… ${pre+base+suf}</b>`;
+      helix(`Prefix <b>${pre}-</b> attached! Scoop the syllables from left to right. Read it without the suffix, then the whole word.`);
+    }
+  };
+  const yes=()=>{
+    const [pre,base,suf]=MUTATE[i];
+    if(step===0){
+      step=1; beep('splice');
+      $('#build').insertAdjacentHTML('afterbegin',`<span class="tile flyleft">${pre}-</span>`);
+      setPrompt();
+    } else {
+      beep('good'); step=2;
+      const word=pre+base+suf;
+      $('#build').innerHTML=`<div class="slide" id="sl" style="margin:0">${lettersHTML(word)}</div>`;
+      $('#pr').innerHTML=`Mark it! Tap the letter where the <b>base word</b> begins.`;
+      $('#ctrl').innerHTML='';
+      helix(`Now mark the specimen. Where does the <b>base word</b> begin?`);
+      markStep(0);
+    }
+  };
+  const no=()=>{
+    const [pre,base,suf]=MUTATE[i];
+    beep('bad'); first=false; shake($('#build'));
+    helix(step===0?`Read “${base}” first, then add the ending.`:`Use your finger to scoop each part: <b>${pre}</b> + <b>${base}</b>, then add <b>${suf}</b>.`);
+  };
+  const markStep=(phase)=>{
+    const [pre,base,suf]=MUTATE[i];
+    const target= phase===0 ? pre.length : pre.length+base.length;
+    view.querySelectorAll('.lt').forEach(b=>b.onclick=()=>{
+      const k=+b.dataset.k;
+      if(k===target){
+        beep('good');
+        if(phase===0){
+          for(let j=0;j<pre.length;j++) view.querySelector(`.lt[data-k="${j}"]`).classList.add('picked');
+          $('#pr').innerHTML=`Now tap the letter where the <b>suffix</b> begins.`;
+          helix(`Prefix found! Now, where does the <b>suffix</b> begin?`);
+          markStep(1);
+        } else {
+          record('mutate',first);
+          $('#sl').innerHTML=markedHTML(pre,base,suf);
+          $('#pr').innerHTML=`🧬 <b>${pre+base+suf}</b>: prefix circled, base underlined, suffix circled.`;
+          helix(`Perfect specimen! <b>${pre}-</b> + <b>${base}</b> + <b>-${suf}</b>.`);
+          $('#ctrl').innerHTML=sentenceChip(pre+base+suf)+`<div class="center" style="margin-top:12px"><button class="btn" id="nx">Next mutation →</button></div>`;
+          $('#sent').onclick=()=>helix(`Use <b>${pre+base+suf}</b> in a sentence. How does <b>${pre}-</b> change the meaning?`);
+          $('#nx').onclick=next; $('#nx').focus();
+        }
+      } else {
+        beep('bad'); first=false; shake(b);
+        helix(phase===0?`Look for the prefix at the front. The base word starts right after it.`:`Find the end of the base word “${base}”. The suffix starts right after it.`);
+      }
+    });
+  };
+  const next=()=>{ i++; i<MUTATE.length?draw():finishZone('mutate',`All mutations complete! Prefix + base + suffix: you can read long words one part at a time.`); };
+  keyHandler=e=>{ if(e.key!=='Enter')return; if($('#nx')) next(); else if($('#tYes')) yes(); };
+  draw();
+}
+
+/* ================= ZONE 6: DEFENSE ================= */
+function zoneDefense(){
+  const z=ZONES[5];
+  let queue=shuffle(DEFENSE_POOL).slice(0,16), done=0, shields=3, cur=null, raf=null, start=0, dur=9000, busy=false, first=true;
+  const total=queue.length;
+  helix(`Words are falling into the lab! Look at the suffix and fire the right cannon: <b>Vowel</b> or <b>Consonant</b>. Accuracy keeps your shields up!`);
+  view.innerHTML=`<div class="zhead"><span style="font-size:30px">${z.icon}</span><h2>${z.name}</h2>
+      <div class="pill" id="prog">0 / ${total}</div><div class="shields" id="sh"></div></div>
+    <div class="arena" id="ar"><div class="ground"></div></div>
+    <div class="cannons"><button class="choice v" data-t="v">◀ Vowel cannon</button><button class="choice c" data-t="c">Consonant cannon ▶</button></div>
+    <div class="keys">Keys: ← vowel · → consonant</div>`;
+  const ar=$('#ar');
+  const drawShields=()=>$('#sh').textContent='🛡️'.repeat(shields)+'▫️'.repeat(3-shields);
+  const launch=()=>{
+    if(!queue.length){ win(); return; }
+    cur=queue.shift(); first=true; busy=false;
+    const el=document.createElement('div'); el.className='faller'; el.textContent=cur[0]+cur[1];
+    ar.appendChild(el); cur.el=el; start=0;
+    const h=ar.clientHeight-el.offsetHeight-12;
+    const frame=ts=>{
+      if(!start) start=ts;
+      const p=(ts-start)/dur;
+      el.style.top=(p*h)+'px';
+      if(p>=1){ miss('landed'); return; }
+      raf=requestAnimationFrame(frame);
+    };
+    raf=requestAnimationFrame(frame);
+  };
+  const flash=(html,ms)=>{ const f=document.createElement('div'); f.className='flash pop'; f.innerHTML=html; ar.appendChild(f); setTimeout(()=>f.remove(),ms); };
+  const fire=t=>{
+    if(!cur||busy) return;
+    const suf=cur[1];
+    if(t===SUF_TYPE[suf]){
+      busy=true; cancelAnimationFrame(raf); beep('blast'); record('defense',first);
+      const top=cur.el.offsetTop+cur.el.offsetHeight/2;
+      cur.el.remove();
+      const b=document.createElement('div'); b.className='blast'; b.style.top=top+'px'; b.textContent='💥'; ar.appendChild(b); setTimeout(()=>b.remove(),600);
+      flash(`<span style="text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:6px">${cur[0]}</span> <span style="border:3px solid var(--tile);border-radius:999px;padding:0 .2em">${suf}</span><div style="font-size:16px;font-weight:400">${typeName(t)} suffix</div>`,1100);
+      done++; $('#prog').textContent=`${done} / ${total}`;
+      dur=Math.max(5200,dur-250);
+      setTimeout(launch,1150);
+    } else {
+      miss('wrong');
+    }
+  };
+  const miss=why=>{
+    busy=true; cancelAnimationFrame(raf); beep('bad');
+    const suf=cur[1];
+    shields--; drawShields(); shake(ar);
+    if(cur.el) cur.el.remove();
+    flash(`${cur[0]}<span style="color:var(--tile)">${suf}</span><div style="font-size:18px;font-weight:400">-${suf} is a <b>${typeName(SUF_TYPE[suf])}</b> suffix</div>`,1600);
+    helix(why==='landed'?`That one landed! <b>-${suf}</b> begins with <b>${suf[0]}</b>. It'll come back, so watch for it.`
+                        :`Shield hit! <b>-${suf}</b> begins with <b>${suf[0]}</b>. That makes it a <b>${typeName(SUF_TYPE[suf])}</b> suffix. It'll come back.`);
+    queue.splice(Math.min(2,queue.length),0,[cur[0],cur[1]]); // re-queue soon
+    if(shields<=0){ setTimeout(lose,1600); return; }
+    setTimeout(launch,1700);
+  };
+  const win=()=>{ cur=null; finishZone('defense',`The lab is safe! You blasted every word into the right tube. Excellent work, ${S.name}!`); };
+  const lose=()=>{
+    cur=null;
+    helix(`Shields down, but you blasted <b>${done}</b> words! Let's recharge and finish the job.`);
+    view.innerHTML=`<div class="card center pop"><div style="font-size:60px">🔋</div><h2>Shields recharging…</h2>
+      <p style="font-size:22px">You blasted <b>${done}</b> of ${total} words.</p>
+      <div class="row"><button class="btn" id="again">Recharge &amp; try again</button><button class="btn ghost" id="mp">🗺️ Map</button></div></div>`;
+    $('#again').onclick=()=>runZone('defense'); $('#mp').onclick=showMap;
+  };
+  view.querySelectorAll('.cannons .choice').forEach(b=>b.onclick=()=>fire(b.dataset.t));
+  keyHandler=e=>{ if(e.key==='ArrowLeft')fire('v'); if(e.key==='ArrowRight')fire('c'); };
+  cleanup=()=>cancelAnimationFrame(raf);
+  drawShields();
+  setTimeout(launch,1200);
+}
+
+/* ================= REPORT ================= */
+function showReport(){
+  stop();
+  const tf=ZONES.reduce((a,z)=>a+S.stats[z.id].first,0), tt=ZONES.reduce((a,z)=>a+S.stats[z.id].total,0);
+  helix(`Here's your lab report, ${S.name}. Every 🧬 strand was a first-try answer.`);
+  view.innerHTML=`<div class="card pop">
+    <h2 class="center">📋 Lab Report — ${S.name}</h2>
+    <p class="center muted">${new Date().toLocaleDateString()} · WRS Substep 6.1 intro</p>
+    <div class="stats">${ZONES.map(z=>{const s=S.stats[z.id];return `<div class="stat">
+      <div>${z.icon} ${z.name} ${S.done[z.id]?'✅':''}</div>
+      <div class="v">${s.total?`${s.first}/${s.total}`:'—'}</div><div class="muted" style="font-size:14px">first try</div></div>`;}).join('')}</div>
+    <p class="center" style="font-size:24px">Total: <b>🧬 ${tf}</b>${tt?` of ${tt} on the first try (${Math.round(tf/tt*100)}%)`:''}</p>
+    <div class="row"><button class="btn ghost" id="mp">🗺️ Back to Map</button></div></div>`;
+  $('#mp').onclick=showMap;
+}
+
+showTitle();
+</script>
+</body>
+</html>
