@@ -237,6 +237,7 @@ const ZONES = [
   {id:'defense',icon:'🛡️', name:'Suffix Defense',     desc:'Blast each word into the right tube'}
 ];
 
+const WD_URL = 'https://imjusterin2u.github.io/WRS-word-defense/?subs=6.1';
 /* ================= STATE ================= */
 const S = {name:'', strands:0, done:{}, stats:{}};
 ZONES.forEach(z=>S.stats[z.id]={first:0,total:0});
@@ -315,7 +316,8 @@ function showMap(){
       <div><div class="num">ZONE ${i+1}</div><div class="nm">${z.name}</div><div class="ds">${z.desc}</div></div>
       <div class="chk">${S.done[z.id]?'✅':''}</div>
     </button>`).join('')}</div>
-    <div class="center" style="margin-top:18px"><button class="btn ghost" id="report">📋 Lab Report</button></div>`;
+    <div class="center" style="margin-top:18px"><button class="btn ghost" id="report">📋 Lab Report</button>
+    <a class="btn ghost" href="${WD_URL}" style="text-decoration:none;display:inline-block">🚀 Word Defense: 6.1</a></div>`;
   view.querySelectorAll('.zone').forEach(b=>b.onclick=()=>runZone(b.dataset.z));
   $('#report').onclick=showReport;
 }
@@ -667,7 +669,7 @@ function showReport(){
       <div>${z.icon} ${z.name} ${S.done[z.id]?'✅':''}</div>
       <div class="v">${s.total?`${s.first}/${s.total}`:'—'}</div><div class="muted" style="font-size:14px">first try</div></div>`;}).join('')}</div>
     <p class="center" style="font-size:24px">Total: <b>🧬 ${tf}</b>${tt?` of ${tt} on the first try (${Math.round(tf/tt*100)}%)`:''}</p>
-    <div class="row"><button class="btn ghost" id="mp">🗺️ Back to Map</button></div></div>`;
+    <div class="row"><a class="btn" href="${WD_URL}" style="text-decoration:none">🚀 Play Word Defense: 6.1</a><button class="btn ghost" id="mp">🗺️ Back to Map</button></div></div>`;
   $('#mp').onclick=showMap;
 }
 
